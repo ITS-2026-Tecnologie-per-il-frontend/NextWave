@@ -12,6 +12,17 @@ npm start
 
 Apri http://127.0.0.1:4173. Per i controlli automatici: `npm test`.
 
+## Pubblicazione su GitHub Pages
+
+Il repository include un workflow GitHub Actions in `.github/workflows/deploy-pages.yml`.
+Per pubblicare il sito:
+
+1. Carica la cartella `VIBE-PULSE` in un repository GitHub.
+2. In **Settings > Pages**, imposta **Source** su **GitHub Actions**.
+3. Esegui un push sul branch `main` oppure avvia manualmente il workflow dalla scheda **Actions**.
+
+Il workflow controlla i test, verifica la sintassi dei file JavaScript e pubblica direttamente `dist`, senza modificare il comportamento dell'applicazione. Il routing a hash e i percorsi relativi rendono il sito compatibile anche con gli URL dei project pages.
+
 ## Percorso di prova
 
 1. Completa l’onboarding e collega Spotify simulato, oppure continua senza.
