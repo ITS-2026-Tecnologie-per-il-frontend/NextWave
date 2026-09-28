@@ -26,12 +26,16 @@ Il workflow controlla i test, verifica la sintassi dei file JavaScript e pubblic
 ## Percorso di prova
 
 1. Completa l’onboarding e collega Spotify simulato, oppure continua senza.
-2. Scegli i generi e ascolta fino alla fine tutti e cinque gli estratti di 12 secondi.
+2. Scegli i generi e avvia tutti e cinque gli estratti di 12 secondi: ogni ascolto conta appena parte la riproduzione, anche se passi subito al successivo.
 3. Vota un solo brano e conferma nel dialogo. Il voto resta salvato ricaricando la pagina.
-4. Usa “Prova il reveal” per simulare le 21:00, quindi salva le scoperte.
+4. Usa “Prova il reveal” per vedere il popup con la classifica dei tuoi cinque brani, quindi salva le scoperte. Dopo il reveal puoi riaprirlo con “Rivedi la classifica”.
 5. Consulta classifiche giornaliere e settimanali per genere.
 6. Prova la candidatura artista: sono ammessi da 0 a 9.999 ascoltatori, link Spotify a un brano, genere, lingua, sottogenere, mood e dichiarazione dei diritti.
-7. Modifica il profilo: i nuovi generi si applicano dal giorno seguente.
+7. Apri il profilo anche dall’icona utente in basso a sinistra; clicca sul logo Vibe Pulse per tornare ai cinque brani. Modifica il profilo: i nuovi generi si applicano dal giorno seguente.
+
+## Colori del profilo
+
+In **Il tuo profilo → Il tuo stile** puoi scegliere tra cinque palette: Neon Pulse (lime e viola), Midnight Trap (lilla e fucsia), Ocean House (ciano e azzurro), Sunset Pop (pesca e rosa) e Golden Jazz (oro e crema). La scelta aggiorna subito tutta l’interfaccia e viene salvata su questo browser, senza cambiare gusti musicali, selezione giornaliera o voto. Il tema iniziale è Neon Pulse.
 
 ## Generi disponibili
 
@@ -41,10 +45,11 @@ Indie, Pop, Hip hop, Elettronica, R&B, Trap, Rap, Drill, Rock, Dance, House, Tec
 
 - Il pitch più recente prevede una selezione personale, non una selezione identica per tutti: la demo segue il pitch.
 - Cinque candidati unici nel bacino dei generi scelti, estrazione casuale deterministica per giorno e profilo, pesata inversamente alle esposizioni. La selezione è conservata fino al cambio giorno.
-- Un ascolto si completa solo a fine estratto. Un solo voto per profilo/browser/giorno, dopo tutti e cinque gli ascolti e prima delle 21:00 Europe/Rome.
+- Un ascolto viene registrato al primo avvio effettivo della riproduzione; pausa e ripetizioni non lo duplicano. Un audio che non parte non viene conteggiato. Un solo voto per profilo/browser/giorno, dopo tutti e cinque gli ascolti e prima delle 21:00 Europe/Rome.
 - Reveal delle identità alle 21:00, con gestione dell’ora legale e cambio selezione a mezzanotte. Il pulsante di prova cambia solo la presentazione, senza alterare l’orologio.
+- Il popup del reveal mostra tutti i cinque artisti della selezione, ordinati per punteggio, e mette in evidenza il primo e il voto dell’utente. Si apre una volta per il contest più recente concluso, anche rientrando il giorno dopo; il reveal di prova non segna il risultato reale come già visto.
 - Classifiche separate per genere: voti/esposizioni. Le settimanali aggregano sette giorni e mostrano l’ultima settimana conclusa domenica alle 21:00. Prima del reveal si mostra la giornata precedente.
-- I risultati sono dati demo riproducibili. Nella classifica giornaliera corrente le esposizioni della selezione e il voto locale si sommano ai dati dimostrativi.
+- I risultati sono dati demo riproducibili. Nella classifica giornaliera e nel popup le esposizioni della selezione e il voto locale si sommano ai dati dimostrativi.
 
 ## Confini della demo
 
