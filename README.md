@@ -22,6 +22,10 @@ Apri http://127.0.0.1:4173. Per i controlli automatici: `npm test`.
 6. Prova la candidatura artista: sono ammessi da 0 a 9.999 ascoltatori, link Spotify a un brano, genere, lingua, sottogenere, mood e dichiarazione dei diritti.
 7. Modifica il profilo: i nuovi generi si applicano dal giorno seguente.
 
+## Generi disponibili
+
+Indie, Pop, Hip hop, Elettronica, R&B, Trap, Rap, Drill, Rock, Dance, House, Techno, Reggaeton, Afrobeat e Jazz. Lo stesso elenco è disponibile nella scelta iniziale, nel profilo, nei filtri delle classifiche e nella candidatura artista. Ogni genere ha cinque candidati demo.
+
 ## Regole
 
 - Il pitch più recente prevede una selezione personale, non una selezione identica per tutti: la demo segue il pitch.
@@ -33,7 +37,7 @@ Apri http://127.0.0.1:4173. Per i controlli automatici: `npm test`.
 
 ## Confini della demo
 
-Spotify non è collegato realmente. Gli artisti sono inventati e gli audio sono cinque composizioni strumentali sintetiche originali; i 25 candidati riutilizzano questi cinque estratti, assegnati ai cinque slot della selezione per evitare ripetizioni nella stessa sessione. I link del reveal aprono una ricerca per genere su Spotify, non un brano inesistente.
+Spotify non è collegato realmente. Gli artisti sono inventati e gli audio sono cinque composizioni strumentali sintetiche originali; i 75 candidati riutilizzano questi cinque estratti, assegnati ai cinque slot della selezione per evitare ripetizioni nella stessa sessione. Gli audio sono segnaposto e non rappresentano fedelmente tutti i generi selezionabili. I link del reveal aprono una ricerca per genere su Spotify, non un brano inesistente.
 
 Profilo, ascolti, voto, preferiti e candidature sono conservati in localStorage, su questo browser. Non esistono account reali, sincronizzazione fra dispositivi o database condiviso. Il vincolo di voto è applicativo e non un sistema antiabuso: cancellare i dati del browser può aggirarlo. Le identità fanno parte dei dati JavaScript della demo, quindi l’anonimato è visivo, non garantito contro l’ispezione del codice.
 
