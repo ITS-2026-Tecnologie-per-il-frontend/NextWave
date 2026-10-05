@@ -1,5 +1,8 @@
 # Vibe Pulse
 
+
+APRI IL PROGETTO CON QUESO LINK: https://next-wave-awh7yke4j-next-wave11.vercel.app/
+
 App React per scoprire artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
 
 ## Avvio
