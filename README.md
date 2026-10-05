@@ -1,74 +1,65 @@
 # Vibe Pulse
 
-Web app dimostrativa completa, realizzata sul pitch fornito. Interfaccia in italiano, dark neon, desktop e mobile. Nessuna dipendenza da installare.
+Frontend React per la scoperta di artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
 
-## Avvio su macOS
+## Avvio
 
-Con Node.js installato, apri Terminale nella cartella `vibe-pulse` ed esegui:
+Richiede Node.js 22.12 o successivo (oppure 20.19 o successivo).
 
 ```sh
+npm ci
 npm start
 ```
 
-Apri http://127.0.0.1:4173. Per i controlli automatici: `npm test`.
+Apri http://127.0.0.1:4173. Lo sviluppo usa Vite: non occorre servire i sorgenti JSX attraverso Apache/XAMPP.
 
-## Pubblicazione su GitHub Pages
+```sh
+npm test
+npm run build
+npm run preview
+npm run format:check
+```
 
-Il repository include un workflow GitHub Actions in `.github/workflows/deploy-pages.yml`.
-Per pubblicare il sito:
+`npm run build` genera `dist/`; `npm run preview` permette di provare la versione compilata. Il deploy automatico su GitHub Pages è stato rimosso dal repository. Eventuali impostazioni Pages o pubblicazioni già presenti su GitHub vanno disattivate nel repository remoto: questa modifica locale non le cambia.
 
-1. Carica la cartella `VIBE-PULSE` in un repository GitHub.
-2. In **Settings > Pages**, imposta **Source** su **GitHub Actions**.
-3. Esegui un push sul branch `main` oppure avvia manualmente il workflow dalla scheda **Actions**.
+## Regole di ascolto
 
-Il workflow controlla i test, verifica la sintassi dei file JavaScript e pubblica direttamente `dist`, senza modificare il comportamento dell'applicazione. Il routing a hash e i percorsi relativi rendono il sito compatibile anche con gli URL dei project pages.
+- I cinque brani si ascoltano in ordine. All’inizio è disponibile solo il primo.
+- Il successivo si sblocca alla fine naturale dell’audio, dopo averne riprodotto l’intera durata. Premere play, mettere in pausa o saltare alla fine non registra un completamento.
+- Si può mettere in pausa e riprendere, oppure riascoltare i brani già completati.
+- Il player mostra la durata effettiva del file. Gli audio demo attuali durano circa 12 secondi: il controllo copre tutto il file disponibile, non un brano commerciale completo. Per il prodotto reale occorrono i file completi autorizzati.
+- Il voto si sblocca dopo cinque completamenti. È unico per profilo/browser/giorno e si chiude alle 21:00 Europe/Rome.
+- I completamenti vengono conservati tra ricaricamenti. Un ascolto parziale riparte dall’inizio dopo un ricaricamento.
+- Il cambio giorno ferma il player e genera una nuova selezione. I gusti modificati valgono per la selezione successiva.
+- Il reveal di prova cambia solo la presentazione: non sblocca audio o voti.
 
-## Percorso di prova
+## Funzioni mantenute
 
-1. Completa l’onboarding e collega Spotify simulato, oppure continua senza.
-2. Scegli i generi e avvia tutti e cinque gli estratti di 12 secondi: ogni ascolto conta appena parte la riproduzione, anche se passi subito al successivo.
-3. Vota un solo brano e conferma nel dialogo. Il voto resta salvato ricaricando la pagina.
-4. Usa “Prova il reveal” per vedere il popup con la classifica dei tuoi cinque brani, quindi salva le scoperte. Dopo il reveal puoi riaprirlo con “Rivedi la classifica”.
-5. Consulta classifiche giornaliere e settimanali per genere.
-6. Prova la candidatura artista: sono ammessi da 0 a 9.999 ascoltatori, link Spotify a un brano, genere, lingua, sottogenere, mood e dichiarazione dei diritti.
-7. Apri il profilo anche dall’icona utente in basso a sinistra; clicca sul logo Vibe Pulse per tornare ai cinque brani. Modifica il profilo: i nuovi generi si applicano dal giorno seguente.
-
-## Colori del profilo
-
-In **Il tuo profilo → Il tuo stile** puoi scegliere tra cinque palette: Neon Pulse (lime e viola), Midnight Trap (lilla e fucsia), Ocean House (ciano e azzurro), Sunset Pop (pesca e rosa) e Golden Jazz (oro e crema). La scelta aggiorna subito tutta l’interfaccia e viene salvata su questo browser, senza cambiare gusti musicali, selezione giornaliera o voto. Il tema iniziale è Neon Pulse.
-
-## Generi disponibili
-
-Indie, Pop, Hip hop, Elettronica, R&B, Trap, Rap, Drill, Rock, Dance, House, Techno, Reggaeton, Afrobeat e Jazz. Lo stesso elenco è disponibile nella scelta iniziale, nel profilo, nei filtri delle classifiche e nella candidatura artista. Ogni genere ha cinque candidati demo.
-
-## Regole
-
-- Il pitch più recente prevede una selezione personale, non una selezione identica per tutti: la demo segue il pitch.
-- Cinque candidati unici nel bacino dei generi scelti, estrazione casuale deterministica per giorno e profilo, pesata inversamente alle esposizioni. La selezione è conservata fino al cambio giorno.
-- Un ascolto viene registrato al primo avvio effettivo della riproduzione; pausa e ripetizioni non lo duplicano. Un audio che non parte non viene conteggiato. Un solo voto per profilo/browser/giorno, dopo tutti e cinque gli ascolti e prima delle 21:00 Europe/Rome.
-- Reveal delle identità alle 21:00, con gestione dell’ora legale e cambio selezione a mezzanotte. Il pulsante di prova cambia solo la presentazione, senza alterare l’orologio.
-- Il popup del reveal mostra tutti i cinque artisti della selezione, ordinati per punteggio, e mette in evidenza il primo e il voto dell’utente. Si apre una volta per il contest più recente concluso, anche rientrando il giorno dopo; il reveal di prova non segna il risultato reale come già visto.
-- Classifiche separate per genere: voti/esposizioni. Le settimanali aggregano sette giorni e mostrano l’ultima settimana conclusa domenica alle 21:00. Prima del reveal si mostra la giornata precedente.
-- I risultati sono dati demo riproducibili. Nella classifica giornaliera e nel popup le esposizioni della selezione e il voto locale si sommano ai dati dimostrativi.
-
-## Confini della demo
-
-Spotify non è collegato realmente. Gli artisti sono inventati e gli audio sono cinque composizioni strumentali sintetiche originali; i 75 candidati riutilizzano questi cinque estratti, assegnati ai cinque slot della selezione per evitare ripetizioni nella stessa sessione. Gli audio sono segnaposto e non rappresentano fedelmente tutti i generi selezionabili. I link del reveal aprono una ricerca per genere su Spotify, non un brano inesistente.
-
-Profilo, ascolti, voto, preferiti e candidature sono conservati in localStorage, su questo browser. Non esistono account reali, sincronizzazione fra dispositivi o database condiviso. Il vincolo di voto è applicativo e non un sistema antiabuso: cancellare i dati del browser può aggirarlo. Le identità fanno parte dei dati JavaScript della demo, quindi l’anonimato è visivo, non garantito contro l’ispezione del codice.
-
-Le candidature demo restano “da verificare” e non entrano automaticamente nella selezione: mancano verifica degli ascoltatori, approvazione, audio dell’artista e verifica dei diritti. La pubblicazione di un prodotto reale richiede backend, autenticazione, protezione delle identità fino al reveal, voto atomico, metriche condivise e integrazione Spotify autorizzata.
+Onboarding con collegamento Spotify simulato, scelta dei generi, selezione deterministica pesata sulle esposizioni, classifiche per genere giornaliere e settimanali, reveal dei cinque artisti, scoperte salvate, candidature con validazione, profilo, diario dei voti e cinque temi.
 
 ## Struttura
 
-- `dist/index.html`: ingresso app
-- `dist/app.js`: interfaccia, player e flussi
-- `dist/core.js`: catalogo e regole
-- `dist/style.css`: stile responsivo
-- `dist/audio`: audio demo WAV, originali
-- `dist/art.png`: artwork generato
-- `tests/core.test.mjs`: controlli sulle regole centrali
-- `server.mjs`: server locale
+- `src/App.jsx`: coordina navigazione, stato e dialoghi.
+- `src/pages/`: onboarding, ascolti giornalieri, classifiche, profilo e candidatura.
+- `src/components/`: layout, dialoghi, risultati e controlli condivisi.
+- `src/hooks/`: player e orologio Europe/Rome.
+- `src/domain/`: regole pure per selezione, completamento, voto, ranking e candidature.
+- `src/services/storage.js`: lettura, validazione, migrazione e scrittura dei dati locali.
+- `src/data/`: catalogo dimostrativo e temi.
+- `src/styles.css`: stile condiviso.
+- `public/`: cinque WAV originali e artwork.
+- `tests/`: regole e flussi React, con audio e orologio controllati.
+- `docs/architecture.md`: proposta per backend, database e integrazione Spotify.
 
-Il font remoto è opzionale: in sua assenza vengono utilizzati i font di sistema.
-# VIBE-PULSE
+## Migrazione dei dati
+
+La chiave `vibepulse-v1` resta invariata. Profilo, generi, selezioni, scoperte, candidature e voti esistenti vengono conservati. Gli avvii salvati dalla versione precedente non provano un ascolto completo e sono azzerati nella lista dei completamenti; i voti già espressi restano nello storico. Le nuove selezioni/completamenti sono marcati con `completionVersion: 2`.
+
+## Stato reale dell’integrazione
+
+Spotify non è ancora collegato: il pulsante è esplicitamente una simulazione. Non vengono chieste credenziali né inviati dati a Spotify. Catalogo, audio, risultati e candidature sono dimostrativi; le candidature non entrano automaticamente nel contest. I link Spotify aprono ricerche per genere perché i brani sono inventati.
+
+I dati sono salvati solo in localStorage. Non esistono account reali, database o sincronizzazione tra dispositivi. La lettura del voto prima della conferma riduce conflitti tra schede, ma non garantisce unicità atomica. I controlli del browser non costituiscono protezione antiabuso. Le identità del catalogo sono nei sorgenti: l’anonimato è visivo.
+
+Il prodotto reale richiede un backend che controlli selezioni, ascolti, voti e reveal, più un database condiviso. Per preservare l’ascolto al buio bisogna usare audio autorizzati esterni a Spotify: la policy Spotify richiede i metadati e la copertina durante lo streaming. Vedi i riferimenti e i limiti documentati in `docs/architecture.md`.
+# NextWave
