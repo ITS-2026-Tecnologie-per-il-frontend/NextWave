@@ -2,26 +2,35 @@ import { useState } from "react";
 import { genres } from "../data/catalog.js";
 import { validateApplication } from "../domain/applications.js";
 import { Heading } from "../components/ui.jsx";
-export default function Artist({ applications, onSubmit }) {
+export default function Artist({ applications, onSubmit, cloud = false }) {
   const [error, setError] = useState("");
-  function submit(event) {
+  const [busy, setBusy] = useState(false);
+  async function submit(event) {
     event.preventDefault();
+    const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(event.currentTarget));
     const validation = validateApplication(data, applications);
     if (validation) {
       setError(validation);
       return;
     }
-    onSubmit({
-      ...data,
-      artist: data.artist.trim(),
-      title: data.title.trim(),
-      listeners: Number(data.listeners),
-      id: crypto.randomUUID(),
-      created: new Date().toISOString(),
-    });
-    event.currentTarget.reset();
-    setError("");
+    setBusy(true);
+    try {
+      await onSubmit({
+        ...data,
+        artist: data.artist.trim(),
+        title: data.title.trim(),
+        listeners: Number(data.listeners),
+        id: crypto.randomUUID(),
+        created: new Date().toISOString(),
+      });
+      form.reset();
+      setError("");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setBusy(false);
+    }
   }
   return (
     <>
@@ -130,19 +139,21 @@ export default function Artist({ applications, onSubmit }) {
               i diritti per candidare il brano e autorizzarne l’audio.
             </label>
             <p className="hint full">
-              Modalità demo: candidatura salvata solo su questo browser. Il
-              numero di ascoltatori è autodichiarato; non viene interrogata
-              Spotify.
+              {cloud
+                ? "Candidatura salvata nel tuo account, in attesa di verifica. Gli ascoltatori sono autodichiarati; Spotify non è ancora collegato."
+                : "Modalità demo: candidatura salvata solo su questo browser. Il numero di ascoltatori è autodichiarato; non viene interrogata Spotify."}
             </p>
             <p className="error full" role="alert">
               {error}
             </p>
-            <button className="btn full" type="submit">
+            <button className="btn full" type="submit" disabled={busy}>
               Invia candidatura →
             </button>
           </div>
         </form>
-        {applications.length > 0 && <h2>Le tue candidature demo</h2>}
+        {applications.length > 0 && (
+          <h2>{cloud ? "Le tue candidature" : "Le tue candidature demo"}</h2>
+        )}
         {applications.map((application) => (
           <div key={application.id} className="panel">
             <b>{application.title}</b> · {application.artist}

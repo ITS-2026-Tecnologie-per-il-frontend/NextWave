@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { genres } from "../data/catalog.js";
 import { Brand, GenrePicker } from "../components/ui.jsx";
-export default function Onboarding({ profile, onFinish }) {
+export default function Onboarding({
+  profile,
+  onFinish,
+  cloud = false,
+  busy = false,
+}) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
@@ -54,7 +59,7 @@ export default function Onboarding({ profile, onFinish }) {
                 <b>Scopri</b>Reveal alle 21:00
               </div>
             </div>
-            <button className="btn" onClick={() => setStep(1)}>
+            <button className="btn" onClick={() => setStep(cloud ? 2 : 1)}>
               Entra nel pulse →
             </button>
           </>
@@ -106,7 +111,7 @@ export default function Onboarding({ profile, onFinish }) {
             />
             <button
               className="btn"
-              disabled={!preferences.length}
+              disabled={!preferences.length || busy}
               onClick={() =>
                 onFinish({
                   name: name.trim() || "Ascoltatore",
@@ -121,7 +126,9 @@ export default function Onboarding({ profile, onFinish }) {
           </>
         )}
         <p className="hint">
-          Artisti e audio dimostrativi · Gratuito, per tutti.
+          {cloud
+            ? "I tuoi gusti saranno salvati nel tuo account."
+            : "Artisti e audio dimostrativi · Gratuito, per tutti."}
         </p>
       </section>
     </div>

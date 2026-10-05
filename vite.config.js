@@ -7,5 +7,6 @@ export default defineConfig({
     environment: "jsdom",
     restoreMocks: true,
     setupFiles: ["./tests/setup.js"],
+    env: { VITE_DATA_MODE: "demo" },
   },
 });

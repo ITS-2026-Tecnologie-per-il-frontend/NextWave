@@ -1,6 +1,6 @@
 # Vibe Pulse
 
-Frontend React per la scoperta di artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
+App React per scoprire artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
 
 ## Avvio
 
@@ -8,60 +8,72 @@ Richiede Node.js 22.12 o successivo (oppure 20.19 o successivo).
 
 ```sh
 npm ci
+```
+
+Copia `.env.example` in `.env.local` e configura URL e chiave pubblica Supabase. Il progetto locale è già configurato con i valori forniti dall’utente. Non inserire chiavi service_role o password del database nelle variabili `VITE_`.
+
+```sh
 npm start
 ```
 
-Apri http://127.0.0.1:4173. Lo sviluppo usa Vite: non occorre servire i sorgenti JSX attraverso Apache/XAMPP.
+Apri http://127.0.0.1:4173. Con `VITE_DATA_MODE=supabase` è disponibile il login reale; con `VITE_DATA_MODE=demo` puoi usare la demo locale senza account. In produzione una configurazione mancante viene segnalata.
+
+## Database e pubblicazione
+
+Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
+
+Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. Spotify non è ancora integrato e i file completi degli artisti devono ancora essere caricati e autorizzati.
+
+Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
+
+Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, quindi ricompilare con un nuovo deploy. Configurare anche Site URL e redirect autorizzati in Supabase Auth.
+
+## Verifiche
 
 ```sh
 npm test
+npm run db:test
+npm run db:check
 npm run build
 npm run preview
 npm run format:check
 ```
 
-`npm run build` genera `dist/`; `npm run preview` permette di provare la versione compilata. Il deploy automatico su GitHub Pages è stato rimosso dal repository. Eventuali impostazioni Pages o pubblicazioni già presenti su GitHub vanno disattivate nel repository remoto: questa modifica locale non le cambia.
+I test dell’interfaccia usano account e risposte controllati, senza scrivere sul database remoto. `db:test` applica le migrazioni a PostgreSQL di test con ruoli Auth simulati. `db:check` verifica il progetto remoto in sola lettura tramite `.env.local`.
 
-## Regole di ascolto
+## Ascolto giornaliero
 
-- I cinque brani si ascoltano in ordine. All’inizio è disponibile solo il primo.
-- Il successivo si sblocca alla fine naturale dell’audio, dopo averne riprodotto l’intera durata. Premere play, mettere in pausa o saltare alla fine non registra un completamento.
-- Si può mettere in pausa e riprendere, oppure riascoltare i brani già completati.
-- Il player mostra la durata effettiva del file. Gli audio demo attuali durano circa 12 secondi: il controllo copre tutto il file disponibile, non un brano commerciale completo. Per il prodotto reale occorrono i file completi autorizzati.
-- Il voto si sblocca dopo cinque completamenti. È unico per profilo/browser/giorno e si chiude alle 21:00 Europe/Rome.
-- I completamenti vengono conservati tra ricaricamenti. Un ascolto parziale riparte dall’inizio dopo un ricaricamento.
-- Il cambio giorno ferma il player e genera una nuova selezione. I gusti modificati valgono per la selezione successiva.
-- Il reveal di prova cambia solo la presentazione: non sblocca audio o voti.
-
-## Funzioni mantenute
-
-Onboarding con collegamento Spotify simulato, scelta dei generi, selezione deterministica pesata sulle esposizioni, classifiche per genere giornaliere e settimanali, reveal dei cinque artisti, scoperte salvate, candidature con validazione, profilo, diario dei voti e cinque temi.
+- Il primo brano è disponibile subito; ogni successivo si sblocca dopo il completamento confermato del precedente.
+- Pausa e ripresa sono consentite. Un salto alla fine non registra il completamento.
+- In cloud avanzamento e tempo vengono verificati sul server; il browser non può scrivere direttamente completamenti o voti. Interruzioni di rete possono richiedere di ricominciare il brano.
+- Il voto richiede cinque completamenti ed è unico per account/giorno, prima delle 21:00 Europe/Rome. Il database verifica orario e unicità.
+- Un ricaricamento conserva i completamenti; gli ascolti parziali ripartono dall’inizio.
+- I gusti modificati si applicano alla selezione successiva. Il cambio giorno ferma il vecchio audio.
+- Il reveal anticipato è disponibile soltanto nella demo locale.
 
 ## Struttura
 
-- `src/App.jsx`: coordina navigazione, stato e dialoghi.
-- `src/pages/`: onboarding, ascolti giornalieri, classifiche, profilo e candidatura.
-- `src/components/`: layout, dialoghi, risultati e controlli condivisi.
-- `src/hooks/`: player e orologio Europe/Rome.
-- `src/domain/`: regole pure per selezione, completamento, voto, ranking e candidature.
-- `src/services/storage.js`: lettura, validazione, migrazione e scrittura dei dati locali.
+- `src/App.jsx`: sceglie la modalità e controlla la configurazione.
+- `src/DemoApp.jsx`: flussi locali precedenti, separati dagli account reali.
+- `src/features/cloud/`: autenticazione, account, player e classifiche Supabase.
+- `src/pages/` e `src/components/`: interfaccia condivisa.
+- `src/services/supabase.js`: client ufficiale e validazione delle variabili.
+- `src/services/cloudRepository.js`: API del database attraverso RPC.
+- `src/services/storage.js`: persistenza e migrazione della sola demo.
+- `src/domain/`: regole pure e validazione delle candidature.
 - `src/data/`: catalogo dimostrativo e temi.
-- `src/styles.css`: stile condiviso.
-- `public/`: cinque WAV originali e artwork.
-- `tests/`: regole e flussi React, con audio e orologio controllati.
-- `docs/architecture.md`: proposta per backend, database e integrazione Spotify.
+- `supabase/migrations/`: schema e regole versionati.
+- `supabase/seeds/`: dati demo separati dalle migrazioni.
+- `scripts/`: bundle SQL, test PostgreSQL e controllo remoto.
+- `public/`: artwork e cinque WAV sintetici originali.
+- `tests/`: test delle regole e dei flussi React.
 
-## Migrazione dei dati
+## Limiti attuali
 
-La chiave `vibepulse-v1` resta invariata. Profilo, generi, selezioni, scoperte, candidature e voti esistenti vengono conservati. Gli avvii salvati dalla versione precedente non provano un ascolto completo e sono azzerati nella lista dei completamenti; i voti già espressi restano nello storico. Le nuove selezioni/completamenti sono marcati con `completionVersion: 2`.
+Il player demo contiene audio di 12 secondi: ascoltare tutto il file non equivale a riprodurre un brano commerciale completo. Per il prodotto reale servono audio completi con diritti verificati e storage privato. Gli heartbeat verificano tempo e avanzamento, ma non dimostrano attenzione umana; prima di un contest pubblico servono ulteriori misure antiabuso.
 
-## Stato reale dell’integrazione
+La vecchia demo conserva i dati nella chiave `vibepulse-v1`. I vecchi avvii non contano come completamenti; i voti demo storici restano nella demo e non vengono importati come voti verificati degli account Supabase.
 
-Spotify non è ancora collegato: il pulsante è esplicitamente una simulazione. Non vengono chieste credenziali né inviati dati a Spotify. Catalogo, audio, risultati e candidature sono dimostrativi; le candidature non entrano automaticamente nel contest. I link Spotify aprono ricerche per genere perché i brani sono inventati.
+Le candidature restano in attesa di verifica e non entrano automaticamente nel catalogo. La soglia degli ascoltatori è autodichiarata nella candidatura.
 
-I dati sono salvati solo in localStorage. Non esistono account reali, database o sincronizzazione tra dispositivi. La lettura del voto prima della conferma riduce conflitti tra schede, ma non garantisce unicità atomica. I controlli del browser non costituiscono protezione antiabuso. Le identità del catalogo sono nei sorgenti: l’anonimato è visivo.
-
-Il prodotto reale richiede un backend che controlli selezioni, ascolti, voti e reveal, più un database condiviso. Per preservare l’ascolto al buio bisogna usare audio autorizzati esterni a Spotify: la policy Spotify richiede i metadati e la copertina durante lo streaming. Vedi i riferimenti e i limiti documentati in `docs/architecture.md`.
-# NextWave
-# NextWave
-# NextWave
+Spotify richiede copertina e metadati durante lo streaming: il contest al buio deve usare audio autorizzati degli artisti. Fattibilità e limiti Spotify sono documentati in [docs/architecture.md](docs/architecture.md).

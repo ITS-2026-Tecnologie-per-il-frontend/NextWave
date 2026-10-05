@@ -13,6 +13,7 @@ export default function Layout({
   player,
   revealed,
   round,
+  cloud = false,
 }) {
   const initial = (profile.name || "Tu")[0].toUpperCase();
   const trackIndex = round.ids.indexOf(player.active);
@@ -52,7 +53,9 @@ export default function Layout({
             <div>
               {profile.name || "Ascoltatore"}
               <br />
-              <span className="muted">Profilo demo</span>
+              <span className="muted">
+                {cloud ? "Account Vibe Pulse" : "Profilo demo"}
+              </span>
             </div>
           </div>
         </div>
@@ -64,7 +67,9 @@ export default function Layout({
             <Brand onHome={() => navigate("daily")} />
           </div>
           <div className="topright">
-            <span className="badge">DEMO INTERATTIVA</span>
+            <span className="badge">
+              {cloud ? "VIBE PULSE" : "DEMO INTERATTIVA"}
+            </span>
             <button
               className="avatar"
               aria-label="Apri profilo"
@@ -76,8 +81,11 @@ export default function Layout({
         </header>
         {children}
         <p className="footerline">
-          VIBE PULSE © 2026 · Artisti, audio e risultati dimostrativi · Orario
-          Europe/Rome
+          VIBE PULSE © 2026 ·{" "}
+          {cloud
+            ? "Account e progressi sincronizzati"
+            : "Artisti, audio e risultati dimostrativi"}{" "}
+          · Orario Europe/Rome
         </p>
       </main>
       <section className="player" aria-label="Player musicale">
@@ -91,11 +99,12 @@ export default function Layout({
           </strong>
           <span>
             {player.active
-              ? `${player.track?.genre} · Audio demo`
+              ? `${player.track?.genre} · ${!cloud || player.track?.isDemo ? "Audio demo" : "Audio"}`
               : "Ascolta ogni brano fino alla fine"}
           </span>
         </div>
         <button
+          disabled={!round.ids.length || player.loading}
           onClick={() => player.play(player.active || round.ids[0])}
           aria-label={player.playing ? "Pausa" : "Riproduci"}
         >

@@ -13,6 +13,8 @@ export default function Daily({
   onReveal,
   onPreview,
   onRanks,
+  tracks = catalog,
+  cloud = false,
 }) {
   const left = Math.max(0, 21 * 3600 - clock.seconds);
   const countdown = [
@@ -90,7 +92,7 @@ export default function Daily({
       </div>
       <div className="tracks">
         {round.ids.map((id, index) => {
-          const track = catalog.find((item) => item.id === id);
+          const track = tracks.find((item) => item.id === id);
           const heard = round.listened.includes(id);
           const locked = !canPlay(round, id);
           const playing = player.active === id && player.playing;
@@ -105,7 +107,7 @@ export default function Daily({
                 </span>
                 <button
                   className="play"
-                  disabled={locked}
+                  disabled={locked || player.loading}
                   aria-label={`${playing ? "Pausa" : "Ascolta"} brano ${index + 1}`}
                   onClick={() => player.play(id)}
                 >
@@ -132,14 +134,19 @@ export default function Daily({
               {revealed ? (
                 <>
                   <button
-                    className={`vote ${saved.includes(id) ? "chosen" : ""}`}
+                    className={`vote ${(cloud ? track.saved : saved.includes(id)) ? "chosen" : ""}`}
                     onClick={() => onSave(id)}
                   >
-                    {saved.includes(id) ? "✓ Salvato" : "＋ Salva scoperta"}
+                    {(cloud ? track.saved : saved.includes(id))
+                      ? "✓ Salvato"
+                      : "＋ Salva scoperta"}
                   </button>
                   <a
                     className="textbtn"
-                    href={`https://open.spotify.com/search/${encodeURIComponent(track.genre)}`}
+                    href={
+                      track.spotifyUrl ||
+                      `https://open.spotify.com/search/${encodeURIComponent(track.genre)}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -193,7 +200,7 @@ export default function Daily({
           <button className="textbtn" onClick={onRanks}>
             Come funziona il ranking ↗
           </button>
-          {!revealed && (
+          {!revealed && !cloud && (
             <button className="textbtn" onClick={onPreview}>
               Prova il reveal delle 21:00
             </button>

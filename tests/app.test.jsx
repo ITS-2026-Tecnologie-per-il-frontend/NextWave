@@ -1,6 +1,6 @@
 import { describe, test, expect, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
-import App from "../src/App.jsx";
+import App from "../src/DemoApp.jsx";
 import {
   createProfile,
   ensureRound,

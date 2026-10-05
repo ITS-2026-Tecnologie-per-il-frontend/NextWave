@@ -1,0 +1,48 @@
+import { createHash } from "node:crypto";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { catalog } from "../src/data/catalog.js";
+const quote = (value) => `'${String(value).replaceAll("'", "''")}'`;
+function stableId(value) {
+  const hex = createHash("sha256")
+    .update(`vibepulse-demo:${value}`)
+    .digest("hex")
+    .slice(0, 32);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+const artists = catalog.map(
+  (track) =>
+    `(${quote(stableId("artist:" + track.id))}, ${quote(track.artist)}, ${quote(track.id)}, ${track.listeners}, true)`,
+);
+const tracks = catalog.map(
+  (track) =>
+    `(${quote(stableId("track:" + track.id))}, ${quote(stableId("artist:" + track.id))}, ${quote(track.title)}, ${quote(track.genre)}, ${quote(track.mood)}, ${quote(track.lang)}, ${quote("/" + track.audio)}, 12, ${quote(track.id)}, true, true)`,
+);
+const demo = `-- Catalogo DEMO: artisti inventati, WAV sintetici di 12 secondi. Nessun voto/utente fittizio.\n-- Ripetibile: non sovrascrive brani esistenti o metriche.\ninsert into vp_private.artists(id, name, demo_key, monthly_listeners, is_demo) values\n${artists.join(",\n")}\non conflict (demo_key) do nothing;\ninsert into vp_private.tracks(id, artist_id, title, genre, mood, language, audio_path, duration_seconds, demo_key, active, is_demo) values\n${tracks.join(",\n")}\non conflict (demo_key) do nothing;\n`;
+await mkdir("supabase/seeds", { recursive: true });
+await writeFile("supabase/seeds/demo.sql", demo);
+await writeFile("supabase/seed.sql", demo);
+const files = (await readdir("supabase/migrations"))
+  .filter((file) => file.endsWith(".sql"))
+  .sort();
+const sql = await Promise.all(
+  files.map((file) => readFile(`supabase/migrations/${file}`, "utf8")),
+);
+const ledger = `create schema if not exists supabase_migrations;\ncreate table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);\n${files
+  .map((file) => {
+    const [version, ...name] = file.replace(".sql", "").split("_");
+    return `insert into supabase_migrations.schema_migrations(version, name) values (${quote(version)}, ${quote(name.join("_"))});`;
+  })
+  .join("\n")}\n`;
+const header =
+  "-- Eseguire UNA VOLTA nel SQL Editor del progetto Supabase vuoto.\n-- Migrazioni atomiche e storico CLI: niente reset/drop, niente chiavi segrete.\n";
+await writeFile(
+  "supabase/setup.sql",
+  `${header}begin;\n${sql.join("\n")}\n${ledger}commit;\n`,
+);
+await writeFile(
+  "supabase/setup-demo.sql",
+  `${header}-- INCLUDE IL CATALOGO DEMO, non dati di produzione.\nbegin;\n${sql.join("\n")}\n${demo}\n${ledger}commit;\n`,
+);
+console.log(
+  `Generati setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
+);

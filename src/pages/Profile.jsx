@@ -2,7 +2,16 @@ import { useState } from "react";
 import { catalog, genres } from "../data/catalog.js";
 import { themes } from "../data/themes.js";
 import { GenrePicker, Heading } from "../components/ui.jsx";
-export default function Profile({ profile, onUpdate, onSave, notify }) {
+export default function Profile({
+  profile,
+  onUpdate,
+  onSave,
+  notify,
+  tracks = catalog,
+  cloud = false,
+  onSignOut,
+  busy = false,
+}) {
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
   const [error, setError] = useState("");
@@ -10,15 +19,22 @@ export default function Profile({ profile, onUpdate, onSave, notify }) {
   const votes = rounds.filter((round) => round.vote);
   const selectedTheme =
     themes.find((theme) => theme.id === profile.theme) || themes[0];
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
     if (!preferences.length) {
       setError("Scegli almeno un genere.");
       return;
     }
-    onUpdate({ name: name.trim() || "Ascoltatore", prefs: preferences });
-    setError("");
-    notify("Preferenze salvate per domani.");
+    try {
+      await onUpdate({
+        name: name.trim() || "Ascoltatore",
+        prefs: preferences,
+      });
+      setError("");
+      notify("Preferenze salvate per domani.");
+    } catch (error) {
+      setError(error.message);
+    }
   }
   return (
     <>
@@ -34,17 +50,28 @@ export default function Profile({ profile, onUpdate, onSave, notify }) {
             <div>
               <h3>{profile.name || "Ascoltatore"}</h3>
               <span className="hint">
-                {profile.connected
-                  ? "Spotify collegato · simulazione"
-                  : "Spotify non collegato"}
+                {cloud
+                  ? "Account sincronizzato"
+                  : profile.connected
+                    ? "Spotify collegato · simulazione"
+                    : "Spotify non collegato"}
               </span>
             </div>
           </div>
           <button
             className="btn secondary small"
-            onClick={() => onUpdate({ connected: !profile.connected })}
+            disabled={busy}
+            onClick={
+              cloud
+                ? onSignOut
+                : () => onUpdate({ connected: !profile.connected })
+            }
           >
-            {profile.connected ? "Scollega" : "Collega Spotify demo"}
+            {cloud
+              ? "Esci dall’account"
+              : profile.connected
+                ? "Scollega"
+                : "Collega Spotify demo"}
           </button>
         </div>
       </div>
@@ -87,6 +114,7 @@ export default function Profile({ profile, onUpdate, onSave, notify }) {
             <button
               key={theme.id}
               type="button"
+              disabled={busy}
               className="theme-choice"
               data-palette={theme.id}
               aria-pressed={selectedTheme.id === theme.id}
@@ -138,7 +166,9 @@ export default function Profile({ profile, onUpdate, onSave, notify }) {
             selected={preferences}
             onChange={setPreferences}
           />
-          <button className="btn small">Salva preferenze</button>
+          <button className="btn small" disabled={busy}>
+            Salva preferenze
+          </button>
           <span className="error" role="alert">
             {error}
           </span>
@@ -148,7 +178,7 @@ export default function Profile({ profile, onUpdate, onSave, notify }) {
       <div className="savedlist">
         {profile.saved.length ? (
           profile.saved.map((id) => {
-            const track = catalog.find((item) => item.id === id);
+            const track = tracks.find((item) => item.id === id);
             return (
               <div key={id} className="panel">
                 <b>{track.title}</b>

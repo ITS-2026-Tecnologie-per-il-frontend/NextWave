@@ -4,7 +4,7 @@
 
 React gestisce l’interfaccia. Un backend gestisce autenticazione, integrazione Spotify, selezioni giornaliere, verifica degli ascolti, voti, candidature e reveal. Il database conserva i dati propri di Vibe Pulse: le API Spotify non sostituiscono questa persistenza.
 
-Una base relazionale come PostgreSQL è adatta ai vincoli di unicità e alle transazioni necessari per un voto al giorno. La scelta del servizio di hosting e del framework backend resta aperta; questo refactoring non installa né configura un database.
+Una base relazionale come PostgreSQL è adatta ai vincoli di unicità e alle transazioni necessari per un voto al giorno. Il progetto ora usa Supabase per PostgreSQL, Auth e RPC, e Vercel per il frontend. Schema implementato, vincoli e configurazione sono descritti in [supabase.md](supabase.md).
 
 ## Dati da conservare
 
