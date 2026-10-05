@@ -63,3 +63,4 @@ I dati sono salvati solo in localStorage. Non esistono account reali, database o
 
 Il prodotto reale richiede un backend che controlli selezioni, ascolti, voti e reveal, più un database condiviso. Per preservare l’ascolto al buio bisogna usare audio autorizzati esterni a Spotify: la policy Spotify richiede i metadati e la copertina durante lo streaming. Vedi i riferimenti e i limiti documentati in `docs/architecture.md`.
 # NextWave
+# NextWave
