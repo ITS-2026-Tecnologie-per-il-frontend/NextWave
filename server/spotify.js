@@ -5,6 +5,7 @@ import {
   createHash,
 } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
+import { spotifyJson } from "./spotifyHttp.js";
 
 export function seal(value, key) {
   const iv = randomBytes(12);
@@ -76,8 +77,7 @@ export async function user(ctx, req) {
   return data.user.id;
 }
 export function sameOrigin(ctx, req) {
-  if (req.headers.origin !== ctx.redirect.origin)
-    throw new Error("origin");
+  if (req.headers.origin !== ctx.redirect.origin) throw new Error("origin");
 }
 export function cookie(res, value, age = 600) {
   res.setHeader(
@@ -86,7 +86,7 @@ export function cookie(res, value, age = 600) {
   );
 }
 export async function token(ctx, fields) {
-  const response = await fetch("https://accounts.spotify.com/api/token", {
+  const data = await spotifyJson("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -95,8 +95,6 @@ export async function token(ctx, fields) {
     body: new URLSearchParams(fields),
     signal: AbortSignal.timeout(15000),
   });
-  if (!response.ok) throw new Error("spotify");
-  const data = await response.json();
   if (!data.access_token || !Number.isFinite(data.expires_in))
     throw new Error("spotify");
   return data;
@@ -104,19 +102,43 @@ export async function token(ctx, fields) {
 export function fail(res, error) {
   const messages = {
     unauthorized: "Sessione Next Wave non valida. Esci e accedi nuovamente.",
-    origin: "Apri Next Wave su https://next-wave-iota.vercel.app e riprova: il dominio deve coincidere con SPOTIFY_REDIRECT_URI.",
-    configuration: "Configurazione server Spotify incompleta: verifica le variabili Production e avvia un nuovo deploy.",
-    supabase_key: "La chiave server Supabase non è valida. Verifica SUPABASE_SERVICE_ROLE_KEY su Vercel.",
-    database: "Il server non riesce ad accedere alla funzione Spotify su Supabase. Verifica che update-spotify.sql sia stato eseguito nel progetto corretto.",
-    spotify: "Spotify non ha accettato la richiesta. Verifica le credenziali dell'app Spotify.",
+    origin:
+      "Apri Next Wave su https://next-wave-iota.vercel.app e riprova: il dominio deve coincidere con SPOTIFY_REDIRECT_URI.",
+    configuration:
+      "Configurazione server Spotify incompleta: verifica le variabili Production e avvia un nuovo deploy.",
+    supabase_key:
+      "La chiave server Supabase non è valida. Verifica SUPABASE_SERVICE_ROLE_KEY su Vercel.",
+    database:
+      "Il server non riesce ad accedere alla funzione Spotify su Supabase. Verifica che update-spotify.sql sia stato eseguito nel progetto corretto.",
+    spotify:
+      "Spotify non ha accettato la richiesta. Verifica le credenziali dell'app Spotify.",
+    reauthorize:
+      "L'autorizzazione Spotify è scaduta o revocata. Scollega e collega nuovamente Spotify.",
+    rate_limit: "Spotify ha limitato le richieste. Attendi prima di riprovare.",
   };
-  const code = Object.hasOwn(messages, error.message) ? error.message : "unavailable";
+  const code = Object.hasOwn(messages, error.message)
+    ? error.message
+    : "unavailable";
   // Solo codici diagnostici: non registrare token, header o valori delle variabili.
   console.error("Spotify request failed", { code, databaseCode: error.code });
-  res.status(code === "unauthorized" ? 401 : code === "origin" ? 403 : 503).json({
-    code,
-    error: messages[code] || "Collegamento Spotify temporaneamente non disponibile. Riprova.",
-  });
+  if (code === "rate_limit")
+    res.setHeader("Retry-After", String(error.retryAfter));
+  res
+    .status(
+      code === "rate_limit"
+        ? 429
+        : code === "unauthorized"
+          ? 401
+          : code === "origin"
+            ? 403
+            : 503,
+    )
+    .json({
+      code,
+      error:
+        messages[code] ||
+        "Collegamento Spotify temporaneamente non disponibile. Riprova.",
+    });
 }
 export function noCache(res) {
   res.setHeader("Cache-Control", "no-store");

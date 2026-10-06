@@ -1,5 +1,7 @@
 # Collegamento Spotify
 
+Endpoint e schemi verificati sulla specifica ufficiale https://developer.spotify.com/reference/web-api/open-api-schema.yaml. Le richieste gestiscono 401, 403 e 429; per 429 si rispettano Retry-After e attese esponenziali con un massimo di tre tentativi. Se l'attesa supera il budget della funzione, viene restituito un errore con Retry-After senza riprovare subito. Un refresh token scaduto o revocato elimina il collegamento e richiede una nuova autorizzazione. Non vengono conservati cataloghi o contenuti Spotify per analisi o addestramento; restano solo i dati necessari al collegamento dell'account, eliminati quando viene scollegato.
+
 Il profilo Next Wave consente di collegare e scollegare Spotify. L'accesso a Next Wave resta quello Supabase. Il server verifica l'utente, usa state monouso e PKCE, scambia il codice Spotify e conserva i token cifrati AES-256-GCM in uno schema privato. Il browser non riceve i token Spotify. Lo stato del collegamento rinnova i token prossimi alla scadenza. Scollegare elimina credenziali e autorizzazioni pendenti dal database; per revocare anche il consenso Spotify usare la pagina App del proprio account Spotify.
 
 ## Attivazione sul progetto esistente

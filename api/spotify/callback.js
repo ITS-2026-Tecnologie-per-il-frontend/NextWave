@@ -8,6 +8,7 @@ import {
   token,
   noCache,
 } from "../../server/spotify.js";
+import { spotifyJson } from "../../server/spotifyHttp.js";
 export default async function handler(req, res) {
   noCache(res);
   if (req.method !== "GET") return res.status(405).end();
@@ -43,13 +44,10 @@ export default async function handler(req, res) {
       redirect_uri: ctx.redirect.href,
       code_verifier: session.verifier,
     });
-    const response = await fetch("https://api.spotify.com/v1/me", {
+    const profile = await spotifyJson("https://api.spotify.com/v1/me", {
       headers: { Authorization: `Bearer ${credentials.access_token}` },
       signal: AbortSignal.timeout(15000),
     });
-    if (!response.ok)
-      throw new Error(response.status === 403 ? "profile_denied" : "profile");
-    const profile = await response.json();
     if (!profile.id || !credentials.refresh_token) throw new Error("spotify");
     await rpc(ctx, "save", session.id, {
       credentials: seal(
@@ -70,6 +68,8 @@ export default async function handler(req, res) {
       "profile",
       "database",
       "configuration",
+      "rate_limit",
+      "reauthorize",
     ];
     const reason = allowed.includes(error.message)
       ? error.message

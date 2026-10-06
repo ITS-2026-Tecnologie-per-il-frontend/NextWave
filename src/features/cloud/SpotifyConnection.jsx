@@ -21,7 +21,13 @@ export default function SpotifyConnection({ client }) {
     let active = true;
     request("connection")
       .then((value) => {
-        if (active) setConnection(value);
+        if (active) {
+          setConnection(value);
+          if (value.needsAuthorization)
+            setError(
+              "L'autorizzazione Spotify è scaduta o revocata. Premi Collega Spotify per autorizzare di nuovo.",
+            );
+        }
       })
       .catch((e) => {
         if (active) setError(e.message);
@@ -30,6 +36,10 @@ export default function SpotifyConnection({ client }) {
     if (url.searchParams.has("spotify")) {
       if (url.searchParams.get("spotify") === "error") {
         const messages = {
+          rate_limit:
+            "Spotify ha limitato le richieste. Attendi prima di riprovare.",
+          reauthorize:
+            "Autorizzazione Spotify non valida. Premi Collega Spotify per riprovare.",
           cookie:
             "La sessione di collegamento Spotify è andata persa. Riprova nello stesso browser, consentendo i cookie di Next Wave.",
           state:

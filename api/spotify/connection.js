@@ -24,10 +24,19 @@ export default async function handler(req, res) {
     if (!stored) return res.json({ connected: false });
     const credentials = unseal(stored.credentials, ctx.key);
     if (credentials.expires < Date.now() + 60000) {
-      const refreshed = await token(ctx, {
-        grant_type: "refresh_token",
-        refresh_token: credentials.refresh_token,
-      });
+      let refreshed;
+      try {
+        refreshed = await token(ctx, {
+          grant_type: "refresh_token",
+          refresh_token: credentials.refresh_token,
+        });
+      } catch (error) {
+        if (error.message === "reauthorize") {
+          await rpc(ctx, "delete", id);
+          return res.json({ connected: false, needsAuthorization: true });
+        }
+        throw error;
+      }
       await rpc(ctx, "save", id, {
         ...stored,
         credentials: seal(
