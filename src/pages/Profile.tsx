@@ -1,4 +1,5 @@
 import { getErrorMessage } from "../domain/errors.ts";
+import { SpotifyLink } from "../components/ui/SpotifyLink.tsx";
 import type { FormEvent } from "react";
 import type { Profile, ProfileUpdate, Notify, Track } from "../types/models.ts";
 interface ProfileProps {
@@ -194,6 +195,7 @@ export default function Profile({
                 <button className="textbtn" onClick={() => onSave(id)}>
                   Rimuovi dai salvati
                 </button>
+                <SpotifyLink track={track} />
               </div>
             );
           })

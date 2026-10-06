@@ -13,7 +13,9 @@ async function filesIn(directory) {
 }
 
 // Audit locale: import statici/dinamici, file sorgente raggiungibili e collocazione hook.
-const files = (await Promise.all(["src", "tests", "scripts"].map(filesIn)))
+const files = (
+  await Promise.all(["src", "server", "api", "tests", "scripts"].map(filesIn))
+)
   .flat()
   .filter((file) => /\.(js|jsx|mjs|ts|tsx)$/.test(file));
 const graph = new Map();

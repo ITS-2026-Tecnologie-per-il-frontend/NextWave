@@ -118,6 +118,9 @@ export function Account({
   };
   const player = useCloudPlayer(round, repository, refresh, notify);
   useEffect(() => {
+    if (clock.revealed) player.audioRef.current?.pause();
+  }, [clock.revealed, player.audioRef]);
+  useEffect(() => {
     if (profile) document.documentElement.dataset.theme = profile.theme;
   }, [profile?.theme]);
 
@@ -305,9 +308,9 @@ export function Account({
             <Artist
               cloud
               applications={profile.applications}
-              onSubmit={(application) =>
+              onSubmit={(application, audio) =>
                 mutate(
-                  () => repository.submitApplication(application),
+                  () => repository.submitApplication(application, audio),
                   "Candidatura salvata, in attesa di verifica.",
                 )
               }

@@ -1,4 +1,5 @@
 import type { Round, RankingRow } from "../types/models.ts";
+import { SpotifyLink } from "./ui/SpotifyLink.tsx";
 export default function Reveal({
   round,
   rows,
@@ -54,6 +55,7 @@ export default function Reveal({
               {round.vote === track.id && (
                 <span className="reveal-voted">♥ Il tuo voto</span>
               )}
+              <SpotifyLink track={track} />
             </div>
             <div className="reveal-score">
               <strong>
@@ -66,7 +68,9 @@ export default function Reveal({
         ))}
       </ol>
       <p className="hint">
-        Risultati demo · Punteggio: voti ÷ esposizioni × 100.
+        {selected.some((track) => track.isDemo) &&
+          "I link dei campioni demo sono esempi, non identificano l’audio ascoltato. "}
+        Punteggio: voti ÷ esposizioni × 100.
       </p>
       <div className="actions">
         <button className="btn" onClick={onClose}>

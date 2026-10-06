@@ -9,11 +9,13 @@
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "vitest run",
-    "format": "prettier --write src tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
-    "format:check": "prettier --check src tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
+    "format": "prettier --write src server api tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
+    "format:check": "prettier --check src server api tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
     "db:bundle": "tsx scripts/build-database.mjs",
     "db:test": "node scripts/test-database.mjs",
     "db:check": "node --env-file=.env.local scripts/check-supabase.mjs",
+    "audio:admin": "node --env-file=.env.local --env-file-if-exists=.env.audio.local scripts/audio-admin.mjs",
+    "audio:upload-demo": "npm run audio:admin -- upload-demo",
     "db:link": "supabase link --project-ref xitmtulynclfozfsbhfz",
     "db:push": "supabase db push",
     "db:start": "supabase start",
@@ -23,6 +25,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
+    "music-metadata": "^12.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

@@ -5,13 +5,14 @@ import { useState } from "react";
 import { genres } from "../data/genres.ts";
 import { validateApplication } from "../domain/applications.ts";
 import { Heading } from "../components/ui/Heading.tsx";
+import { MAX_AUDIO_BYTES } from "../config/audio.ts";
 export default function Artist({
   applications,
   onSubmit,
   cloud = false,
 }: {
   applications: Application[];
-  onSubmit: (application: Application) => void | Promise<unknown>;
+  onSubmit: (application: Application, audio: File) => void | Promise<unknown>;
   cloud?: boolean;
 }) {
   const [error, setError] = useState("");
@@ -36,16 +37,29 @@ export default function Artist({
       setError(validation);
       return;
     }
+    const audio = fields.get("audio");
+    if (
+      !(audio instanceof File) ||
+      !audio.size ||
+      audio.size > MAX_AUDIO_BYTES ||
+      !/\.mp3$/i.test(audio.name)
+    ) {
+      setError("Scegli un file MP3 di massimo 10 MB.");
+      return;
+    }
     setBusy(true);
     try {
-      await onSubmit({
-        ...data,
-        artist: data.artist.trim(),
-        title: data.title.trim(),
-        listeners: Number(data.listeners),
-        id: crypto.randomUUID(),
-        created: new Date().toISOString(),
-      });
+      await onSubmit(
+        {
+          ...data,
+          artist: data.artist.trim(),
+          title: data.title.trim(),
+          listeners: Number(data.listeners),
+          id: crypto.randomUUID(),
+          created: new Date().toISOString(),
+        },
+        audio,
+      );
       form.reset();
       setError("");
     } catch (error) {
@@ -157,19 +171,32 @@ export default function Artist({
               />
             </label>
             <label className="full">
+              Audio per il contest · MP3, massimo 10 MB e 30 minuti
+              <input
+                name="audio"
+                type="file"
+                accept=".mp3,audio/mpeg"
+                required
+                disabled={busy}
+              />
+            </label>
+            <label className="full">
               <input name="rights" type="checkbox" required /> Confermo di avere
-              i diritti per candidare il brano e autorizzarne l’audio.
+              i diritti sul brano e autorizzo NextWave a conservarlo
+              temporaneamente e riprodurlo nel contest.
             </label>
             <p className="hint full">
               {cloud
-                ? "Candidatura salvata nel tuo account, in attesa di verifica. Gli ascoltatori sono autodichiarati; Spotify non è ancora collegato."
-                : "Modalità demo: candidatura salvata solo su questo browser. Il numero di ascoltatori è autodichiarato; non viene interrogata Spotify."}
+                ? "Una candidatura attiva per artista. Verifichiamo audio, diritti e link prima del contest. L’audio viene eliminato dopo la chiusura; dati e link restano. Le candidature non esaminate scadono dopo 7 giorni."
+                : "Modalità demo: salviamo solo i dati in questo browser; l’audio non viene caricato. Per inviarlo usa un account NextWave."}
             </p>
             <p className="error full" role="alert">
               {error}
             </p>
             <button className="btn full" type="submit" disabled={busy}>
-              Invia candidatura →
+              {busy
+                ? "Caricamento e verifica dell’audio…"
+                : "Invia candidatura →"}
             </button>
           </div>
         </form>
@@ -180,8 +207,19 @@ export default function Artist({
           <div key={application.id} className="panel">
             <b>{application.title}</b> · {application.artist}
             <p className="hint">
-              {application.genre} · {application.mood} · Da verificare prima
-              della selezione
+              {application.genre} · {application.mood} ·{" "}
+              {application.status === "approved"
+                ? "Approvata"
+                : application.status === "rejected"
+                  ? "Non accettata"
+                  : "In attesa di verifica"}
+              {application.contestDay &&
+                ` · Contest del ${application.contestDay}`}
+              {application.audioDeletedAt
+                ? " · Audio eliminato, dati conservati"
+                : application.audioState === "uploading"
+                  ? " · Caricamento incompleto, scadenza entro 3 ore"
+                  : ""}
             </p>
           </div>
         ))}

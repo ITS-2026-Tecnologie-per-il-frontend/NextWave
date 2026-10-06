@@ -25,6 +25,7 @@ export function validateApplication(
   )
     return "Inserisci un link Spotify valido a un brano.";
   const duplicate = applications.some((application) => {
+    if (application.status === "rejected") return false;
     try {
       return (
         new URL(application.spotify).pathname

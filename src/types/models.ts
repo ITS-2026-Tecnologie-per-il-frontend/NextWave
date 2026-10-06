@@ -66,6 +66,9 @@ export interface Application {
   id?: string;
   created?: string;
   status?: string;
+  audioState?: string | null;
+  audioDeletedAt?: string | null;
+  contestDay?: string | null;
 }
 
 export interface Profile {

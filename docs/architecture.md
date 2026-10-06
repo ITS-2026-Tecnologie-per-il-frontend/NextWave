@@ -8,17 +8,17 @@ Una base relazionale come PostgreSQL è adatta ai vincoli di unicità e alle tra
 
 ## Dati da conservare
 
-| Entità          | Dati e vincoli                                                                                 |
-| --------------- | ---------------------------------------------------------------------------------------------- |
-| Utenti          | ID interno, identità di accesso, nome, tema, consensi                                          |
-| Preferenze      | Generi scelti, origine e data aggiornamento; applicazione alla selezione successiva            |
-| Brani candidati | ID interno e Spotify opzionale, genere curato, diritti, file audio autorizzato, stato verifica |
-| Contest         | Giorno Europe/Rome, chiusura, stato reveal                                                     |
-| Selezioni       | Cinque slot per utente e contest; unicità dello slot e del brano                               |
-| Ascolti         | Selezione, slot, sessione e completamento validato                                             |
-| Voti            | Utente, contest, selezione e slot; vincolo UNIQUE(utente, contest)                             |
-| Preferiti       | Utente e brano; vincolo di unicità                                                             |
-| Esposizioni     | Eventi condivisi per calcolare ranking e distribuzione                                         |
+| Entità          | Dati e vincoli                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| Utenti          | ID interno, identità di accesso, nome, tema, consensi                                     |
+| Preferenze      | Generi scelti, origine e data aggiornamento; applicazione alla selezione successiva       |
+| Brani candidati | ID interno e link Spotify, genere curato, diritti, file audio autorizzato, stato verifica |
+| Contest         | Giorno Europe/Rome, chiusura, stato reveal                                                |
+| Selezioni       | Cinque slot per utente e contest; unicità dello slot e del brano                          |
+| Ascolti         | Selezione, slot, sessione e completamento validato                                        |
+| Voti            | Utente, contest, selezione e slot; vincolo UNIQUE(utente, contest)                        |
+| Preferiti       | Utente e brano; vincolo di unicità                                                        |
+| Esposizioni     | Eventi condivisi per calcolare ranking e distribuzione                                    |
 
 Conservare i dati necessari a profili, contest e candidature. Il collegamento agli account Spotify e la gestione dei token sono stati rimossi.
 
@@ -33,4 +33,4 @@ Conservare i dati necessari a profili, contest e candidature. Il collegamento ag
 
 ## Link esterni e sviluppi futuri
 
-I link Spotify presenti sono semplici collegamenti esterni e non richiedono API. Il modulo artista e le funzioni di caricamento verranno riesaminati in una fase successiva. Vedere [prossimi-passi.md](prossimi-passi.md).
+I link Spotify presenti sono semplici collegamenti esterni e non richiedono API. Le funzioni Vercel in `api/audio.ts` autorizzano il caricamento e la riproduzione su Supabase Storage privato. Il job Cron cancella gli audio scaduti attraverso Storage API e conserva i metadati. Vedere [audio-storage.md](audio-storage.md).

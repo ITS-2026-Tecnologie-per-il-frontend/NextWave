@@ -24,11 +24,11 @@ Apri http://127.0.0.1:4173. Con `VITE_DATA_MODE=supabase` è disponibile il logi
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
 
-Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. I file completi degli artisti devono ancora essere caricati e autorizzati.
+Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. Il modulo artista richiede un MP3 e il link Spotify; il server verifica il file e i moderatori autorizzano il brano per un giorno di contest. Dopo la chiusura viene cancellato solo l’audio dallo Storage privato, conservando i dati. Attivazione e trasferimento dei cinque campioni: [docs/audio-storage.md](docs/audio-storage.md).
 
 Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/generated/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
 
-Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, quindi ricompilare con un nuovo deploy. Configurare anche Site URL e redirect autorizzati in Supabase Auth.
+Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, aggiungere le variabili server `SUPABASE_SERVICE_ROLE_KEY` e `AUDIO_CLEANUP_SECRET`, quindi ricompilare con un nuovo deploy. Configurare anche Site URL e redirect autorizzati in Supabase Auth.
 
 ## Verifiche
 
@@ -73,8 +73,10 @@ I test dell’interfaccia usano account e risposte controllati, senza scrivere s
 - `supabase/migrations/`: schema e regole versionati.
 - `supabase/seeds/`: dati demo separati dalle migrazioni.
 - `scripts/`: bundle SQL, test PostgreSQL e controllo remoto.
+- `api/` e `server/audio/`: funzioni Vercel per upload, verifica MP3, audio privati e pulizia.
+- `supabase/operations/`: configurazione del job Cron.
 - `public/`: artwork e cinque WAV sintetici originali.
-- `tests/unit/` e `tests/integration/`: test delle regole e dei flussi React.
+- `tests/unit/`, `tests/integration/` e `tests/server/`: test delle regole, dei flussi React e dello Storage.
 - `supabase/updates/`: aggiornamenti manuali per database già inizializzati.
 - `docs/archive/`: documenti storici, separati dalle istruzioni attuali.
 
@@ -84,7 +86,7 @@ Le migrazioni e il seed sono le fonti del database. `npm run db:bundle` genera `
 
 ## Limiti attuali
 
-Il player demo contiene audio di 12 secondi: ascoltare tutto il file non equivale a riprodurre un brano commerciale completo. Per il prodotto reale servono audio completi con diritti verificati e storage privato. Gli heartbeat verificano tempo e avanzamento, ma non dimostrano attenzione umana; prima di un contest pubblico servono ulteriori misure antiabuso.
+Il player demo contiene audio di 12 secondi: ascoltare tutto il file non equivale a riprodurre un brano commerciale completo. I brani reali usano MP3 autorizzati in Storage privato; il collaudo remoto di questo flusso richiede la configurazione descritta in `docs/audio-storage.md`. Gli heartbeat verificano tempo e avanzamento, ma non dimostrano attenzione umana; prima di un contest pubblico servono ulteriori misure antiabuso.
 
 La vecchia demo conserva i dati nella chiave `vibepulse-v1`. I vecchi avvii non contano come completamenti; i voti demo storici restano nella demo e non vengono importati come voti verificati degli account Supabase.
 

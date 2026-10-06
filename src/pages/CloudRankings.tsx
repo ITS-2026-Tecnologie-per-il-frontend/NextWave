@@ -1,4 +1,5 @@
 import { getErrorMessage } from "../domain/errors.ts";
+import { SpotifyLink } from "../components/ui/SpotifyLink.tsx";
 import type { RankingPeriod } from "../types/models.ts";
 import type { RankingsResult } from "../types/models.ts";
 import type { CloudRepository } from "../services/cloudRepository.ts";
@@ -95,6 +96,7 @@ export default function CloudRankings({
                         <strong>{track.title}</strong>
                         <br />
                         <small>{track.artist}</small>
+                        <SpotifyLink track={track} />
                       </div>
                       <div className="metrics">
                         <small>

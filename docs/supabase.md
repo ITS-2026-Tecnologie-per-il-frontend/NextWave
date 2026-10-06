@@ -80,7 +80,7 @@ Il primo comando genera due script atomici per un progetto **vuoto**:
 - `supabase/generated/setup.sql`: schema e generi, senza brani dimostrativi.
 - `supabase/generated/setup-demo.sql`: schema, generi e catalogo demo.
 
-**Non rieseguire questi setup sul database già inizializzato.** Lo script iniziale eseguito in questa sessione conteneva le prime tre migrazioni; la quarta è stata applicata separatamente con `supabase/updates/session-credit.sql`, con Success riportato dall’utente. I setup generati ora includono tutte e sei le migrazioni per nuovi progetti vuoti. Entrambi scrivono anche lo storico `supabase_migrations.schema_migrations`, compatibile con la successiva gestione CLI. Un secondo setup fallisce senza alterare lo schema, grazie alla transazione.
+**Non rieseguire questi setup sul database già inizializzato.** Lo script iniziale eseguito in questa sessione conteneva le prime tre migrazioni; la quarta è stata applicata separatamente con `supabase/updates/session-credit.sql`, con Success riportato dall’utente. I setup generati ora includono tutte e sette le migrazioni per nuovi progetti vuoti. Entrambi scrivono anche lo storico `supabase_migrations.schema_migrations`, compatibile con la successiva gestione CLI. Un secondo setup fallisce senza alterare lo schema, grazie alla transazione.
 
 Il catalogo demo è in `supabase/seeds/demo.sql` ed è ripetibile: 75 artisti inventati, 75 candidati, cinque WAV sintetici da 12 secondi, marcati `is_demo`. Non inserisce account, voti, esposizioni o ascolti fittizi. Le classifiche cloud partono dalle esposizioni e dai voti realmente registrati. L’app segnala cataloghi insufficienti invece di generare candidati nel browser.
 
@@ -138,3 +138,7 @@ I dati localStorage della vecchia demo non vengono importati automaticamente com
 - [Database Functions](https://supabase.com/docs/guides/database/functions)
 - [Database Migrations](https://supabase.com/docs/guides/deployment/database-migrations)
 - [Seeding](https://supabase.com/docs/guides/local-development/seeding-your-database)
+
+## Aggiornamento audio temporanei
+
+La settima migrazione aggiunge gli audio privati e aggiorna le RPC esistenti senza cancellare lo storico. Sul progetto già inizializzato eseguire una volta `supabase/updates/temporary-audio.sql`. Configurare anche Vercel e il cron seguendo [audio-storage.md](audio-storage.md). Il modulo cloud richiede ora un MP3 e il link Spotify; l’ascolto cloud passa dalla funzione Vercel `/api/audio`. Per il collaudo di queste funzioni usare Vercel, perché `npm start` avvia soltanto il frontend Vite.

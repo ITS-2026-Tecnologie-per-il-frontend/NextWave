@@ -1,4 +1,5 @@
 import type { DemoTrack } from "../../types/models.ts";
+import { DEMO_SPOTIFY_URL } from "../../config/audio.ts";
 const originalGenres = ["Indie", "Pop", "Hip hop", "Elettronica", "R&B"];
 const additionalCatalog = [
   {
@@ -190,6 +191,8 @@ export const catalog: DemoTrack[] = Array.from({ length: 25 }, (_, i) => ({
   exposures: 240 + i * 37,
   votes: 28 + ((i * 19) % 115),
   audio: `audio/${i % 5}.wav`,
+  isDemo: true,
+  spotifyUrl: DEMO_SPOTIFY_URL,
 }));
 // Gli ID e i dati dei primi 25 brani restano stabili per voti e scoperte già salvati.
 catalog.push(
@@ -209,6 +212,8 @@ catalog.push(
         exposures: 240 + index * 37,
         votes: 28 + ((index * 19) % 115),
         audio: `audio/${trackIndex}.wav`,
+        isDemo: true,
+        spotifyUrl: DEMO_SPOTIFY_URL,
       };
     }),
   ),

@@ -9,8 +9,30 @@ import type {
   Application,
 } from "../types/models.ts";
 import { getErrorMessage } from "../domain/errors.ts";
+import { AUDIO_BUCKET } from "../config/audio.ts";
 // I client non scrivono direttamente il ledger: usano RPC con controlli server.
 export function createCloudRepository(client: SupabaseClient) {
+  async function audioApi<T>(
+    action: string,
+    data: Record<string, unknown>,
+  ): Promise<T> {
+    const { data: auth } = await client.auth.getSession();
+    if (!auth.session) throw new Error("Accedi nuovamente a NextWave.");
+    const response = await fetch("/api/audio", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.session.access_token}`,
+      },
+      body: JSON.stringify({ action, ...data }),
+    });
+    const result = await response.json().catch(() => ({
+      error: "Servizio audio non disponibile. Verifica il deployment.",
+    }));
+    if (!response.ok)
+      throw new Error(result.error || "Servizio audio non disponibile.");
+    return result as T;
+  }
   async function rpc<T = unknown>(
     name: string,
     parameters: Record<string, unknown> = {},
@@ -38,8 +60,7 @@ export function createCloudRepository(client: SupabaseClient) {
         p_genres: profile.prefs,
         p_onboarded: profile.onboard,
       }),
-    beginListening: (id: string) =>
-      rpc<ListeningSession>("begin_listening", { p_selection: id }),
+    beginListening: (id: string) => audioApi<ListeningSession>("play", { id }),
     progress: (sessionId: string, position: number, finish = false) =>
       rpc<{ completed: boolean; creditedSeconds?: number }>(
         "listening_progress",
@@ -56,20 +77,36 @@ export function createCloudRepository(client: SupabaseClient) {
       rpc<RankingsResult>("get_rankings", { p_period: period }),
     reveal: (day: string) => rpc<RankingRow[]>("get_reveal", { p_day: day }),
     seenReveal: (day: string) => rpc("mark_reveal_seen", { p_day: day }),
-    submitApplication: (data: Application) =>
-      rpc("submit_application", {
-        p_artist: data.artist,
-        p_title: data.title,
-        p_listeners: Number(data.listeners),
-        p_genre: data.genre,
-        p_language: data.language,
-        p_subgenre: data.subgenre,
-        p_mood: data.mood,
-        p_spotify_id: new URL(data.spotify).pathname.match(
-          /track\/([a-zA-Z0-9]{22})/,
-        )?.[1],
-        p_rights: Boolean(data.rights),
-      }),
+    async submitApplication(data: Application, audio: File) {
+      const asset = await audioApi<{ id: string; path: string; token: string }>(
+        "prepare",
+        {
+          data: {
+            ...data,
+            listeners: Number(data.listeners),
+            rights: Boolean(data.rights),
+            spotifyId: new URL(data.spotify).pathname.match(
+              /track\/([a-zA-Z0-9]{22})/,
+            )?.[1],
+          },
+        },
+      );
+      try {
+        const uploaded = await client.storage
+          .from(AUDIO_BUCKET)
+          .uploadToSignedUrl(asset.path, asset.token, audio, {
+            contentType: "audio/mpeg",
+          });
+        if (uploaded.error)
+          throw new Error(
+            "Caricamento interrotto. Attendi la scadenza indicata nella candidatura prima di riprovare.",
+          );
+        return await audioApi("finalize", { id: asset.id });
+      } catch (error) {
+        await audioApi("cancel", { id: asset.id }).catch(() => undefined);
+        throw error;
+      }
+    },
   };
 }
 

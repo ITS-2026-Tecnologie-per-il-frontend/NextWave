@@ -18,6 +18,7 @@ import { catalog } from "../data/demo/catalog.ts";
 import { canPlay, canVote } from "../domain/contest.ts";
 import { Heading } from "../components/ui/Heading.tsx";
 import { Icon } from "../components/ui/Icon.tsx";
+import { SpotifyLink } from "../components/ui/SpotifyLink.tsx";
 export default function Daily({
   round,
   clock,
@@ -125,7 +126,7 @@ export default function Daily({
                 </span>
                 <button
                   className="play"
-                  disabled={locked || player.loading}
+                  disabled={locked || player.loading || (cloud && revealed)}
                   aria-label={`${playing ? "Pausa" : "Ascolta"} brano ${index + 1}`}
                   onClick={() => player.play(id)}
                 >
@@ -135,7 +136,13 @@ export default function Daily({
               <div className="trackmeta">
                 <span>{track.genre}</span>
                 <span className={heard ? "check" : ""}>
-                  {heard ? "✓ Completato" : locked ? "Bloccato" : "Audio demo"}
+                  {heard
+                    ? "✓ Completato"
+                    : locked
+                      ? "Bloccato"
+                      : track.isDemo
+                        ? "Audio demo"
+                        : "Audio del contest"}
                 </span>
               </div>
               <h3>
@@ -159,17 +166,7 @@ export default function Daily({
                       ? "✓ Salvato"
                       : "＋ Salva scoperta"}
                   </button>
-                  <a
-                    className="textbtn"
-                    href={
-                      track.spotifyUrl ||
-                      `https://open.spotify.com/search/${encodeURIComponent(track.genre)}`
-                    }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Esplora {track.genre} su Spotify ↗
-                  </a>
+                  <SpotifyLink track={track} />
                 </>
               ) : (
                 <button

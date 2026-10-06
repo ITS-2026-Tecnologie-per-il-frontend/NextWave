@@ -117,7 +117,7 @@ export default function Layout({
           </span>
         </div>
         <button
-          disabled={!round.ids.length || player.loading}
+          disabled={!round.ids.length || player.loading || (cloud && revealed)}
           onClick={() => player.play(player.active || round.ids[0])}
           aria-label={player.playing ? "Pausa" : "Riproduci"}
         >

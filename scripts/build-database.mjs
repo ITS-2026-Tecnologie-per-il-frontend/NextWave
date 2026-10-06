@@ -43,6 +43,16 @@ await writeFile(
   "supabase/generated/setup-demo.sql",
   `${header}-- INCLUDE IL CATALOGO DEMO, non dati di produzione.\nbegin;\n${sql.join("\n")}\n${demo}\n${ledger}commit;\n`,
 );
+// Aggiornamento dedicato al progetto esistente: non riesegue le vecchie migrazioni.
+const audioVersion = "20261006000300";
+const audioIndex = files.findIndex((file) => file.startsWith(audioVersion));
+if (audioIndex >= 0) {
+  await mkdir("supabase/updates", { recursive: true });
+  await writeFile(
+    "supabase/updates/temporary-audio.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo remove-spotify.sql.\n-- Non modifica voti, risultati o utenti.\nbegin;\n${sql[audioIndex]}\ncreate schema if not exists supabase_migrations;\ncreate table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);\ninsert into supabase_migrations.schema_migrations(version,name) values ('${audioVersion}','temporary_audio') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );
