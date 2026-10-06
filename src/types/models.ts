@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
 
-export type Route = "daily" | "ranks" | "artist" | "profile";
+export type Route = "daily" | "ranks" | "artist" | "profile" | "admin";
 export type RankingPeriod = "day" | "week";
 export type Notify = (message: string) => void;
 
@@ -91,11 +91,37 @@ export type ProfileUpdate = (
 ) => void | Promise<unknown>;
 
 export interface Dashboard {
+  adminAccess?: AdminAccess;
   profile: Profile;
   tracks: Track[];
   favorites: Track[];
   clock: Clock;
   serverTime: string;
+}
+
+export interface AdminAccess {
+  allowed: boolean;
+  owner: boolean;
+}
+
+export interface AdminApplication extends Application {
+  id: string;
+  duration: number | null;
+  expires: string | null;
+  reviewable: boolean;
+  reviewNote: string | null;
+  reviewedAt: string | null;
+}
+
+export interface AdminDashboard {
+  access: AdminAccess;
+  applications: AdminApplication[];
+  accounts: {
+    id: string;
+    email: string;
+    owner: boolean;
+    created: string | null;
+  }[];
 }
 
 export interface ListeningSession {

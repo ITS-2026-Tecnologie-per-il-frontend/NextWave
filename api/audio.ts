@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { createClient } from "@supabase/supabase-js";
 import { createAudioService } from "../server/audio/service.ts";
+import { AUDIO_BUCKET } from "../src/config/audio.ts";
 
 export default async function handler(
   req: IncomingMessage & { body?: unknown },
@@ -45,7 +46,11 @@ export default async function handler(
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const service = createAudioService(admin);
-    if (!["prepare", "finalize", "cancel", "play"].includes(action ?? "")) {
+    if (
+      !["prepare", "finalize", "cancel", "play", "admin-preview"].includes(
+        action ?? "",
+      )
+    ) {
       respond(400, { error: "Operazione non valida." });
       return;
     }
@@ -68,6 +73,24 @@ export default async function handler(
     }
     if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
       respond(400, { error: "Identificativo non valido." });
+      return;
+    }
+    if (action === "admin-preview") {
+      const review = await client.rpc("admin_console", {
+        p_action: "preview",
+        p_data: { applicationId: id },
+      });
+      if (review.error) {
+        respond(review.error.code === "42501" ? 403 : 400, {
+          error: "Audio di revisione non disponibile.",
+        });
+        return;
+      }
+      const signed = await admin.storage
+        .from(AUDIO_BUCKET)
+        .createSignedUrl(review.data.path, 600);
+      if (signed.error) throw new Error("Audio non disponibile. Riprova.");
+      respond(200, { audioUrl: signed.data.signedUrl });
       return;
     }
     const result =

@@ -110,7 +110,9 @@ describe("ascolti giornalieri", () => {
     );
     expect(stored().rounds[day].vote).toBe(initial.rounds[day].ids[2]);
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", { name: "Torna a Next Wave" }),
+      screen.getByRole<HTMLButtonElement>("button", {
+        name: "Torna a Next Wave",
+      }),
     );
     expect(
       screen.getByRole<HTMLButtonElement>("button", { name: "✓ Il tuo voto" })

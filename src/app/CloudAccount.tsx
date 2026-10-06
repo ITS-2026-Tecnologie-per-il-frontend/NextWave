@@ -19,6 +19,7 @@ import Onboarding from "../pages/Onboarding.tsx";
 import Daily from "../pages/Daily.tsx";
 import Profile from "../pages/Profile.tsx";
 import Artist from "../pages/Artist.tsx";
+import Admin from "../pages/Admin.tsx";
 
 import { readRoute } from "../config/routes.ts";
 
@@ -33,7 +34,7 @@ export function Account({
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [busy, setBusy] = useState(false);
-  const [route, setRoute] = useState(readRoute);
+  const [route, setRoute] = useState(() => readRoute(location.hash, true));
   const [dialog, setDialog] = useState<CloudDialog | null>(null);
   const [now, setNow] = useState(Date.now());
   const offsetRef = useRef(0);
@@ -84,7 +85,7 @@ export function Account({
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     const changed = () => {
-      setRoute(readRoute());
+      setRoute(readRoute(location.hash, true));
       setDialog(null);
     };
     window.addEventListener("hashchange", changed);
@@ -110,6 +111,13 @@ export function Account({
     }
   }, [clock.day, clock.revealed, refresh, notify]);
   const profile = data?.profile;
+  const canAdmin = data?.adminAccess?.allowed === true;
+  useEffect(() => {
+    if (data && route === "admin" && !canAdmin) {
+      setRoute("daily");
+      location.hash = "daily";
+    }
+  }, [data, route, canAdmin]);
   const round = profile?.rounds[clock.day] || {
     day: clock.day,
     ids: [],
@@ -238,6 +246,7 @@ export function Account({
       ) : (
         <Layout
           cloud
+          admin={canAdmin}
           profile={profile}
           route={route}
           navigate={navigate}
@@ -317,6 +326,15 @@ export function Account({
             />
           )}
           {route === "ranks" && <CloudRankings repository={repository} />}
+          {route === "admin" && canAdmin && (
+            <Admin
+              repository={repository}
+              onAccessLost={() => {
+                void refresh();
+                navigate("daily");
+              }}
+            />
+          )}
         </Layout>
       )}
       {dialog && (

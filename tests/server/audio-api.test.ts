@@ -2,14 +2,38 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { afterEach, expect, test, vi } from "vitest";
 import handler from "../../api/audio.ts";
 
-const { getUser } = vi.hoisted(() => ({
-  getUser: vi.fn(async () => ({
-    data: { user: null },
-    error: { message: "invalid JWT" },
+const { getUser, rpc, signedUrl } = vi.hoisted(() => ({
+  getUser: vi.fn(
+    async (
+      _token: string,
+    ): Promise<{
+      data: { user: { id: string } | null };
+      error: { message: string } | null;
+    }> => ({
+      data: { user: null },
+      error: { message: "invalid JWT" },
+    }),
+  ),
+  rpc: vi.fn(
+    async (
+      _name: string,
+      _data: unknown,
+    ): Promise<{
+      data: { path: string } | null;
+      error: { code: string } | null;
+    }> => ({ data: null, error: { code: "42501" } }),
+  ),
+  signedUrl: vi.fn(async () => ({
+    data: { signedUrl: "https://storage.example/review.mp3" },
+    error: null,
   })),
 }));
 vi.mock("@supabase/supabase-js", () => ({
-  createClient: () => ({ auth: { getUser }, storage: { from: () => ({}) } }),
+  createClient: () => ({
+    auth: { getUser },
+    rpc,
+    storage: { from: () => ({ createSignedUrl: signedUrl }) },
+  }),
 }));
 afterEach(() => vi.unstubAllEnvs());
 
@@ -52,4 +76,40 @@ test("la moderazione non è accessibile attraverso l’endpoint pubblico", async
   configure();
   expect((await request({ action: "approve" })).statusCode).toBe(400);
   expect((await request({}, "", "GET")).statusCode).toBe(405);
+});
+
+test("la firma audio admin richiede autorizzazione dal database", async () => {
+  configure();
+  signedUrl.mockClear();
+  getUser.mockResolvedValueOnce({
+    data: { user: { id: "regular-user" } },
+    error: null,
+  });
+  const response = await request(
+    { action: "admin-preview", id: "11111111-1111-1111-1111-111111111111" },
+    "regular-token",
+  );
+  expect(response.statusCode).toBe(403);
+  expect(signedUrl).not.toHaveBeenCalled();
+});
+
+test("un admin verificato riceve un ascolto privato di dieci minuti", async () => {
+  configure();
+  getUser.mockResolvedValueOnce({
+    data: { user: { id: "admin-user" } },
+    error: null,
+  });
+  rpc.mockResolvedValueOnce({
+    data: { path: "tracks/11111111-1111-1111-1111-111111111111.mp3" },
+    error: null,
+  });
+  const response = await request(
+    { action: "admin-preview", id: "11111111-1111-1111-1111-111111111111" },
+    "admin-token",
+  );
+  expect(response.statusCode).toBe(200);
+  expect(signedUrl).toHaveBeenCalledWith(
+    "tracks/11111111-1111-1111-1111-111111111111.mp3",
+    600,
+  );
 });

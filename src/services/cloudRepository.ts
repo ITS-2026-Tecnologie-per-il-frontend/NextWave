@@ -7,6 +7,8 @@ import type {
   RankingsResult,
   RankingRow,
   Application,
+  AdminAccess,
+  AdminDashboard,
 } from "../types/models.ts";
 import { getErrorMessage } from "../domain/errors.ts";
 import { AUDIO_BUCKET } from "../config/audio.ts";
@@ -52,7 +54,21 @@ export function createCloudRepository(client: SupabaseClient) {
     return data as T;
   }
   return {
-    dashboard: () => rpc<Dashboard>("get_dashboard"),
+    async dashboard(): Promise<Dashboard> {
+      const [dashboard, adminAccess] = await Promise.all([
+        rpc<Dashboard>("get_dashboard"),
+        rpc<AdminAccess>("get_admin_access"),
+      ]);
+      return { ...dashboard, adminAccess };
+    },
+    adminDashboard: () =>
+      rpc<AdminDashboard>("admin_console", { p_action: "dashboard" }),
+    adminAction: (
+      action: "approve" | "reject" | "grant" | "revoke",
+      data: Record<string, unknown>,
+    ) => rpc("admin_console", { p_action: action, p_data: data }),
+    adminPreview: (applicationId: string) =>
+      audioApi<{ audioUrl: string }>("admin-preview", { id: applicationId }),
     saveProfile: (profile: Profile) =>
       rpc("save_profile", {
         p_name: profile.name,

@@ -53,6 +53,14 @@ if (audioIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo remove-spotify.sql.\n-- Non modifica voti, risultati o utenti.\nbegin;\n${sql[audioIndex]}\ncreate schema if not exists supabase_migrations;\ncreate table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);\ninsert into supabase_migrations.schema_migrations(version,name) values ('${audioVersion}','temporary_audio') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const adminVersion = "20261006000400";
+const adminIndex = files.findIndex((file) => file.startsWith(adminVersion));
+if (adminIndex >= 0) {
+  await writeFile(
+    "supabase/updates/admin-console.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo temporary-audio.sql.\n-- Aggiunge il pannello admin e protegge il superadmin.\nbegin;\n${sql[adminIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${adminVersion}','admin_console') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

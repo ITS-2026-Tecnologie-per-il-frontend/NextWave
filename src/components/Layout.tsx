@@ -9,6 +9,7 @@ interface LayoutProps {
   revealed: boolean;
   round: Round;
   cloud?: boolean;
+  admin?: boolean;
 }
 import { Brand } from "./ui/Brand.tsx";
 import { Icon } from "./ui/Icon.tsx";
@@ -27,6 +28,7 @@ export default function Layout({
   revealed,
   round,
   cloud = false,
+  admin = false,
 }: LayoutProps) {
   const initial = (profile.name || "Tu")[0].toUpperCase();
   const trackIndex = player.active ? round.ids.indexOf(player.active) : -1;
@@ -35,7 +37,10 @@ export default function Layout({
       <aside className="sidebar">
         <Brand onHome={() => navigate("daily")} />
         <nav className="nav" aria-label="Navigazione principale">
-          {navigation.map(([id, label]) => (
+          {(admin
+            ? [...navigation, ["admin", "Pannello admin"] as [Route, string]]
+            : navigation
+          ).map(([id, label]) => (
             <button
               key={id}
               className={route === id ? "active" : ""}

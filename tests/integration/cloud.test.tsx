@@ -1,6 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CloudRepository } from "../../src/services/cloudRepository.ts";
-import type { Dashboard, Profile } from "../../src/types/models.ts";
+import type {
+  Dashboard,
+  Profile,
+  AdminDashboard,
+} from "../../src/types/models.ts";
 import { getAudio } from "../helpers/dom.ts";
 import { describe, expect, test, vi } from "vitest";
 import {
@@ -70,6 +74,20 @@ async function mountCloud(state = fixture()) {
     reveal: vi.fn(async () => []),
     seenReveal: vi.fn(async () => {}),
     submitApplication: vi.fn(async () => {}),
+    adminDashboard: vi.fn(async (): Promise<AdminDashboard> => ({
+      access: { allowed: true, owner: true },
+      applications: [],
+      accounts: [
+        {
+          id: "account-1",
+          email: "santonithomas9@gmail.com",
+          owner: true,
+          created: null,
+        },
+      ],
+    })),
+    adminAction: vi.fn(async () => {}),
+    adminPreview: vi.fn(async () => ({ audioUrl: "/audio/0.wav" })),
   };
   const client = { auth: { signOut: vi.fn(async () => ({ error: null })) } };
   render(
@@ -93,6 +111,112 @@ function finish(audio: HTMLAudioElement, start = 0) {
 }
 
 describe("account cloud", () => {
+  test("nasconde il pannello agli utenti ordinari anche con URL admin", async () => {
+    location.hash = "admin";
+    const { repository } = await mountCloud();
+    expect(screen.queryByRole("button", { name: "Pannello admin" })).toBeNull();
+    expect(repository.adminDashboard).not.toHaveBeenCalled();
+    await waitFor(() => expect(location.hash).toBe("#daily"));
+  });
+  test("mostra il pannello e protegge il superadmin dalla revoca", async () => {
+    const state = fixture();
+    state.adminAccess = { allowed: true, owner: true };
+    await mountCloud(state);
+    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    await screen.findByText("santonithomas9@gmail.com");
+    expect(screen.getByText("Superadmin · protetto")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Revoca accesso" })).toBeNull();
+  });
+  test("approva solo dopo checklist e conferma e autorizza un altro admin", async () => {
+    const state = fixture();
+    state.adminAccess = { allowed: true, owner: true };
+    const { repository } = await mountCloud(state);
+    repository.adminDashboard.mockResolvedValue({
+      access: { allowed: true, owner: true },
+      accounts: [],
+      applications: [
+        {
+          id: "application-1",
+          artist: "Artist",
+          title: "Song",
+          listeners: 50,
+          subgenre: "Pop",
+          spotify: "https://open.spotify.com/track/1234567890123456789012",
+          genre: "Pop",
+          language: "Italiano",
+          status: "pending",
+          audioState: "ready",
+          duration: 12,
+          expires: null,
+          reviewable: true,
+          reviewNote: null,
+          reviewedAt: null,
+        },
+      ],
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    await screen.findByText("Song");
+    const approve = screen.getByRole<HTMLButtonElement>("button", {
+      name: "Approva e programma",
+    });
+    expect(approve.disabled).toBe(true);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Carica ascolto privato" }),
+    );
+    await waitFor(() =>
+      expect(repository.adminPreview).toHaveBeenCalledWith("application-1"),
+    );
+    for (const checkbox of screen.getAllByRole("checkbox"))
+      fireEvent.click(checkbox);
+    expect(approve.disabled).toBe(false);
+    fireEvent.click(approve);
+    expect(repository.adminAction).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Conferma approvazione" }),
+    );
+    await waitFor(() =>
+      expect(repository.adminAction).toHaveBeenCalledWith(
+        "approve",
+        expect.objectContaining({
+          applicationId: "application-1",
+          checks: [true, true, true],
+        }),
+      ),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole<HTMLButtonElement>("button", {
+          name: "Autorizza admin",
+        }).disabled,
+      ).toBe(false),
+    );
+    fireEvent.change(
+      screen.getByLabelText("Email dell’account da autorizzare"),
+      { target: { value: "moderator@example.com" } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Autorizza admin" }));
+    await waitFor(() =>
+      expect(repository.adminAction).toHaveBeenCalledWith("grant", {
+        email: "moderator@example.com",
+      }),
+    );
+  });
+  test("un admin aggiuntivo non vede la gestione degli account", async () => {
+    const state = fixture();
+    state.adminAccess = { allowed: true, owner: false };
+    const { repository } = await mountCloud(state);
+    repository.adminDashboard.mockResolvedValue({
+      access: { allowed: true, owner: false },
+      applications: [],
+      accounts: [],
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    await screen.findByText("Nessuna candidatura in questa sezione.");
+    expect(
+      screen.queryByRole("button", { name: "Autorizza admin" }),
+    ).toBeNull();
+    expect(screen.queryByText("Account autorizzati")).toBeNull();
+  });
   test("usa l’audio autorizzato dal server e sblocca il successivo dopo conferma DB", async () => {
     const { audio, repository } = await mountCloud();
     await act(async () =>

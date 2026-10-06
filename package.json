@@ -13,6 +13,7 @@
     "format:check": "prettier --check src server api tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
     "db:bundle": "tsx scripts/build-database.mjs",
     "db:test": "node scripts/test-database.mjs",
+    "admin:test": "node scripts/test-admin.mjs",
     "db:check": "node --env-file=.env.local scripts/check-supabase.mjs",
     "audio:admin": "node --env-file=.env.local --env-file-if-exists=.env.audio.local scripts/audio-admin.mjs",
     "audio:upload-demo": "npm run audio:admin -- upload-demo",
