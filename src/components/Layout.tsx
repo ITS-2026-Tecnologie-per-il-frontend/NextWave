@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { Profile, Route, Player, Round } from "../types/models.ts";
 interface LayoutProps {
   profile: Profile;
@@ -131,10 +131,11 @@ export default function Layout({
         <span className="time">
           {Math.floor(player.time)} / {Math.ceil(player.duration)} s
         </span>
-        <label>
+        <label className="volume">
           Volume
           <input
             type="range"
+            style={{ "--volume": `${player.volume * 100}%` } as CSSProperties}
             min="0"
             max="1"
             step="0.05"
