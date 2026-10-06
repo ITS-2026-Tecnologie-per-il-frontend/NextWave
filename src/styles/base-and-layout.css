@@ -607,10 +607,66 @@ small,
   place-items: center;
 }
 
-.player input {
-  accent-color: var(--lime);
-  min-width: 50px;
-  width: 100%;
+/* Keep the range independent from form field styles. */
+.player input[type="range"] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1;
+  min-width: 0;
+  width: 88px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.player input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--lime) var(--volume),
+    var(--line) var(--volume)
+  );
+}
+
+.player input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.player input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.player input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--lime);
+}
+
+.player input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.player input[type="range"]:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
 }
 
 .player .time {
@@ -624,10 +680,13 @@ small,
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  width: 130px;
+  width: 150px;
+  flex-shrink: 0;
+  margin: 0;
 }
 
 .player progress {
+  min-width: 0;
   flex: 1;
   accent-color: var(--lime);
   height: 5px;
