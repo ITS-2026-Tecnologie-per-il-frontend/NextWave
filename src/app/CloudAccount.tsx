@@ -271,7 +271,7 @@ export function Account({
               />
             ) : (
               <section className="panel">
-                <h1>Stiamo preparando il tuo pulse.</h1>
+                <h1>Stiamo preparando la tua selezione.</h1>
                 <p>
                   Non ci sono ancora cinque brani approvati nei generi che hai
                   scelto. I progressi appariranno qui quando il catalogo sarà

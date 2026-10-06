@@ -202,7 +202,7 @@ describe("account cloud", () => {
     expect(screen.getByRole("status").textContent).toContain(
       "Hai già votato oggi.",
     );
-    expect(screen.queryByText("✓ Il tuo voto è nel pulse.")).toBeNull();
+    expect(screen.queryByText("✓ Il tuo voto è su Next Wave.")).toBeNull();
   });
   test("catalogo vuoto viene segnalato senza creare cinque brani locali", async () => {
     const state = fixture();
@@ -214,7 +214,7 @@ describe("account cloud", () => {
         repository={{ dashboard: async () => state } as CloudRepository}
       />,
     );
-    await screen.findByText("Stiamo preparando il tuo pulse.");
+    await screen.findByText("Stiamo preparando la tua selezione.");
     expect(
       screen.queryByRole("button", { name: "Ascolta brano 1" }),
     ).toBeNull();

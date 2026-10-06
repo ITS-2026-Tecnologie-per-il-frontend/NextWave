@@ -110,7 +110,7 @@ describe("ascolti giornalieri", () => {
     );
     expect(stored().rounds[day].vote).toBe(initial.rounds[day].ids[2]);
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", { name: "Torna al pulse" }),
+      screen.getByRole<HTMLButtonElement>("button", { name: "Torna a Next Wave" }),
     );
     expect(
       screen.getByRole<HTMLButtonElement>("button", { name: "✓ Il tuo voto" })
@@ -169,7 +169,7 @@ describe("flussi React", () => {
     mount({ onboard: false });
     fireEvent.click(
       screen.getByRole<HTMLButtonElement>("button", {
-        name: "Entra nel pulse →",
+        name: "Entra in Next Wave →",
       }),
     );
     fireEvent.click(
@@ -191,7 +191,7 @@ describe("flussi React", () => {
     expect(stored().theme).toBe("house");
     fireEvent.click(
       screen.getAllByRole<HTMLButtonElement>("button", {
-        name: "Vibe Pulse · Torna ai 5 brani",
+        name: "Next Wave · Torna ai 5 brani",
       })[0],
     );
     expect(screen.getByText("La tua selezione")).toBeTruthy();

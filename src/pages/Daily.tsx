@@ -44,7 +44,7 @@ export default function Daily({
     .join(":");
   return (
     <>
-      <Heading title="Il tuo daily pulse">
+      <Heading title="Il tuo daily wave">
         Una nuova selezione, ogni giorno ·{" "}
         {round.day.split("-").reverse().join("/")}
       </Heading>
@@ -90,7 +90,7 @@ export default function Daily({
       </section>
       {round.vote && (
         <div className="success revealbanner">
-          <b>✓ Il tuo voto è nel pulse.</b>
+          <b>✓ Il tuo voto è su Next Wave.</b>
           <p className="hint">
             Hai scelto il brano{" "}
             {String(round.ids.indexOf(round.vote) + 1).padStart(2, "0")}.

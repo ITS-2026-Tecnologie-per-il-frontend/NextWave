@@ -13,7 +13,7 @@ interface LayoutProps {
 import { Brand } from "./ui/Brand.tsx";
 import { Icon } from "./ui/Icon.tsx";
 const navigation: [Route, string][] = [
-  ["daily", "Daily pulse"],
+  ["daily", "Daily wave"],
   ["ranks", "Classifiche"],
   ["artist", "Per gli artisti"],
   ["profile", "Il tuo profilo"],
@@ -67,7 +67,7 @@ export default function Layout({
               {profile.name || "Ascoltatore"}
               <br />
               <span className="muted">
-                {cloud ? "Account Vibe Pulse" : "Profilo demo"}
+                {cloud ? "Account Next Wave" : "Profilo demo"}
               </span>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function Layout({
           </div>
           <div className="topright">
             <span className="badge">
-              {cloud ? "VIBE PULSE" : "DEMO INTERATTIVA"}
+              {cloud ? "NEXT WAVE" : "DEMO INTERATTIVA"}
             </span>
             <button
               className="avatar"
@@ -94,7 +94,7 @@ export default function Layout({
         </header>
         {children}
         <p className="footerline">
-          VIBE PULSE © 2026 ·{" "}
+          NEXT WAVE © 2026 ·{" "}
           {cloud
             ? "Account e progressi sincronizzati"
             : "Artisti, audio e risultati dimostrativi"}{" "}

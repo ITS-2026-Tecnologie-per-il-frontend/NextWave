@@ -19,7 +19,7 @@ export default function App() {
     <Suspense
       fallback={
         <main className="connection-page">
-          <p role="status">Caricamento di Vibe Pulse…</p>
+          <p role="status">Caricamento di Next Wave…</p>
         </main>
       }
     >

@@ -1,4 +1,4 @@
--- Vibe Pulse: schema iniziale. Solo operazioni additive; nessun DROP/reset remoto.
+-- Next Wave: schema iniziale. Solo operazioni additive; nessun DROP/reset remoto.
 create schema if not exists vp_private;
 revoke all on schema vp_private from public, anon, authenticated;
 

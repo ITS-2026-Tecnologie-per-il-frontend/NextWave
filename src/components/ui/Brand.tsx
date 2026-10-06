@@ -6,7 +6,7 @@ export function Brand({ onHome }: { onHome?: () => void }) {
         <i />
         <i />
       </span>
-      vibe<span>pulse</span>
+      next<span>wave</span>
     </>
   );
   return onHome ? (
@@ -14,7 +14,7 @@ export function Brand({ onHome }: { onHome?: () => void }) {
       type="button"
       className="brand brand-home"
       onClick={onHome}
-      aria-label="Vibe Pulse · Torna ai 5 brani"
+      aria-label="Next Wave · Torna ai 5 brani"
     >
       {content}
     </button>

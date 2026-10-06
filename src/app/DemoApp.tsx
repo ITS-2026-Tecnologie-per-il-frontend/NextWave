@@ -287,7 +287,7 @@ export default function DemoApp() {
               <h2>Hai dato voce a una nuova scoperta.</h2>
               <p>Torna alle 21:00 per scoprire tutti gli artisti.</p>
               <button className="btn" onClick={() => setDialog(null)}>
-                Torna al pulse
+                Torna a Next Wave
               </button>
             </>
           )}

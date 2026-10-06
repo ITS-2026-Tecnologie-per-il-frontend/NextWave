@@ -114,7 +114,7 @@ export default function Profile({
         <div
           className="theme-catalog"
           role="group"
-          aria-label="Scegli i colori di Vibe Pulse"
+          aria-label="Scegli i colori di Next Wave"
         >
           {themes.map((theme, index) => (
             <button

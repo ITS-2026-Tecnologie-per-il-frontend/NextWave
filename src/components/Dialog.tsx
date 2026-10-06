@@ -23,7 +23,7 @@ export default function Dialog({
       ref={ref}
       className={reveal ? "revealmodal" : ""}
       aria-label={
-        reveal ? "Classifica del contest concluso" : "Messaggio Vibe Pulse"
+        reveal ? "Classifica del contest concluso" : "Messaggio Next Wave"
       }
       onCancel={(event) => {
         event.preventDefault();

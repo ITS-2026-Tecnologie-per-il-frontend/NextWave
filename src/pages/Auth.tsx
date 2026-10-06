@@ -40,7 +40,7 @@ export default function Auth({ client }: { client: SupabaseClient }) {
     <main className="connection-page">
       <section className="panel auth-panel">
         <Brand />
-        <h1>{signup ? "Entra nel pulse." : "Bentornato nel pulse."}</h1>
+        <h1>{signup ? "Entra in Next Wave." : "Bentornato su Next Wave."}</h1>
         <p>
           Un account per ritrovare gusti, scoperte e progressi su ogni
           dispositivo.

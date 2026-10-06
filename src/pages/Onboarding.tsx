@@ -38,7 +38,7 @@ export default function Onboarding({
       </section>
       <section className="onboardform">
         <span className="eyebrow lime">
-          {step + 1} / 2 — {["BENVENUTO NEL PULSE", "I TUOI GUSTI"][step]}
+          {step + 1} / 2 — {["BENVENUTO IN NEXT WAVE", "I TUOI GUSTI"][step]}
         </span>
         {step === 0 && (
           <>
@@ -66,7 +66,7 @@ export default function Onboarding({
               </div>
             </div>
             <button className="btn" onClick={() => setStep(1)}>
-              Entra nel pulse →
+              Entra in Next Wave →
             </button>
           </>
         )}

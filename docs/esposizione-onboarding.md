@@ -4,7 +4,7 @@ La pagina consigliata è `src/pages/Onboarding.tsx`. È un esempio leggibile di 
 
 ## Cosa fa la pagina
 
-Presenta Vibe Pulse, raccoglie il nome e i generi preferiti, poi comunica le scelte al componente che gestisce l’account. L’interfaccia cambia senza caricare una nuova pagina HTML.
+Presenta Next Wave, raccoglie il nome e i generi preferiti, poi comunica le scelte al componente che gestisce l’account. L’interfaccia cambia senza caricare una nuova pagina HTML.
 
 Mostra due passaggi, introduzione e scelta dei gusti, sia nella demo sia con Supabase. Il collegamento agli account Spotify è stato rimosso. In modalità Supabase il componente riceve un profilo già associato all’account autenticato.
 
@@ -24,7 +24,7 @@ Questa separazione permette di usare la stessa interfaccia con la demo locale e 
 
 ## Traccia orale breve
 
-“Questa è la pagina di onboarding di Vibe Pulse. Serve a presentare l’app e raccogliere i gusti musicali dell’utente. Ho usato un componente React con alcuni stati: il passaggio corrente, il nome e i generi selezionati. Quando l’utente interagisce, gli eventi aggiornano questi stati e React ridisegna la parte dell’interfaccia interessata.
+“Questa è la pagina di onboarding di Next Wave. Serve a presentare l’app e raccogliere i gusti musicali dell’utente. Ho usato un componente React con alcuni stati: il passaggio corrente, il nome e i generi selezionati. Quando l’utente interagisce, gli eventi aggiornano questi stati e React ridisegna la parte dell’interfaccia interessata.
 
 Il contenuto cambia in base al valore di step. Il nome è un campo controllato e la scelta dei generi è affidata a un componente riutilizzabile. Il pulsante finale controlla che sia stato selezionato almeno un genere e viene disabilitato durante il salvataggio.
 
