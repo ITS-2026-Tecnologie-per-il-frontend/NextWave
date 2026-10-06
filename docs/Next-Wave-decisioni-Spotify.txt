@@ -1,3 +1,5 @@
+NOTA: documento di confronto storico. Le API e il collegamento Spotify sono stati rimossi. Per lo stato attuale consultare docs/prossimi-passi.md.
+
 NEXT WAVE — SPOTIFY E PROPOSTA PER I BRANI DEGLI ARTISTI
 Documento per il confronto tra collaboratori
 Aggiornato al 6 ottobre 2026

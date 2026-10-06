@@ -6,13 +6,13 @@ La pagina consigliata è `src/pages/Onboarding.jsx`. È un esempio leggibile di 
 
 Presenta Vibe Pulse, raccoglie il nome e i generi preferiti, poi comunica le scelte al componente che gestisce l’account. L’interfaccia cambia senza caricare una nuova pagina HTML.
 
-In modalità Supabase mostra introduzione e scelta dei gusti: il passaggio di collegamento Spotify è saltato perché non è ancora implementato. Il componente riceve un profilo già associato all’account autenticato. Nella demo locale conserva anche il passaggio di collegamento Spotify simulato.
+Mostra due passaggi, introduzione e scelta dei gusti, sia nella demo sia con Supabase. Il collegamento agli account Spotify è stato rimosso. In modalità Supabase il componente riceve un profilo già associato all’account autenticato.
 
 ## Cinque punti da spiegare nel codice
 
 1. **Le proprietà del componente.** `profile` contiene i dati iniziali, `onFinish` è la funzione da chiamare al termine, `cloud` distingue account reale e demo, `busy` impedisce un nuovo invio mentre il salvataggio è in corso.
 2. **Lo stato con `useState`.** `step` indica il passaggio corrente, `name` conserva il testo inserito, `preferences` conserva i generi scelti. Cambiare lo stato fa aggiornare automaticamente l’interfaccia.
-3. **Il rendering condizionale.** Le condizioni `step === 0`, `step === 1` e `step === 2` decidono quale contenuto mostrare. Nella modalità cloud il pulsante iniziale passa direttamente a `step = 2`.
+3. **Il rendering condizionale.** Le condizioni `step === 0` e `step === 1` decidono quale contenuto mostrare. Il pulsante iniziale passa dall'introduzione alla scelta dei generi.
 4. **Gli eventi.** `onClick` cambia passaggio; `onChange` aggiorna il nome. `GenrePicker` riceve i generi selezionati e una funzione per modificarli. Il campo nome è controllato perché `value` e `onChange` dipendono dallo stato React.
 5. **La conferma.** Il pulsante finale è disabilitato se non è stato scelto alcun genere o se è in corso il salvataggio. Al clic chiama `onFinish` con nome, generi e stato onboarding, usando `trim()` per togliere gli spazi inutili e un nome predefinito se il campo è vuoto.
 
@@ -32,11 +32,11 @@ Alla fine la pagina chiama una funzione ricevuta dall’esterno. Nell’app real
 
 ## Domande probabili
 
-| Domanda                                       | Risposta breve                                                                                                       |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Perché React?                                 | Permette di dividere l’interfaccia in componenti e aggiornarla quando cambia lo stato.                               |
-| Che differenza c’è tra proprietà e stato?     | Le proprietà arrivano dal componente padre; lo stato cambia all’interno del componente con le interazioni.           |
-| Perché usare una callback?                    | La pagina raccoglie i dati senza dipendere dal modo in cui vengono salvati.                                          |
-| Perché disabilitare il pulsante?              | Evita invii senza generi e invii ripetuti durante il salvataggio; il database valida comunque la richiesta.          |
-| Perché un database se ci sono le API Spotify? | Preferenze dell’app, selezioni, completamenti e voti sono dati di Vibe Pulse e devono essere conservati e condivisi. |
-| Spotify è già integrato?                      | No. Il collegamento demo è una simulazione e nella modalità cloud viene saltato.                                     |
+| Domanda                                   | Risposta breve                                                                                              |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Perché React?                             | Permette di dividere l’interfaccia in componenti e aggiornarla quando cambia lo stato.                      |
+| Che differenza c’è tra proprietà e stato? | Le proprietà arrivano dal componente padre; lo stato cambia all’interno del componente con le interazioni.  |
+| Perché usare una callback?                | La pagina raccoglie i dati senza dipendere dal modo in cui vengono salvati.                                 |
+| Perché disabilitare il pulsante?          | Evita invii senza generi e invii ripetuti durante il salvataggio; il database valida comunque la richiesta. |
+| Perché un database?                       | Preferenze dell’app, selezioni, completamenti e voti devono essere conservati e condivisi.                  |
+| Spotify è integrato?                      | Il collegamento tramite API è stato rimosso. Rimangono soltanto i link esterni.                             |

@@ -10,7 +10,6 @@ export default function Onboarding({
   const [step, setStep] = useState(0);
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
-  const [connected, setConnected] = useState(profile.connected);
   return (
     <div className="onboarding">
       <section className="visual">
@@ -31,8 +30,7 @@ export default function Onboarding({
       </section>
       <section className="onboardform">
         <span className="eyebrow lime">
-          {step + 1} / 3 —{" "}
-          {["BENVENUTO NEL PULSE", "LA TUA CONNESSIONE", "I TUOI GUSTI"][step]}
+          {step + 1} / 2 — {["BENVENUTO NEL PULSE", "I TUOI GUSTI"][step]}
         </span>
         {step === 0 && (
           <>
@@ -59,38 +57,12 @@ export default function Onboarding({
                 <b>Scopri</b>Reveal alle 21:00
               </div>
             </div>
-            <button className="btn" onClick={() => setStep(cloud ? 2 : 1)}>
+            <button className="btn" onClick={() => setStep(1)}>
               Entra nel pulse →
             </button>
           </>
         )}
         {step === 1 && (
-          <>
-            <h1>
-              Porta i tuoi gusti.
-              <br />
-              Scopri nuove voci.
-            </h1>
-            <p>Spotify potrà affiancare le preferenze che scegli tu.</p>
-            <div className="notice">
-              Stai provando una demo: nessun accesso al tuo account e nessuna
-              password richiesta.
-            </div>
-            <button
-              className="btn"
-              onClick={() => {
-                setConnected(true);
-                setStep(2);
-              }}
-            >
-              Collega Spotify · simulazione
-            </button>
-            <button className="textbtn" onClick={() => setStep(2)}>
-              Continua senza collegamento
-            </button>
-          </>
-        )}
-        {step === 2 && (
           <>
             <h1>Che musica senti tua?</h1>
             <p>Scegli almeno un genere. La selezione di oggi partirà da qui.</p>
@@ -116,7 +88,6 @@ export default function Onboarding({
                 onFinish({
                   name: name.trim() || "Ascoltatore",
                   prefs: preferences,
-                  connected,
                   onboard: true,
                 })
               }

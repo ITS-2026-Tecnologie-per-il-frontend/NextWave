@@ -50,29 +50,19 @@ export default function Profile({
             <div>
               <h3>{profile.name || "Ascoltatore"}</h3>
               <span className="hint">
-                {cloud
-                  ? "Account sincronizzato"
-                  : profile.connected
-                    ? "Spotify collegato · simulazione"
-                    : "Spotify non collegato"}
+                {cloud ? "Account sincronizzato" : "Profilo demo locale"}
               </span>
             </div>
           </div>
-          <button
-            className="btn secondary small"
-            disabled={busy}
-            onClick={
-              cloud
-                ? onSignOut
-                : () => onUpdate({ connected: !profile.connected })
-            }
-          >
-            {cloud
-              ? "Esci dall’account"
-              : profile.connected
-                ? "Scollega"
-                : "Collega Spotify demo"}
-          </button>
+          {cloud && (
+            <button
+              className="btn secondary small"
+              disabled={busy}
+              onClick={onSignOut}
+            >
+              Esci dall’account
+            </button>
+          )}
         </div>
       </div>
       <div className="statgrid">

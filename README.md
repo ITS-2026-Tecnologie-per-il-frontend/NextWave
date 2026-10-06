@@ -24,7 +24,7 @@ Apri http://127.0.0.1:4173. Con `VITE_DATA_MODE=supabase` è disponibile il logi
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
 
-Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. Spotify non è ancora integrato e i file completi degli artisti devono ancora essere caricati e autorizzati.
+Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. I file completi degli artisti devono ancora essere caricati e autorizzati.
 
 Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
 
@@ -78,8 +78,8 @@ La vecchia demo conserva i dati nella chiave `vibepulse-v1`. I vecchi avvii non 
 
 Le candidature restano in attesa di verifica e non entrano automaticamente nel catalogo. La soglia degli ascoltatori è autodichiarata nella candidatura.
 
-Spotify richiede copertina e metadati durante lo streaming: il contest al buio deve usare audio autorizzati degli artisti. Fattibilità e limiti Spotify sono documentati in [docs/architecture.md](docs/architecture.md).
+## Rimozione delle API Spotify
 
-# Collegamento Spotify
+Il collegamento agli account Spotify, OAuth/PKCE e le funzioni API sono stati rimossi. I link esterni ai brani e il modulo candidatura attuale restano disponibili; il caricamento diretto non è ancora implementato.
 
-Il profilo cloud include il collegamento reale a Spotify. Per attivare le funzioni server e la nuova migrazione sul progetto esistente seguire [docs/spotify.md](docs/spotify.md).
+Sul database esistente eseguire una volta `supabase/update-remove-spotify.sql`: elimina solo credenziali e tentativi OAuth. Le migrazioni precedenti rimangono nello storico. Le variabili Spotify possono essere rimosse da Vercel prima del nuovo deploy. Dettagli e prossimi passi in [docs/prossimi-passi.md](docs/prossimi-passi.md).

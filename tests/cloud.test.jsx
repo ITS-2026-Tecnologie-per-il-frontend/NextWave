@@ -238,6 +238,3 @@ describe("autenticazione e configurazione", () => {
     await expect(repository.dashboard()).rejects.toThrow("SQL Editor");
   });
 });
-vi.mock("../src/features/cloud/SpotifyConnection.jsx", () => ({
-  default: () => null,
-}));

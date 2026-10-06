@@ -28,51 +28,19 @@ console.log(
 const user1 = "11111111-1111-1111-1111-111111111111";
 const user2 = "22222222-2222-2222-2222-222222222222";
 await db.query("insert into auth.users(id) values ($1), ($2)", [user1, user2]);
-await db.exec("set role service_role");
-await db.query("select public.spotify_server('start',$1,$2)", [
-  user1,
-  { hash: "test-state" },
-]);
 assert.equal(
   (
-    await db.query("select public.spotify_server('consume',$1,$2) value", [
-      user2,
-      { hash: "test-state" },
-    ])
+    await db.query(
+      "select to_regprocedure('public.spotify_server(text,uuid,jsonb)') value",
+    )
   ).rows[0].value,
   null,
 );
-assert.deepEqual(
-  (
-    await db.query("select public.spotify_server('consume',$1,$2) value", [
-      user1,
-      { hash: "test-state" },
-    ])
-  ).rows[0].value,
-  {},
-);
-assert.equal(
-  (
-    await db.query("select public.spotify_server('consume',$1,$2) value", [
-      user1,
-      { hash: "test-state" },
-    ])
-  ).rows[0].value,
-  null,
-);
-await db.exec("reset role");
 await db.exec(
   `set role authenticated; set request.jwt.claim.sub = '${user1}';`,
 );
 assert.equal((await db.query("select * from public.profiles")).rows.length, 1);
-await assert.rejects(
-  db.query("select public.spotify_server('get',$1)", [user1]),
-  /permission denied/,
-);
-await assert.rejects(
-  db.query("select * from vp_private.spotify_connections"),
-  /permission denied/,
-);
+
 await assert.rejects(
   db.query("select * from vp_private.tracks"),
   /permission denied/,

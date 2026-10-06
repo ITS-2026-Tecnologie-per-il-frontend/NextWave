@@ -530,6 +530,12 @@ end $$;
 revoke all on function public.spotify_server(text,uuid,jsonb) from public,anon,authenticated;
 grant execute on function public.spotify_server(text,uuid,jsonb) to service_role;
 
+-- Rimuove soltanto credenziali e tentativi OAuth; conserva utenti, brani e link.
+-- La precedente migrazione rimane nello storico dei database già aggiornati.
+drop function if exists public.spotify_server(text,uuid,jsonb);
+drop table if exists vp_private.spotify_states;
+drop table if exists vp_private.spotify_connections;
+
 create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text);
 insert into supabase_migrations.schema_migrations(version, name) values ('20261005000100', 'initial_schema');
@@ -537,4 +543,5 @@ insert into supabase_migrations.schema_migrations(version, name) values ('202610
 insert into supabase_migrations.schema_migrations(version, name) values ('20261005000300', 'contest_api');
 insert into supabase_migrations.schema_migrations(version, name) values ('20261005000400', 'bound_session_credit');
 insert into supabase_migrations.schema_migrations(version, name) values ('20261006000100', 'spotify');
+insert into supabase_migrations.schema_migrations(version, name) values ('20261006000200', 'remove_spotify_auth');
 commit;

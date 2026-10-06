@@ -7,7 +7,6 @@ export function createProfile() {
     uid: crypto.randomUUID(),
     name: "",
     prefs: ["Indie", "Pop", "Elettronica"],
-    connected: false,
     onboard: false,
     rounds: {},
     saved: [],

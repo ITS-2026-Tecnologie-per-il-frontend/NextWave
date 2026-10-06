@@ -143,9 +143,6 @@ describe("flussi React", () => {
     mount({ onboard: false });
     fireEvent.click(screen.getByRole("button", { name: "Entra nel pulse →" }));
     fireEvent.click(
-      screen.getByRole("button", { name: "Collega Spotify · simulazione" }),
-    );
-    fireEvent.click(
       screen.getByRole("button", { name: "Scopri i tuoi 5 brani →" }),
     );
     fireEvent.click(

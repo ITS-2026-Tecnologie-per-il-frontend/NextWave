@@ -58,7 +58,7 @@ Prima di riprodurre un audio, il server verifica che gli slot precedenti siano c
 
 Il protocollo impedisce la conferma istantanea e il salto alla fine; non prova che una persona stia ascoltando e un client modificato può simulare avanzamenti in tempo reale. Per un contest pubblico occorreranno anche misure antiabuso, limiti per account e monitoraggio. Interruzioni di rete o heartbeat mancanti possono richiedere di ricominciare il brano: l’app mostra l’errore e non salva falsi progressi.
 
-Gli audio demo sono pubblici e sintetici. Per brani reali servono storage privato, URL firmati a breve durata rilasciati da una funzione server dopo autorizzazione, file completi, metadati audio rimossi e verifica dei diritti. Una URL pubblica in `tracks.audio_path` non garantisce protezione del file o dell’identità. Non caricare token Spotify nelle tabelle esposte o nel bundle; l’integrazione Spotify non è ancora implementata.
+Gli audio demo sono pubblici e sintetici. Per brani reali servono storage privato, URL firmati a breve durata rilasciati da una funzione server dopo autorizzazione, file completi, metadati audio rimossi e verifica dei diritti. Una URL pubblica in `tracks.audio_path` non garantisce protezione del file o dell’identità. Le API Spotify sono state rimosse; eseguire `supabase/update-remove-spotify.sql` sul database esistente per eliminare il deposito delle credenziali e i tentativi OAuth, senza modificare catalogo, candidature o voti.
 
 ## Migrazioni e dati iniziali
 
