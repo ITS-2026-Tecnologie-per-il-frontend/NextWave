@@ -1,8 +1,8 @@
-# Vibe Pulse
+# Next Wave
 
-APRI IL PROGETTO CON QUESO LINK: https://next-wave-awh7yke4j-next-wave11.vercel.app/
+[Apri l'app](https://next-wave-iota.vercel.app/)
 
-App React per scoprire artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
+App React e TypeScript per scoprire artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
 
 ## Avvio
 
@@ -12,7 +12,7 @@ Richiede Node.js 22.12 o successivo (oppure 20.19 o successivo).
 npm ci
 ```
 
-Copia `.env.example` in `.env.local` e configura URL e chiave pubblica Supabase. Il progetto locale è già configurato con i valori forniti dall’utente. Non inserire chiavi service_role o password del database nelle variabili `VITE_`.
+Copia `.env.example` in `.env.local`. Il modello usa `VITE_DATA_MODE=demo` per lo sviluppo senza account. Per usare gli account reali imposta `supabase` e configura URL e chiave pubblica. I file `.env.local` restano nella radice, dove Vite li legge, e sono esclusi da Git. Il modello `.env.example` è versionato senza credenziali. Non inserire chiavi service_role o password del database nelle variabili `VITE_`.
 
 ```sh
 npm start
@@ -26,7 +26,7 @@ Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascol
 
 Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. I file completi degli artisti devono ancora essere caricati e autorizzati.
 
-Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
+Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/generated/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
 
 Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, quindi ricompilare con un nuovo deploy. Configurare anche Site URL e redirect autorizzati in Supabase Auth.
 
@@ -34,6 +34,8 @@ Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VIT
 
 ```sh
 npm test
+npm run typecheck
+npm run audit:structure
 npm run db:test
 npm run db:check
 npm run build
@@ -55,20 +57,30 @@ I test dell’interfaccia usano account e risposte controllati, senza scrivere s
 
 ## Struttura
 
-- `src/App.jsx`: sceglie la modalità e controlla la configurazione.
-- `src/DemoApp.jsx`: flussi locali precedenti, separati dagli account reali.
-- `src/features/cloud/`: autenticazione, account, player e classifiche Supabase.
+- `src/app/App.tsx`: sceglie la modalità e controlla la configurazione.
+- `src/app/DemoApp.tsx`: flussi locali precedenti, separati dagli account reali.
+- `src/app/CloudApp.tsx`: accesso all'app; `CloudAccount.tsx`: coordinamento dell'account.
+- `src/hooks/`: hook React per autenticazione, player e orologio.
+- `src/config/`: validazione dell'ambiente e percorsi delle pagine.
 - `src/pages/` e `src/components/`: interfaccia condivisa.
-- `src/services/supabase.js`: client ufficiale e validazione delle variabili.
-- `src/services/cloudRepository.js`: API del database attraverso RPC.
-- `src/services/storage.js`: persistenza e migrazione della sola demo.
+- `src/services/supabase.ts`: client ufficiale Supabase.
+- `src/services/cloudRepository.ts`: API del database attraverso RPC.
+- `src/services/demoProfileStorage.ts`: persistenza e migrazione della sola demo.
 - `src/domain/`: regole pure e validazione delle candidature.
-- `src/data/`: catalogo dimostrativo e temi.
+- `src/types/models.ts`: contratti condivisi per profili, brani, ascolti e dati del database.
+- `src/data/`: generi e temi condivisi; catalogo inventato in `demo/`.
+- `src/styles/`: CSS diviso per responsabilità, caricato in ordine da `index.css`.
 - `supabase/migrations/`: schema e regole versionati.
 - `supabase/seeds/`: dati demo separati dalle migrazioni.
 - `scripts/`: bundle SQL, test PostgreSQL e controllo remoto.
 - `public/`: artwork e cinque WAV sintetici originali.
-- `tests/`: test delle regole e dei flussi React.
+- `tests/unit/` e `tests/integration/`: test delle regole e dei flussi React.
+- `supabase/updates/`: aggiornamenti manuali per database già inizializzati.
+- `docs/archive/`: documenti storici, separati dalle istruzioni attuali.
+
+Le migrazioni e il seed sono le fonti del database. `npm run db:bundle` genera `supabase/generated/setup.sql` e `supabase/generated/setup-demo.sql`, esclusi da Git perché riproducibili. Lo stack locale legge direttamente `supabase/seeds/demo.sql`, senza una seconda copia. I setup si usano solo per progetti nuovi e vuoti.
+
+`npm run check` esegue audit della struttura, verifica di formattazione e test. L'audit controlla import locali, moduli sorgente non raggiungibili e hook esportati fuori da `hooks/`; non sostituisce i test funzionali. Convenzioni e responsabilità sono descritte in [docs/organizzazione.md](docs/organizzazione.md).
 
 ## Limiti attuali
 
@@ -82,4 +94,4 @@ Le candidature restano in attesa di verifica e non entrano automaticamente nel c
 
 Il collegamento agli account Spotify, OAuth/PKCE e le funzioni API sono stati rimossi. I link esterni ai brani e il modulo candidatura attuale restano disponibili; il caricamento diretto non è ancora implementato.
 
-Sul database esistente eseguire una volta `supabase/update-remove-spotify.sql`: elimina solo credenziali e tentativi OAuth. Le migrazioni precedenti rimangono nello storico. Le variabili Spotify possono essere rimosse da Vercel prima del nuovo deploy. Dettagli e prossimi passi in [docs/prossimi-passi.md](docs/prossimi-passi.md).
+Sul database esistente eseguire una volta `supabase/updates/remove-spotify.sql`: elimina solo credenziali e tentativi OAuth. Le migrazioni precedenti rimangono nello storico. Le variabili Spotify possono essere rimosse da Vercel prima del nuovo deploy. Dettagli e prossimi passi in [docs/prossimi-passi.md](docs/prossimi-passi.md).

@@ -1,0 +1,337 @@
+@media (min-width: 1500px) {
+  .main {
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 1100px) {
+  .sidebar {
+    width: 190px;
+    padding: 28px 16px;
+  }
+
+  .main {
+    margin-left: 190px;
+    padding: 0 24px 125px;
+  }
+
+  .player {
+    left: 190px;
+    padding: 15px 24px;
+  }
+
+  .hero h2 {
+    font-size: 34px;
+  }
+
+  .track {
+    padding: 9px;
+  }
+
+  .track h3 {
+    font-size: 16px;
+  }
+
+  .cover .number {
+    font-size: 65px;
+  }
+
+  .countdown {
+    padding: 12px;
+  }
+
+  .countdown strong {
+    font-size: 24px;
+  }
+
+  .bottomgrid {
+    grid-template-columns: 1fr;
+  }
+
+  .player label {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .sidebar {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 68px;
+    padding: 0;
+    border-right: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .sidebar .brand,
+  .sidefoot {
+    display: none;
+  }
+
+  .nav {
+    flex-direction: row;
+    justify-content: space-around;
+    height: 100%;
+    gap: 0;
+  }
+
+  .nav button {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    justify-content: center;
+    border-radius: 0;
+    padding: 6px 2px;
+    font-size: 11px;
+  }
+
+  .nav svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .main {
+    margin: 0;
+    padding: 0 18px 175px;
+  }
+
+  .topbar {
+    height: 75px;
+  }
+
+  .topbar > span {
+    display: none;
+  }
+
+  .mobilebrand {
+    display: flex;
+    font-size: 22px;
+  }
+
+  .topright .badge {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  .heading {
+    margin: 26px 0 20px;
+  }
+
+  .heading h1 {
+    font-size: 30px;
+  }
+
+  .heading .badge {
+    display: none;
+  }
+
+  .hero {
+    padding: 25px 23px;
+    min-height: 285px;
+    align-items: start;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .hero h2 {
+    font-size: 34px;
+    max-width: 300px;
+  }
+
+  .hero img {
+    width: 100%;
+  }
+
+  .hero:after {
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--hero-bg) 93%, transparent),
+      color-mix(in srgb, var(--hero-bg) 32%, transparent)
+    );
+  }
+
+  .countdown {
+    text-align: left;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 8px 12px;
+  }
+
+  .countdown strong {
+    margin: 0;
+    font-size: 19px;
+  }
+
+  .countdown small {
+    font-size: 10px;
+  }
+
+  .tracks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .track {
+    padding: 11px;
+  }
+
+  .track:last-child {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    column-gap: 16px;
+  }
+
+  .track:last-child .cover {
+    grid-row: 1/5;
+  }
+
+  .track:last-child .trackmeta {
+    margin: 0;
+  }
+
+  .track:last-child p {
+    margin: 0;
+  }
+
+  .track:last-child .vote {
+    margin-top: 8px;
+  }
+
+  .sectionhead {
+    align-items: baseline;
+  }
+
+  .sectionhead h2 {
+    font-size: 19px;
+  }
+
+  .progresslabel {
+    font-size: 12px;
+  }
+
+  .player {
+    left: 0;
+    bottom: 68px;
+    padding: 12px 18px;
+    min-height: 78px;
+    gap: 12px;
+  }
+
+  .playerinfo {
+    min-width: 90px;
+    width: 100px;
+  }
+
+  .player .time {
+    font-size: 10px;
+  }
+
+  .player button {
+    width: 37px;
+    height: 37px;
+  }
+
+  .player .volume {
+    display: none;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .steps {
+    gap: 12px;
+  }
+
+  .onboarding {
+    display: block;
+  }
+
+  .onboarding .visual {
+    min-height: 260px;
+    padding: 28px;
+  }
+
+  .visual h1 {
+    font-size: 42px;
+    max-width: 300px;
+    margin: 40px 0 0;
+  }
+
+  .visual .bottom {
+    display: none;
+  }
+
+  .onboardform {
+    padding: 30px 25px 50px;
+  }
+
+  .onboardform h1 {
+    font-size: 32px;
+    margin-top: 12px;
+  }
+
+  .formgrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statgrid {
+    gap: 8px;
+  }
+
+  .statgrid .panel {
+    padding: 15px 10px;
+  }
+
+  .statgrid strong {
+    font-size: 30px;
+  }
+
+  .statgrid small {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .rankrow {
+    grid-template-columns: 24px 1fr 65px;
+    gap: 10px;
+    padding: 16px 12px;
+  }
+
+  .rankrow .metrics {
+    display: none;
+  }
+
+  .rankrow .score {
+    font-size: 19px;
+  }
+
+  .rankrow .position {
+    font-size: 20px;
+  }
+
+  .rankrow strong {
+    font-size: 14px;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .footerline {
+    line-height: 1.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

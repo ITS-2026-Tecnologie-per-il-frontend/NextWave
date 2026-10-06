@@ -1,0 +1,234 @@
+.hero img,
+.onboarding .visual img {
+  filter: var(--art-filter);
+}
+
+.theme-panel {
+  margin: 0 0 25px;
+  background:
+    radial-gradient(
+      ellipse at top right,
+      var(--secondary-soft),
+      transparent 65%
+    ),
+    var(--panel);
+}
+
+.theme-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.theme-heading h3 {
+  font-size: 26px;
+  margin: 10px 0 0;
+}
+
+.theme-current {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+}
+
+.theme-current strong {
+  color: var(--lime);
+}
+
+.theme-catalog {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.theme-choice {
+  padding: 0;
+  min-width: 0;
+  text-align: left;
+  border: 1px solid var(--control-line);
+  border-radius: 13px;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+.theme-choice:hover {
+  border-color: var(--purple);
+  transform: translateY(-3px);
+}
+
+.theme-choice[aria-pressed="true"] {
+  border-color: var(--lime);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--lime) 25%, transparent);
+}
+
+.theme-art {
+  display: block;
+  position: relative;
+  height: 100px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at bottom left,
+      color-mix(in srgb, var(--lime) 50%, var(--panel)),
+      transparent 75%
+    ),
+    linear-gradient(135deg, var(--purple), var(--panel));
+}
+
+.theme-number {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font:
+    11px "Space Grotesk",
+    sans-serif;
+  letter-spacing: 2px;
+  color: var(--text);
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+}
+
+.theme-vinyl {
+  position: absolute;
+  top: 12px;
+  right: -12px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      var(--ink) 0 3px,
+      var(--lime) 4px 17px,
+      transparent 18px
+    ),
+    repeating-radial-gradient(circle, #17191d 0 2px, #292b31 3px 4px);
+  border: 1px solid #ffffff30;
+  box-shadow: -8px 6px 20px #0005;
+}
+
+.theme-wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  height: 35px;
+}
+
+.theme-wave i {
+  display: block;
+  width: 4px;
+  height: 15px;
+  border-radius: 3px;
+  background: var(--lime);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--lime) 40%, transparent);
+}
+
+.theme-wave i:nth-child(2),
+.theme-wave i:nth-child(4) {
+  height: 25px;
+}
+.theme-wave i:nth-child(3) {
+  height: 35px;
+}
+
+.theme-details {
+  display: grid;
+  gap: 7px;
+  padding: 15px 12px;
+}
+
+.theme-name {
+  font:
+    700 15px "Space Grotesk",
+    sans-serif;
+}
+
+.theme-mood,
+.theme-colors {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.theme-mood {
+  min-height: 33px;
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.theme-swatches i {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--lime);
+  border: 1px solid #ffffff30;
+}
+
+.theme-swatches i:nth-child(2) {
+  background: var(--purple);
+}
+.theme-swatches i:nth-child(3) {
+  background: var(--panel);
+}
+
+.theme-status {
+  display: block;
+  margin-top: 5px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.theme-choice[aria-pressed="true"] .theme-status {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+@media (max-width: 1100px) {
+  .theme-catalog {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .theme-catalog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .theme-catalog .theme-choice:last-child {
+    grid-column: 1/-1;
+  }
+  .theme-art {
+    height: 85px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-choice {
+    transition: none;
+  }
+  .theme-choice:hover {
+    transform: none;
+  }
+}

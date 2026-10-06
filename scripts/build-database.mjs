@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import { catalog } from "../src/data/catalog.js";
+import { catalog } from "../src/data/demo/catalog.ts";
 const quote = (value) => `'${String(value).replaceAll("'", "''")}'`;
 function stableId(value) {
   const hex = createHash("sha256")
@@ -20,7 +20,6 @@ const tracks = catalog.map(
 const demo = `-- Catalogo DEMO: artisti inventati, WAV sintetici di 12 secondi. Nessun voto/utente fittizio.\n-- Ripetibile: non sovrascrive brani esistenti o metriche.\ninsert into vp_private.artists(id, name, demo_key, monthly_listeners, is_demo) values\n${artists.join(",\n")}\non conflict (demo_key) do nothing;\ninsert into vp_private.tracks(id, artist_id, title, genre, mood, language, audio_path, duration_seconds, demo_key, active, is_demo) values\n${tracks.join(",\n")}\non conflict (demo_key) do nothing;\n`;
 await mkdir("supabase/seeds", { recursive: true });
 await writeFile("supabase/seeds/demo.sql", demo);
-await writeFile("supabase/seed.sql", demo);
 const files = (await readdir("supabase/migrations"))
   .filter((file) => file.endsWith(".sql"))
   .sort();
@@ -35,14 +34,15 @@ const ledger = `create schema if not exists supabase_migrations;\ncreate table i
   .join("\n")}\n`;
 const header =
   "-- Eseguire UNA VOLTA nel SQL Editor del progetto Supabase vuoto.\n-- Migrazioni atomiche e storico CLI: niente reset/drop, niente chiavi segrete.\n";
+await mkdir("supabase/generated", { recursive: true });
 await writeFile(
-  "supabase/setup.sql",
+  "supabase/generated/setup.sql",
   `${header}begin;\n${sql.join("\n")}\n${ledger}commit;\n`,
 );
 await writeFile(
-  "supabase/setup-demo.sql",
+  "supabase/generated/setup-demo.sql",
   `${header}-- INCLUDE IL CATALOGO DEMO, non dati di produzione.\nbegin;\n${sql.join("\n")}\n${demo}\n${ledger}commit;\n`,
 );
 console.log(
-  `Generati setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
+  `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

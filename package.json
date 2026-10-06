@@ -6,17 +6,20 @@
   "scripts": {
     "start": "vite --host 127.0.0.1 --port 4173",
     "dev": "vite --host 127.0.0.1 --port 4173",
-    "build": "vite build",
+    "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "vitest run",
-    "format": "prettier --write src tests scripts index.html vite.config.js package.json README.md docs",
-    "format:check": "prettier --check src tests scripts index.html vite.config.js package.json README.md docs",
-    "db:bundle": "node scripts/build-database.mjs",
+    "format": "prettier --write src tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
+    "format:check": "prettier --check src tests scripts index.html vite.config.ts package.json README.md docs vercel.json tsconfig.json",
+    "db:bundle": "tsx scripts/build-database.mjs",
     "db:test": "node scripts/test-database.mjs",
     "db:check": "node --env-file=.env.local scripts/check-supabase.mjs",
     "db:link": "supabase link --project-ref xitmtulynclfozfsbhfz",
     "db:push": "supabase db push",
-    "db:start": "supabase start"
+    "db:start": "supabase start",
+    "audit:structure": "node scripts/audit-project.mjs",
+    "check": "npm run audit:structure && npm run typecheck && npm run format:check && npm test",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
@@ -27,10 +30,15 @@
     "@electric-sql/pglite": "^0.5.8",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.0.0",
     "jsdom": "^26.1.0",
     "prettier": "^3.6.0",
     "supabase": "^2.119.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
     "vite": "^7.1.0",
     "vitest": "^4.1.11"
   }

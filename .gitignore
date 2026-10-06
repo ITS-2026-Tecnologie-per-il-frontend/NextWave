@@ -8,3 +8,6 @@ coverage/
 .npm-cache/
 supabase/.temp/
 supabase/.branches/
+supabase/setup.sql
+supabase/setup-demo.sql
+supabase/generated/

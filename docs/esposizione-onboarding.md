@@ -1,6 +1,6 @@
 # Esposizione: la pagina di onboarding
 
-La pagina consigliata è `src/pages/Onboarding.jsx`. È un esempio leggibile di come React usa stato, proprietà e rendering condizionale per guidare un utente. Per l’esposizione conviene partire da qui, poi mostrare il collegamento al database.
+La pagina consigliata è `src/pages/Onboarding.tsx`. È un esempio leggibile di come React usa stato, proprietà e rendering condizionale per guidare un utente. Per l’esposizione conviene partire da qui, poi mostrare il collegamento al database.
 
 ## Cosa fa la pagina
 
@@ -18,7 +18,7 @@ Mostra due passaggi, introduzione e scelta dei gusti, sia nella demo sia con Sup
 
 ## Collegamento a Supabase
 
-L’onboarding non contiene chiavi, query SQL o dettagli del database. Chiama `onFinish`: nella modalità cloud `Account` in `src/features/cloud/CloudApp.jsx` passa questa richiesta al repository. `src/services/cloudRepository.js` chiama la funzione SQL `save_profile`, che usa l’identità autenticata per aggiornare soltanto quel profilo e le sue preferenze.
+L’onboarding non contiene chiavi, query SQL o dettagli del database. Chiama `onFinish`: nella modalità cloud `Account` in `src/app/CloudAccount.tsx` passa questa richiesta al repository. `src/services/cloudRepository.ts` chiama la funzione SQL `save_profile`, che usa l’identità autenticata per aggiornare soltanto quel profilo e le sue preferenze.
 
 Questa separazione permette di usare la stessa interfaccia con la demo locale e con Supabase. Il componente mostra e raccoglie i dati; il livello di accesso ai dati li salva; il database valida gli input e controlla i permessi.
 

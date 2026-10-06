@@ -1,0 +1,130 @@
+.onboarding {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.onboarding .visual {
+  background: var(--hero-bg);
+  position: relative;
+  padding: 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.onboarding .visual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.visual > *:not(img) {
+  position: relative;
+  z-index: 1;
+}
+
+.visual h1 {
+  font-size: clamp(48px, 6vw, 90px);
+  max-width: 650px;
+}
+
+.visual .bottom {
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  padding: 22px;
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+}
+
+.onboardform {
+  padding: 70px 9%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.onboardform h1 {
+  font-size: 40px;
+}
+
+.onboardform .btn {
+  margin-top: 25px;
+  width: 100%;
+}
+
+.chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.chip {
+  border: 1px solid var(--control-line);
+  padding: 9px 16px;
+  border-radius: 30px;
+  font-size: 14px;
+}
+
+.chip.selected {
+  color: var(--lime);
+  background: var(--accent-soft);
+  border-color: var(--lime);
+}
+
+label {
+  display: block;
+  font-size: 14px;
+}
+
+input,
+select {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--control-line);
+  border-radius: 8px;
+  padding: 13px;
+  color: var(--text);
+  margin-top: 7px;
+}
+
+input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--lime);
+  margin: 0 8px 0 0;
+}
+
+.formgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.formgrid .full {
+  grid-column: 1/-1;
+}
+
+.formwrap {
+  max-width: 800px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.error {
+  color: #ffaeac;
+  font-size: 14px;
+}
+
+.success {
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, var(--lime));
+  background: var(--accent-soft);
+  border-radius: 12px;
+}

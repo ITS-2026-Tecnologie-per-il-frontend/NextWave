@@ -9,7 +9,7 @@ L’app supporta due modalità esplicite:
 
 Il file `.env.local`, ignorato da Git, contiene URL e chiave pubblica del progetto configurato dall’utente. Non contiene password del database, service_role o chiavi segrete. In produzione, l’assenza di configurazione Supabase provoca un messaggio visibile: non viene avviata silenziosamente una demo.
 
-Il 5 ottobre 2026 l’utente ha eseguito `supabase/setup-demo.sql` nel SQL Editor e riportato `Success`. La verifica remota in sola lettura ha confermato i 15 generi, l’assenza di accesso anonimo alle tabelle personali e la presenza della RPC protetta `get_dashboard`. Non sono stati creati account di test nel progetto remoto. Login e scritture reali vanno provati con un account dell’utente dopo la configurazione dei redirect Auth.
+Il 5 ottobre 2026 l’utente ha eseguito `supabase/generated/setup-demo.sql` nel SQL Editor e riportato `Success`. La verifica remota in sola lettura ha confermato i 15 generi, l’assenza di accesso anonimo alle tabelle personali e la presenza della RPC protetta `get_dashboard`. Non sono stati creati account di test nel progetto remoto. Login e scritture reali vanno provati con un account dell’utente dopo la configurazione dei redirect Auth.
 
 ## Schema
 
@@ -58,7 +58,7 @@ Prima di riprodurre un audio, il server verifica che gli slot precedenti siano c
 
 Il protocollo impedisce la conferma istantanea e il salto alla fine; non prova che una persona stia ascoltando e un client modificato può simulare avanzamenti in tempo reale. Per un contest pubblico occorreranno anche misure antiabuso, limiti per account e monitoraggio. Interruzioni di rete o heartbeat mancanti possono richiedere di ricominciare il brano: l’app mostra l’errore e non salva falsi progressi.
 
-Gli audio demo sono pubblici e sintetici. Per brani reali servono storage privato, URL firmati a breve durata rilasciati da una funzione server dopo autorizzazione, file completi, metadati audio rimossi e verifica dei diritti. Una URL pubblica in `tracks.audio_path` non garantisce protezione del file o dell’identità. Le API Spotify sono state rimosse; eseguire `supabase/update-remove-spotify.sql` sul database esistente per eliminare il deposito delle credenziali e i tentativi OAuth, senza modificare catalogo, candidature o voti.
+Gli audio demo sono pubblici e sintetici. Per brani reali servono storage privato, URL firmati a breve durata rilasciati da una funzione server dopo autorizzazione, file completi, metadati audio rimossi e verifica dei diritti. Una URL pubblica in `tracks.audio_path` non garantisce protezione del file o dell’identità. Le API Spotify sono state rimosse; eseguire `supabase/updates/remove-spotify.sql` sul database esistente per eliminare il deposito delle credenziali e i tentativi OAuth, senza modificare catalogo, candidature o voti.
 
 ## Migrazioni e dati iniziali
 
@@ -77,14 +77,14 @@ npm run db:check
 
 Il primo comando genera due script atomici per un progetto **vuoto**:
 
-- `supabase/setup.sql`: schema e generi, senza brani dimostrativi.
-- `supabase/setup-demo.sql`: schema, generi e catalogo demo.
+- `supabase/generated/setup.sql`: schema e generi, senza brani dimostrativi.
+- `supabase/generated/setup-demo.sql`: schema, generi e catalogo demo.
 
-**Non rieseguire questi setup sul database già inizializzato.** Lo script iniziale eseguito in questa sessione conteneva le prime tre migrazioni; la quarta è stata applicata separatamente con `supabase/update-session-credit.sql`, con Success riportato dall’utente. I setup generati ora includono tutte e quattro le migrazioni per nuovi progetti vuoti. Entrambi scrivono anche lo storico `supabase_migrations.schema_migrations`, compatibile con la successiva gestione CLI. Un secondo setup fallisce senza alterare lo schema, grazie alla transazione.
+**Non rieseguire questi setup sul database già inizializzato.** Lo script iniziale eseguito in questa sessione conteneva le prime tre migrazioni; la quarta è stata applicata separatamente con `supabase/updates/session-credit.sql`, con Success riportato dall’utente. I setup generati ora includono tutte e sei le migrazioni per nuovi progetti vuoti. Entrambi scrivono anche lo storico `supabase_migrations.schema_migrations`, compatibile con la successiva gestione CLI. Un secondo setup fallisce senza alterare lo schema, grazie alla transazione.
 
 Il catalogo demo è in `supabase/seeds/demo.sql` ed è ripetibile: 75 artisti inventati, 75 candidati, cinque WAV sintetici da 12 secondi, marcati `is_demo`. Non inserisce account, voti, esposizioni o ascolti fittizi. Le classifiche cloud partono dalle esposizioni e dai voti realmente registrati. L’app segnala cataloghi insufficienti invece di generare candidati nel browser.
 
-`supabase/seed.sql` contiene gli stessi dati per lo stack locale Supabase. Per ambiente reale, `supabase db push` applica soltanto le migrazioni; non aggiungere `--include-seed` se non vuoi i dati demo. Il generatore del bundle è un’operazione locale: non cambia il database remoto.
+Lo stack locale Supabase legge direttamente `supabase/seeds/demo.sql`, senza una seconda copia. Per ambiente reale, `supabase db push` applica soltanto le migrazioni; non aggiungere `--include-seed` se non vuoi i dati demo. Il generatore del bundle è un’operazione locale: non cambia il database remoto.
 
 Per le prossime modifiche aggiungere una **nuova** migrazione; non riscrivere quelle già applicate. Effettuare prima test locali e una verifica del piano:
 

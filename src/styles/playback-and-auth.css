@@ -1,0 +1,38 @@
+.track.locked .cover {
+  opacity: 0.55;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+.track > .textbtn {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+}
+.bottomgrid .textbtn {
+  display: block;
+  margin-top: 14px;
+}
+.revealbanner {
+  margin-top: 20px;
+}
+
+.connection-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.auth-panel {
+  width: min(100%, 480px);
+}
+.auth-panel form {
+  display: grid;
+  gap: 14px;
+}
+.auth-panel .textbtn {
+  margin-top: 18px;
+}
+.connection-error {
+  margin: 20px 0;
+}

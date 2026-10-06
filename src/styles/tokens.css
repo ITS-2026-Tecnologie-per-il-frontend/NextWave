@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root,
+[data-palette] {
+  color-scheme: dark;
+  --bg: #101112;
+  --panel: #191a1c;
+  --sidebar: #121314;
+  --line: #303134;
+  --muted: #a2a3a8;
+  --text: #f5f4f7;
+  --lime: #ccff5f;
+  --purple: #b697ff;
+  --ink: #111315;
+  --art-filter: none;
+  --surface: color-mix(in srgb, var(--panel) 92%, var(--purple));
+  --control-line: color-mix(in srgb, var(--panel) 76%, var(--text));
+  --accent-soft: color-mix(in srgb, var(--panel) 90%, var(--lime));
+  --secondary-soft: color-mix(in srgb, var(--panel) 85%, var(--purple));
+  --hero-bg: color-mix(in srgb, var(--bg) 87%, var(--purple));
+  --light-text: color-mix(in srgb, var(--text) 80%, var(--purple));
+}
+
+:root[data-theme="trap"],
+[data-palette="trap"] {
+  --bg: #120d1c;
+  --panel: #20172d;
+  --sidebar: #170f22;
+  --line: #3e2b50;
+  --muted: #b5a6c4;
+  --text: #f9f1ff;
+  --lime: #c5a0ff;
+  --purple: #ff81c9;
+  --art-filter: grayscale(1) sepia(1) saturate(2.5) hue-rotate(220deg);
+}
+
+:root[data-theme="house"],
+[data-palette="house"] {
+  --bg: #08151c;
+  --panel: #102630;
+  --sidebar: #0b1b24;
+  --line: #244553;
+  --muted: #9cbac6;
+  --text: #edfaff;
+  --lime: #6ee8e1;
+  --purple: #8ebcff;
+  --art-filter: grayscale(1) sepia(1) saturate(2) hue-rotate(135deg);
+}
+
+:root[data-theme="pop"],
+[data-palette="pop"] {
+  --bg: #1b1016;
+  --panel: #2c1b24;
+  --sidebar: #21131b;
+  --line: #52303f;
+  --muted: #c7a5b4;
+  --text: #fff2f5;
+  --lime: #ffb48d;
+  --purple: #ff91b7;
+  --art-filter: grayscale(1) sepia(1) saturate(2) hue-rotate(325deg);
+}
+
+:root[data-theme="jazz"],
+[data-palette="jazz"] {
+  --bg: #19140e;
+  --panel: #292218;
+  --sidebar: #201a12;
+  --line: #4a3d2a;
+  --muted: #bdad93;
+  --text: #fff6e8;
+  --lime: #f4ca76;
+  --purple: #e9d3ad;
+  --art-filter: grayscale(1) sepia(1) saturate(1.4);
+}
