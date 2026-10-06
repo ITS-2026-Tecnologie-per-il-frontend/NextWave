@@ -59,19 +59,25 @@ export async function rpc(ctx, action, user, payload = {}) {
     p_user: user,
     p_payload: payload,
   });
-  if (error) throw new Error("database");
+  if (error) {
+    const failure = new Error("database");
+    failure.code = error.code;
+    throw failure;
+  }
   return data;
 }
 export async function user(ctx, req) {
   const bearer = req.headers.authorization;
   if (!bearer?.startsWith("Bearer ")) throw new Error("unauthorized");
   const { data, error } = await ctx.db.auth.getUser(bearer.slice(7));
+  if (error?.message?.toLowerCase().includes("api key"))
+    throw new Error("supabase_key");
   if (error || !data.user) throw new Error("unauthorized");
   return data.user.id;
 }
 export function sameOrigin(ctx, req) {
   if (req.headers.origin !== ctx.redirect.origin)
-    throw new Error("unauthorized");
+    throw new Error("origin");
 }
 export function cookie(res, value, age = 600) {
   res.setHeader(
@@ -96,14 +102,21 @@ export async function token(ctx, fields) {
   return data;
 }
 export function fail(res, error) {
-  const unauthorized = error.message === "unauthorized";
-  res
-    .status(unauthorized ? 401 : 503)
-    .json({
-      error: unauthorized
-        ? "Accedi nuovamente a Next Wave."
-        : "Collegamento Spotify non disponibile. Verifica configurazione e migrazione, poi riprova.",
-    });
+  const messages = {
+    unauthorized: "Sessione Next Wave non valida. Esci e accedi nuovamente.",
+    origin: "Apri Next Wave su https://next-wave-iota.vercel.app e riprova: il dominio deve coincidere con SPOTIFY_REDIRECT_URI.",
+    configuration: "Configurazione server Spotify incompleta: verifica le variabili Production e avvia un nuovo deploy.",
+    supabase_key: "La chiave server Supabase non è valida. Verifica SUPABASE_SERVICE_ROLE_KEY su Vercel.",
+    database: "Il server non riesce ad accedere alla funzione Spotify su Supabase. Verifica che update-spotify.sql sia stato eseguito nel progetto corretto.",
+    spotify: "Spotify non ha accettato la richiesta. Verifica le credenziali dell'app Spotify.",
+  };
+  const code = Object.hasOwn(messages, error.message) ? error.message : "unavailable";
+  // Solo codici diagnostici: non registrare token, header o valori delle variabili.
+  console.error("Spotify request failed", { code, databaseCode: error.code });
+  res.status(code === "unauthorized" ? 401 : code === "origin" ? 403 : 503).json({
+    code,
+    error: messages[code] || "Collegamento Spotify temporaneamente non disponibile. Riprova.",
+  });
 }
 export function noCache(res) {
   res.setHeader("Cache-Control", "no-store");
