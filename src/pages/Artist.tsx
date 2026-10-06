@@ -187,7 +187,7 @@ export default function Artist({
             </label>
             <p className="hint full">
               {cloud
-                ? "Una candidatura attiva per artista. Verifichiamo audio, diritti e link prima del contest. L’audio viene eliminato dopo la chiusura; dati e link restano. Le candidature non esaminate scadono dopo 7 giorni."
+                ? "Una candidatura attiva per artista. Verifichiamo audio, diritti e link prima del contest. Audio, dati e link vengono conservati. La candidatura deve essere esaminata entro 7 giorni."
                 : "Modalità demo: salviamo solo i dati in questo browser; l’audio non viene caricato. Per inviarlo usa un account NextWave."}
             </p>
             <p className="error full" role="alert">

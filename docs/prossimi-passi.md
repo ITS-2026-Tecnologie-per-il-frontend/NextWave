@@ -1,8 +1,8 @@
 # NextWave: decisioni approvate
 
-Gli artisti candidano un brano pubblicato inserendo il link Spotify e caricando un MP3 su Supabase Storage privato. NextWave riproduce questo file nel contest anonimo, senza API Spotify. Dopo la rivelazione mostra il link ufficiale; dopo la chiusura elimina il file audio, conservando metadati e risultati.
+Gli artisti candidano un brano pubblicato inserendo il link Spotify e caricando un MP3 su Supabase Storage privato. NextWave riproduce questo file nel contest anonimo, senza API Spotify. Dopo la rivelazione mostra il link ufficiale; gli audio, i metadati e i risultati rimangono conservati.
 
-Il modulo, la verifica server, i percorsi privati e la pulizia sono implementati nel repository. Per attivarli sul progetto pubblicato, applicare la nuova migrazione, configurare le variabili server e il job Cron, poi trasferire i cinque campioni. I passaggi sono in [audio-storage.md](audio-storage.md). Nessun trasferimento remoto è implicito nella build.
+Il modulo, la verifica server, i percorsi privati sono implementati nel repository. Per attivarli sul progetto pubblicato, applicare la nuova migrazione, configurare le variabili server, poi trasferire i cinque campioni. I passaggi sono in [audio-storage.md](audio-storage.md). Nessun trasferimento remoto è implicito nella build.
 
 I campioni sintetici usano un link Spotify di esempio; le candidature reali hanno il proprio link. Diritti, corrispondenza del brano e ammissione vengono verificati manualmente, assegnando un contest futuro.
 

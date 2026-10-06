@@ -27,7 +27,6 @@ function configure() {
   vi.stubEnv("VITE_SUPABASE_URL", "https://example.supabase.co");
   vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "public-test");
   vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "admin-test");
-  vi.stubEnv("AUDIO_CLEANUP_SECRET", "test-cleanup-secret");
 }
 test("il server segnala la configurazione assente senza mostrare chiavi", async () => {
   vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
@@ -35,10 +34,10 @@ test("il server segnala la configurazione assente senza mostrare chiavi", async 
   expect(response.statusCode).toBe(503);
   expect(response.end.mock.calls[0][0]).toContain("non configurato");
 });
-test("la pulizia richiede il segreto e non accetta il token di un utente", async () => {
+test("la pulizia rimossa viene rifiutata prima di verificare il token", async () => {
   configure();
   expect((await request({ action: "cleanup" }, "user-token")).statusCode).toBe(
-    401,
+    400,
   );
 });
 test("un JWT non verificato non autorizza upload o ascolti", async () => {

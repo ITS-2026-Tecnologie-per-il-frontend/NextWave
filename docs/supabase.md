@@ -58,7 +58,7 @@ Prima di riprodurre un audio, il server verifica che gli slot precedenti siano c
 
 Il protocollo impedisce la conferma istantanea e il salto alla fine; non prova che una persona stia ascoltando e un client modificato può simulare avanzamenti in tempo reale. Per un contest pubblico occorreranno anche misure antiabuso, limiti per account e monitoraggio. Interruzioni di rete o heartbeat mancanti possono richiedere di ricominciare il brano: l’app mostra l’errore e non salva falsi progressi.
 
-Gli audio demo sono pubblici e sintetici. Per brani reali servono storage privato, URL firmati a breve durata rilasciati da una funzione server dopo autorizzazione, file completi, metadati audio rimossi e verifica dei diritti. Una URL pubblica in `tracks.audio_path` non garantisce protezione del file o dell’identità. Le API Spotify sono state rimosse; eseguire `supabase/updates/remove-spotify.sql` sul database esistente per eliminare il deposito delle credenziali e i tentativi OAuth, senza modificare catalogo, candidature o voti.
+I campioni sintetici locali sono pubblici per la demo senza account; le copie cloud sono nel bucket privato. I brani reali usano Storage privato e URL firmati a breve durata rilasciati dal server dopo autorizzazione, con rimozione dei metadati e verifica manuale dei diritti. Una URL pubblica in `tracks.audio_path` non garantisce protezione del file o dell’identità. Le API Spotify sono state rimosse; eseguire `supabase/updates/remove-spotify.sql` sul database esistente per eliminare il deposito delle credenziali e i tentativi OAuth, senza modificare catalogo, candidature o voti.
 
 ## Migrazioni e dati iniziali
 
@@ -141,4 +141,4 @@ I dati localStorage della vecchia demo non vengono importati automaticamente com
 
 ## Aggiornamento audio temporanei
 
-La settima migrazione aggiunge gli audio privati e aggiorna le RPC esistenti senza cancellare lo storico. Sul progetto già inizializzato eseguire una volta `supabase/updates/temporary-audio.sql`. Configurare anche Vercel e il cron seguendo [audio-storage.md](audio-storage.md). Il modulo cloud richiede ora un MP3 e il link Spotify; l’ascolto cloud passa dalla funzione Vercel `/api/audio`. Per il collaudo di queste funzioni usare Vercel, perché `npm start` avvia soltanto il frontend Vite.
+La settima migrazione aggiunge gli audio privati e aggiorna le RPC esistenti senza cancellare lo storico. Sul progetto già inizializzato eseguire una volta `supabase/updates/temporary-audio.sql`. Configurare il server Vercel seguendo [audio-storage.md](audio-storage.md). Il modulo cloud richiede ora un MP3 e il link Spotify; l’ascolto cloud passa dalla funzione Vercel `/api/audio`. Per il collaudo di queste funzioni usare Vercel, perché `npm start` avvia soltanto il frontend Vite.

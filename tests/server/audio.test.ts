@@ -39,34 +39,6 @@ describe("audio privato", () => {
     expect(result.duration).toBeGreaterThan(2);
     expect(result.duration).toBeLessThan(3);
   });
-  test("una cancellazione Storage fallita non segna il file come eliminato nel database", async () => {
-    const jobs = [{ id: "asset-1", kind: "audio", path: "tracks/asset-1.mp3" }];
-    const rpc = vi.fn(async (name: string, data: Record<string, unknown>) => ({
-      data: data.p_action === "cleanup-list" ? jobs : {},
-      error: null,
-      name,
-    }));
-    const remove = vi.fn(async () => ({
-      error: { message: "Storage temporaneamente indisponibile" },
-    }));
-    const admin = {
-      rpc,
-      storage: { from: () => ({ remove }) },
-    } as unknown as SupabaseClient;
-    const service = createAudioService(admin);
-    expect(await service.cleanup()).toEqual({ removed: 0, failed: 1 });
-    expect(
-      rpc.mock.calls.some((call) => call[1].p_action === "cleanup-done"),
-    ).toBe(false);
-    remove.mockResolvedValue({ error: null } as unknown as {
-      error: { message: string };
-    });
-    expect(await service.cleanup()).toEqual({ removed: 1, failed: 0 });
-    expect(rpc.mock.calls.at(-1)?.[1]).toMatchObject({
-      p_action: "cleanup-done",
-      p_data: { id: "asset-1", kind: "audio" },
-    });
-  });
   test("non firma l’audio quando il database rifiuta l’accesso allo slot", async () => {
     const createSignedUrl = vi.fn();
     const admin = {

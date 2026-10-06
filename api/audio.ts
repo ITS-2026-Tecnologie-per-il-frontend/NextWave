@@ -1,5 +1,4 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { createAudioService } from "../server/audio/service.ts";
 
@@ -46,20 +45,6 @@ export default async function handler(
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const service = createAudioService(admin);
-    if (action === "cleanup") {
-      const secret = process.env.AUDIO_CLEANUP_SECRET;
-      if (
-        !secret ||
-        token.length !== secret.length ||
-        !timingSafeEqual(Buffer.from(token), Buffer.from(secret))
-      ) {
-        respond(401, { error: "Accesso negato." });
-        return;
-      }
-      const result = await service.cleanup();
-      respond(result.failed ? 503 : 200, result);
-      return;
-    }
     if (!["prepare", "finalize", "cancel", "play"].includes(action ?? "")) {
       respond(400, { error: "Operazione non valida." });
       return;

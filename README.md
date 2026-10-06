@@ -24,11 +24,11 @@ Apri http://127.0.0.1:4173. Con `VITE_DATA_MODE=supabase` è disponibile il logi
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
 
-Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. Il modulo artista richiede un MP3 e il link Spotify; il server verifica il file e i moderatori autorizzano il brano per un giorno di contest. Dopo la chiusura viene cancellato solo l’audio dallo Storage privato, conservando i dati. Attivazione e trasferimento dei cinque campioni: [docs/audio-storage.md](docs/audio-storage.md).
+Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. Il modulo artista richiede un MP3 e il link Spotify; il server verifica il file e i moderatori autorizzano il brano per un giorno di contest. Gli audio vengono conservati nello Storage privato, insieme ai dati della candidatura. Attivazione e trasferimento dei cinque campioni: [docs/audio-storage.md](docs/audio-storage.md).
 
 Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/generated/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
 
-Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, aggiungere le variabili server `SUPABASE_SERVICE_ROLE_KEY` e `AUDIO_CLEANUP_SECRET`, quindi ricompilare con un nuovo deploy. Configurare anche Site URL e redirect autorizzati in Supabase Auth.
+Vercel usa `vercel.json`. Sul dashboard occorre impostare `VITE_DATA_MODE`, `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`, aggiungere le variabili server `SUPABASE_SERVICE_ROLE_KEY`, quindi ricompilare con un nuovo deploy. Configurare anche Site URL e redirect autorizzati in Supabase Auth.
 
 ## Verifiche
 
@@ -73,8 +73,8 @@ I test dell’interfaccia usano account e risposte controllati, senza scrivere s
 - `supabase/migrations/`: schema e regole versionati.
 - `supabase/seeds/`: dati demo separati dalle migrazioni.
 - `scripts/`: bundle SQL, test PostgreSQL e controllo remoto.
-- `api/` e `server/audio/`: funzioni Vercel per upload, verifica MP3, audio privati e pulizia.
-- `supabase/operations/`: configurazione del job Cron.
+- `api/` e `server/audio/`: funzioni Vercel per upload, verifica MP3, audio privati.
+- `supabase/operations/`: eventuali interventi amministrativi sul progetto esistente.
 - `public/`: artwork e cinque WAV sintetici originali.
 - `tests/unit/`, `tests/integration/` e `tests/server/`: test delle regole, dei flussi React e dello Storage.
 - `supabase/updates/`: aggiornamenti manuali per database già inizializzati.

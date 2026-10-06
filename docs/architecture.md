@@ -33,4 +33,4 @@ Conservare i dati necessari a profili, contest e candidature. Il collegamento ag
 
 ## Link esterni e sviluppi futuri
 
-I link Spotify presenti sono semplici collegamenti esterni e non richiedono API. Le funzioni Vercel in `api/audio.ts` autorizzano il caricamento e la riproduzione su Supabase Storage privato. Il job Cron cancella gli audio scaduti attraverso Storage API e conserva i metadati. Vedere [audio-storage.md](audio-storage.md).
+I link Spotify presenti sono semplici collegamenti esterni e non richiedono API. Le funzioni Vercel in `api/audio.ts` autorizzano il caricamento e la riproduzione su Supabase Storage privato. La pulizia automatica è stata sospesa: i file audio rimangono nello Storage e vengono gestiti manualmente. Vedere [audio-storage.md](audio-storage.md).

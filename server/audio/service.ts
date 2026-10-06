@@ -65,7 +65,7 @@ export function createAudioService(admin: SupabaseClient) {
           bytes: audio.length,
           duration,
         });
-        // L'originale resta privato fino alla scadenza della firma di upload: il cron lo elimina.
+        // L'originale resta privato fino alla scadenza della firma di upload: la gestione è manuale.
         return { ready: true };
       } catch (error) {
         await command("retry-upload", user, { id });
@@ -91,24 +91,6 @@ export function createAudioService(admin: SupabaseClient) {
       );
       if (signed.error) throw new Error("Audio non disponibile. Riprova.");
       return { ...data, audioUrl: signed.data.signedUrl };
-    },
-    async cleanup() {
-      const jobs =
-        await command<{ id: string; kind: string; path: string }[]>(
-          "cleanup-list",
-        );
-      let removed = 0;
-      let failed = 0;
-      for (const job of jobs) {
-        const result = await bucket.remove([job.path]);
-        if (result.error) {
-          failed++;
-          continue;
-        }
-        await command("cleanup-done", null, { id: job.id, kind: job.kind });
-        removed++;
-      }
-      return { removed, failed };
     },
   };
 }
