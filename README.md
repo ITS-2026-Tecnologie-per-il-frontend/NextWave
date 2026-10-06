@@ -1,6 +1,5 @@
 # Vibe Pulse
 
-
 APRI IL PROGETTO CON QUESO LINK: https://next-wave-awh7yke4j-next-wave11.vercel.app/
 
 App React per scoprire artisti emergenti: cinque audio giornalieri personalizzati, un voto e reveal alle 21:00 Europe/Rome. Interfaccia italiana, responsiva, con cinque palette.
@@ -80,3 +79,7 @@ La vecchia demo conserva i dati nella chiave `vibepulse-v1`. I vecchi avvii non 
 Le candidature restano in attesa di verifica e non entrano automaticamente nel catalogo. La soglia degli ascoltatori è autodichiarata nella candidatura.
 
 Spotify richiede copertina e metadati durante lo streaming: il contest al buio deve usare audio autorizzati degli artisti. Fattibilità e limiti Spotify sono documentati in [docs/architecture.md](docs/architecture.md).
+
+# Collegamento Spotify
+
+Il profilo cloud include il collegamento reale a Spotify. Per attivare le funzioni server e la nuova migrazione sul progetto esistente seguire [docs/spotify.md](docs/spotify.md).

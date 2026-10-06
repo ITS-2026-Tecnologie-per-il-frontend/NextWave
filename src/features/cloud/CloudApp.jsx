@@ -12,6 +12,7 @@ import Onboarding from "../../pages/Onboarding.jsx";
 import Daily from "../../pages/Daily.jsx";
 import Profile from "../../pages/Profile.jsx";
 import Artist from "../../pages/Artist.jsx";
+import SpotifyConnection from "./SpotifyConnection.jsx";
 
 const readRoute = () =>
   ["daily", "ranks", "profile", "artist"].includes(location.hash.slice(1))
@@ -291,6 +292,7 @@ export function Account({ client, repository }) {
                 </button>
               </section>
             ))}
+          {route === "profile" && <SpotifyConnection client={client} />}
           {route === "profile" && (
             <Profile
               cloud
