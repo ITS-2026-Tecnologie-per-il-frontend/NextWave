@@ -11,6 +11,7 @@ interface DailyProps {
   onReveal: () => void;
   onPreview?: () => void;
   onRanks: () => void;
+  onProfile?: () => void;
   tracks?: Track[];
   cloud?: boolean;
 }
@@ -31,9 +32,12 @@ export default function Daily({
   onReveal,
   onPreview,
   onRanks,
+  onProfile,
   tracks = catalog,
   cloud = false,
 }: DailyProps) {
+  const empty = cloud && round.ids.length !== 5;
+  const showReveal = revealed && !empty;
   const left = Math.max(0, 21 * 3600 - clock.seconds);
   const countdown = [
     Math.floor(left / 3600),
@@ -60,10 +64,10 @@ export default function Daily({
         <img src="/art.png" alt="Onda sonora cromata viola e lime" />
         <div className="copy">
           <span className="eyebrow">
-            {revealed ? "IL MOMENTO DEL REVEAL" : "ASCOLTA OLTRE IL NOME"}
+            {showReveal ? "IL MOMENTO DEL REVEAL" : "ASCOLTA OLTRE IL NOME"}
           </span>
           <h2>
-            {revealed ? (
+            {showReveal ? (
               <>
                 Le voci hanno
                 <br />
@@ -78,16 +82,40 @@ export default function Daily({
             )}
           </h2>
           <p>
-            {revealed
-              ? "Scopri tutti gli artisti della tua selezione."
-              : "Ascolta ogni brano fino alla fine per sbloccare il successivo. Dopo tutti e cinque, scegli il tuo preferito."}
+            {empty
+              ? "Cinque spazi per nuove voci. La tua selezione apparirà qui quando ci saranno abbastanza brani approvati nei generi che ami."
+              : revealed
+                ? "Scopri tutti gli artisti della tua selezione."
+                : "Ascolta ogni brano fino alla fine per sbloccare il successivo. Dopo tutti e cinque, scegli il tuo preferito."}
           </p>
         </div>
         <div className="countdown">
-          <small>{revealed ? "REVEAL APERTO" : "REVEAL ALLE 21:00"}</small>
-          <strong>{revealed ? "21:00" : countdown}</strong>
+          <small>
+            {empty
+              ? "LA TUA PROSSIMA SCOPERTA"
+              : revealed
+                ? "REVEAL APERTO"
+                : "REVEAL ALLE 21:00"}
+          </small>
+          <strong className={empty ? "waiting-label" : undefined}>
+            {empty ? "IN ATTESA" : revealed ? "21:00" : countdown}
+          </strong>
         </div>
       </section>
+      {empty && (
+        <section className="panel daily-empty-notice">
+          <div>
+            <h3>Stiamo preparando la tua selezione.</h3>
+            <p className="hint">
+              I brani approvati arriveranno in questi spazi. Nel frattempo puoi
+              scegliere i tuoi generi preferiti.
+            </p>
+          </div>
+          <button className="btn secondary small" onClick={onProfile}>
+            Modifica i tuoi gusti
+          </button>
+        </section>
+      )}
       {round.vote && (
         <div className="success revealbanner">
           <b>✓ Il tuo voto è su Next Wave.</b>
@@ -98,94 +126,123 @@ export default function Daily({
         </div>
       )}
       <div className="sectionhead">
-        <h2>{revealed ? "I tuoi artisti di oggi" : "La tua selezione"}</h2>
+        <h2>{showReveal ? "I tuoi artisti di oggi" : "La tua selezione"}</h2>
         <span className="progresslabel">
-          {round.listened.length}/5 completati
+          {empty
+            ? "5 spazi in attesa"
+            : `${round.listened.length}/5 completati`}
         </span>
-        {revealed && (
+        {showReveal && (
           <button className="textbtn" onClick={onReveal}>
             Rivedi la classifica ↗
           </button>
         )}
       </div>
       <div className="tracks">
-        {round.ids.map((id, index) => {
-          const track = tracks.find((item) => item.id === id);
-          if (!track) return null;
-          const heard = round.listened.includes(id);
-          const locked = !canPlay(round, id);
-          const playing = player.active === id && player.playing;
-          return (
+        {empty &&
+          Array.from({ length: 5 }, (_, index) => (
             <article
-              key={id}
-              className={`track ${playing ? "playing" : ""} ${locked ? "locked" : ""}`}
+              key={index}
+              className="track track-empty"
+              aria-label={`Spazio ${index + 1}, in attesa di un brano`}
             >
-              <div className={`cover v${index}`}>
+              <div className={`cover v${index}`} aria-hidden="true">
                 <span className="number">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <button
-                  className="play"
-                  disabled={locked || player.loading || (cloud && revealed)}
-                  aria-label={`${playing ? "Pausa" : "Ascolta"} brano ${index + 1}`}
-                  onClick={() => player.play(id)}
-                >
-                  <Icon name={playing ? "pause" : "play"} />
-                </button>
+                <span className="empty-vinyl" />
               </div>
               <div className="trackmeta">
-                <span>{track.genre}</span>
-                <span className={heard ? "check" : ""}>
-                  {heard
-                    ? "✓ Completato"
-                    : locked
-                      ? "Bloccato"
-                      : track.isDemo
-                        ? "Audio demo"
-                        : "Audio del contest"}
-                </span>
+                <span>Nuova scoperta</span>
+                <span>In attesa</span>
               </div>
-              <h3>
-                {revealed
-                  ? track.title
-                  : `Brano ${String(index + 1).padStart(2, "0")}`}
-              </h3>
-              <p>{revealed ? track.artist : `${track.mood} · ${track.lang}`}</p>
-              {locked && (
-                <p className="hint">
-                  Completa prima il brano {String(index).padStart(2, "0")}.
-                </p>
-              )}
-              {revealed ? (
-                <>
-                  <button
-                    className={`vote ${(cloud ? track.saved : saved.includes(id)) ? "chosen" : ""}`}
-                    onClick={() => onSave(id)}
-                  >
-                    {(cloud ? track.saved : saved.includes(id))
-                      ? "✓ Salvato"
-                      : "＋ Salva scoperta"}
-                  </button>
-                  <SpotifyLink track={track} />
-                </>
-              ) : (
-                <button
-                  className={`vote ${round.vote === id ? "chosen" : ""}`}
-                  disabled={!canVote(round, revealed)}
-                  onClick={() => onVote(id)}
-                >
-                  {round.vote === id
-                    ? "✓ Il tuo voto"
-                    : round.vote
-                      ? "Voto concluso"
-                      : round.listened.length < 5
-                        ? "Completa tutti per votare"
-                        : "Vota questo brano"}
-                </button>
-              )}
+              <h3>Spazio {String(index + 1).padStart(2, "0")}</h3>
+              <p>Il prossimo ascolto parte da qui.</p>
+              <div className="empty-track-footer">
+                Brano non ancora disponibile
+              </div>
             </article>
-          );
-        })}
+          ))}
+        {!empty &&
+          round.ids.map((id, index) => {
+            const track = tracks.find((item) => item.id === id);
+            if (!track) return null;
+            const heard = round.listened.includes(id);
+            const locked = !canPlay(round, id);
+            const playing = player.active === id && player.playing;
+            return (
+              <article
+                key={id}
+                className={`track ${playing ? "playing" : ""} ${locked ? "locked" : ""}`}
+              >
+                <div className={`cover v${index}`}>
+                  <span className="number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <button
+                    className="play"
+                    disabled={locked || player.loading || (cloud && revealed)}
+                    aria-label={`${playing ? "Pausa" : "Ascolta"} brano ${index + 1}`}
+                    onClick={() => player.play(id)}
+                  >
+                    <Icon name={playing ? "pause" : "play"} />
+                  </button>
+                </div>
+                <div className="trackmeta">
+                  <span>{track.genre}</span>
+                  <span className={heard ? "check" : ""}>
+                    {heard
+                      ? "✓ Completato"
+                      : locked
+                        ? "Bloccato"
+                        : track.isDemo
+                          ? "Audio demo"
+                          : "Audio del contest"}
+                  </span>
+                </div>
+                <h3>
+                  {revealed
+                    ? track.title
+                    : `Brano ${String(index + 1).padStart(2, "0")}`}
+                </h3>
+                <p>
+                  {revealed ? track.artist : `${track.mood} · ${track.lang}`}
+                </p>
+                {locked && (
+                  <p className="hint">
+                    Completa prima il brano {String(index).padStart(2, "0")}.
+                  </p>
+                )}
+                {revealed ? (
+                  <>
+                    <button
+                      className={`vote ${(cloud ? track.saved : saved.includes(id)) ? "chosen" : ""}`}
+                      onClick={() => onSave(id)}
+                    >
+                      {(cloud ? track.saved : saved.includes(id))
+                        ? "✓ Salvato"
+                        : "＋ Salva scoperta"}
+                    </button>
+                    <SpotifyLink track={track} />
+                  </>
+                ) : (
+                  <button
+                    className={`vote ${round.vote === id ? "chosen" : ""}`}
+                    disabled={!canVote(round, revealed)}
+                    onClick={() => onVote(id)}
+                  >
+                    {round.vote === id
+                      ? "✓ Il tuo voto"
+                      : round.vote
+                        ? "Voto concluso"
+                        : round.listened.length < 5
+                          ? "Completa tutti per votare"
+                          : "Vota questo brano"}
+                  </button>
+                )}
+              </article>
+            );
+          })}
       </div>
       <div className="bottomgrid">
         <section className="panel">

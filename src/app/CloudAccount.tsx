@@ -267,41 +267,26 @@ export function Account({
               {error} I progressi non confermati dal server non vengono salvati.
             </p>
           )}
-          {route === "daily" &&
-            (round.ids.length === 5 ? (
-              <Daily
-                cloud
-                tracks={tracks}
-                round={round}
-                clock={clock}
-                revealed={clock.revealed}
-                preview={false}
-                player={player}
-                saved={profile.saved}
-                onVote={(id) => {
-                  if (!busy && canVote(round, clock.revealed))
-                    setDialog({ type: "vote", id });
-                }}
-                onSave={(id) => handled(mutate(() => repository.favorite(id)))}
-                onReveal={() => void showReveal(clock.day)}
-                onRanks={() => navigate("ranks")}
-              />
-            ) : (
-              <section className="panel">
-                <h1>Stiamo preparando la tua selezione.</h1>
-                <p>
-                  Non ci sono ancora cinque brani approvati nei generi che hai
-                  scelto. I progressi appariranno qui quando il catalogo sarà
-                  pronto.
-                </p>
-                <button
-                  className="btn secondary"
-                  onClick={() => navigate("profile")}
-                >
-                  Modifica i tuoi gusti
-                </button>
-              </section>
-            ))}
+          {route === "daily" && (
+            <Daily
+              cloud
+              tracks={tracks}
+              round={round}
+              clock={clock}
+              revealed={clock.revealed}
+              preview={false}
+              player={player}
+              saved={profile.saved}
+              onVote={(id) => {
+                if (!busy && canVote(round, clock.revealed))
+                  setDialog({ type: "vote", id });
+              }}
+              onSave={(id) => handled(mutate(() => repository.favorite(id)))}
+              onReveal={() => void showReveal(clock.day)}
+              onRanks={() => navigate("ranks")}
+              onProfile={() => navigate("profile")}
+            />
+          )}
           {route === "profile" && (
             <Profile
               cloud

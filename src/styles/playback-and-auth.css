@@ -36,3 +36,48 @@ button:disabled {
 .connection-error {
   margin: 20px 0;
 }
+
+.daily-empty-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
+.daily-empty-notice h3 {
+  margin: 0 0 8px;
+}
+.daily-empty-notice p {
+  margin: 0;
+}
+.countdown .waiting-label {
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+.track-empty .cover {
+  opacity: 0.75;
+}
+.empty-vinyl {
+  position: absolute;
+  width: 65%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--control-line);
+  background: repeating-radial-gradient(
+    circle,
+    transparent 0 5px,
+    color-mix(in srgb, var(--text) 8%, transparent) 6px 7px
+  );
+}
+.track-empty .number {
+  position: relative;
+  z-index: 1;
+}
+.empty-track-footer {
+  margin-top: 16px;
+  padding: 10px 0 2px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}

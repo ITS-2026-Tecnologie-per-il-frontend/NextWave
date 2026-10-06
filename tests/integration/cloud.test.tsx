@@ -428,6 +428,17 @@ describe("account cloud", () => {
     );
     await screen.findByText("Stiamo preparando la tua selezione.");
     expect(
+      screen.getByAltText("Onda sonora cromata viola e lime"),
+    ).toBeTruthy();
+    expect(
+      screen.getAllByRole("article", {
+        name: /Spazio .*in attesa di un brano/,
+      }),
+    ).toHaveLength(5);
+    expect(
+      screen.queryByRole("button", { name: "Rivedi la classifica ↗" }),
+    ).toBeNull();
+    expect(
       screen.queryByRole("button", { name: "Ascolta brano 1" }),
     ).toBeNull();
   });
