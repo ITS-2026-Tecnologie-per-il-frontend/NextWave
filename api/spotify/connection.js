@@ -26,10 +26,14 @@ export default async function handler(req, res) {
     if (credentials.expires < Date.now() + 60000) {
       let refreshed;
       try {
-        refreshed = await token(ctx, {
-          grant_type: "refresh_token",
-          refresh_token: credentials.refresh_token,
-        });
+        refreshed = await token(
+          ctx,
+          {
+            grant_type: "refresh_token",
+            refresh_token: credentials.refresh_token,
+          },
+          credentials.auth_mode === "pkce",
+        );
       } catch (error) {
         if (error.message === "reauthorize") {
           await rpc(ctx, "delete", id);
@@ -42,6 +46,7 @@ export default async function handler(req, res) {
         credentials: seal(
           {
             ...refreshed,
+            auth_mode: credentials.auth_mode,
             refresh_token: refreshed.refresh_token || credentials.refresh_token,
             expires: Date.now() + refreshed.expires_in * 1000,
           },

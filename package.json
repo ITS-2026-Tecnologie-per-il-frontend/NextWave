@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/patch-spot-auth.mjs",
+    "prebuild": "node scripts/patch-spot-auth.mjs",
     "start": "vite --host 127.0.0.1 --port 4173",
     "dev": "vite --host 127.0.0.1 --port 4173",
     "build": "vite build",
@@ -21,7 +23,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "spot-auth": "^0.1.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",

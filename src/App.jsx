@@ -2,6 +2,9 @@ import { lazy, Suspense } from "react";
 import { getDataConfig } from "./services/supabase.js";
 const DemoApp = lazy(() => import("./DemoApp.jsx"));
 const CloudApp = lazy(() => import("./features/cloud/CloudApp.jsx"));
+const SpotifyPkceCallback = lazy(
+  () => import("./features/cloud/SpotifyPkceCallback.jsx"),
+);
 export default function App() {
   let config;
   try {
@@ -22,7 +25,14 @@ export default function App() {
         </main>
       }
     >
-      {config.mode === "supabase" ? <CloudApp /> : <DemoApp />}
+      {config.mode === "supabase" &&
+      location.pathname === "/auth/spotify/callback" ? (
+        <SpotifyPkceCallback />
+      ) : config.mode === "supabase" ? (
+        <CloudApp />
+      ) : (
+        <DemoApp />
+      )}
     </Suspense>
   );
 }

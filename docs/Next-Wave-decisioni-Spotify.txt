@@ -1,0 +1,121 @@
+NEXT WAVE — SPOTIFY E PROPOSTA PER I BRANI DEGLI ARTISTI
+Documento per il confronto tra collaboratori
+Aggiornato al 6 ottobre 2026
+
+1. CHE COSA VOGLIAMO REALIZZARE
+
+Next Wave è una web app per scoprire artisti emergenti. Ogni utente sceglie i propri generi musicali e ascolta cinque brani giornalieri. Deve completare l'ascolto di un brano prima di passare al successivo e può esprimere il proprio voto secondo le regole del contest.
+
+L'obiettivo è permettere a tutti di usare Next Wave, senza dover autorizzare manualmente ogni nuova persona in un pannello esterno.
+
+2. COME È ORGANIZZATO IL PROGETTO
+
+- Supabase gestisce gli account Next Wave e i dati dell'app: preferenze, candidature, progressi, voti e preferiti.
+- Vercel pubblica il sito e ospita le funzioni server.
+- Spotify è un servizio esterno: collegare un account Spotify è diverso dal registrarsi su Next Wave.
+
+Un utente può avere un account Next Wave anche senza Spotify. Noi non dobbiamo conoscere la sua password Spotify: quando collega il profilo, accede direttamente sul sito Spotify e dà il consenso.
+
+3. CHE COSA ABBIAMO GIÀ IMPLEMENTATO CON SPOTIFY
+
+Abbiamo realizzato il pulsante per collegare Spotify, il ritorno a Next Wave dopo l'autorizzazione, la lettura del profilo, la conservazione protetta dei token, il loro rinnovo e lo scollegamento.
+
+I token sono credenziali che consentono al server di effettuare le operazioni autorizzate dall'utente. Sono conservati cifrati; la chiave riservata dell'app Spotify non viene esposta nel browser.
+
+Al momento l'integrazione legge il profilo. Non abbiamo implementato l'importazione di artisti o brani principali, l'importazione automatica dei generi o il salvataggio dei brani nella libreria Spotify.
+
+4. PERCHÉ IL COLLEGAMENTO NON È DISPONIBILE A TUTTI
+
+La nostra app Spotify è in Development Mode. Questa modalità consente di usare le API personali soltanto per un massimo di cinque account Spotify inseriti manualmente nella lista degli utenti autorizzati.
+
+Il consenso dell'utente non elimina questa condizione. Una persona fuori dalla lista può anche riuscire ad accedere su Spotify, ma le successive richieste ai suoi dati possono essere rifiutate con errore 403.
+
+Il limite riguarda l'integrazione Spotify, non il numero di persone che possono registrarsi su Next Wave tramite Supabase. Anche Supabase e Vercel hanno limiti di piano e utilizzo, da monitorare mentre il progetto cresce.
+
+Non esiste una seconda API Spotify per il pubblico da attivare con un'altra chiave. Non possiamo eliminare il limite cambiando il codice, il database o la modalità di login.
+
+5. COME SI OTTIENE L'ACCESSO SPOTIFY PER UN PUBBLICO PIÙ AMPIO
+
+Serve l'approvazione di Spotify per Extended Quota Mode. In questa modalità non si applica la lista dei cinque tester.
+
+Attualmente, per i nuovi potenziali partner, Spotify richiede un'organizzazione legalmente registrata, un servizio già attivo e almeno 250.000 utenti attivi mensili, oltre a presenza nei mercati richiesti, sostenibilità commerciale e rispetto delle regole.
+
+I 250.000 utenti sono quelli del servizio, non i cinque account Spotify di test. Raggiungere questo numero non sblocca automaticamente l'integrazione: bisogna comunque soddisfare gli altri requisiti e ottenere l'approvazione.
+
+Per un progetto del corso appena avviato, non possiamo quindi considerare garantito l'accesso Spotify pubblico. Possiamo continuare a sviluppare e provare le funzioni con i cinque account autorizzati, ma gli utenti esterni devono poter usare Next Wave senza quelle funzioni.
+
+6. DATI MUSICALI: CHE COSA È POSSIBILE E CHE COSA NO
+
+Per gli account autorizzati possiamo sviluppare la lettura degli artisti e dei brani principali tramite la funzione Spotify “Top Items”. Serve un permesso aggiuntivo e gli utenti devono autorizzare nuovamente l'app.
+
+Questi dati rappresentano un'affinità calcolata da Spotify. Non sono una lista di preferenze dichiarate dall'utente né una cronologia completa degli ascolti.
+
+Non esiste un endpoint dedicato che restituisca direttamente i generi preferiti dell'utente. Inoltre il campo dei generi degli artisti è deprecato: non dobbiamo basare il funzionamento di Next Wave sulla sua disponibilità.
+
+La proposta è mantenere la scelta dei generi direttamente su Next Wave. Ulteriori utilizzi dei dati Spotify devono rispettare le regole del servizio: la disponibilità tecnica di un dato non autorizza automaticamente qualsiasi analisi o uso.
+
+7. SALVARE UN BRANO SU SPOTIFY: DUE COSE DIVERSE
+
+A. Aggiungerlo alla libreria Spotify tramite Next Wave
+Richiede che il brano esista già su Spotify, che l'utente colleghi l'account e conceda il permesso necessario. Con la nostra attuale abilitazione, questa funzione sarebbe utilizzabile soltanto dai tester autorizzati. Non è ancora implementata.
+
+B. Aprire il brano sul sito o nell'app Spotify
+Possiamo mostrare un semplice pulsante “Apri su Spotify”. Non serve usare le API o collegare l'account a Next Wave. L'utente apre Spotify e, se desidera, salva il brano direttamente lì. L'ascolto e le altre azioni dipendono dalle condizioni del suo account Spotify e dalla disponibilità del brano.
+
+Un file caricato soltanto su Next Wave non può essere pubblicato nel catalogo Spotify attraverso la Web API. La pubblicazione musicale su Spotify segue un percorso separato, generalmente tramite un distributore.
+
+8. PROPOSTA: CARICAMENTO DIRETTO DEI BRANI
+
+Gli artisti potrebbero candidare i brani direttamente su Next Wave, caricando il file audio e compilando titolo, nome artista, genere e gli altri dati realmente necessari.
+
+Il file verrebbe conservato su Supabase Storage; i dati della candidatura e il suo stato rimarrebbero nel database. Servono controlli sul formato e sulla dimensione del file, accessi protetti, limiti di caricamento e gestione dei costi di spazio e traffico.
+
+L'artista dovrebbe confermare di possedere i diritti e concedere le autorizzazioni necessarie per l'ascolto nell'app. Dovremmo definire queste condizioni prima dell'apertura pubblica: un semplice caricamento non dimostra la titolarità dei diritti.
+
+I brani resterebbero in attesa di verifica. Solo dopo l'approvazione entrerebbero nel catalogo del contest. Dovremmo anche stabilire come verificare i requisiti di “artista emergente”: le API standard Spotify non forniscono il dato degli ascoltatori mensili necessario per controllare automaticamente una soglia di 10.000.
+
+Il link Spotify diventerebbe facoltativo. Se l'artista ha già pubblicato il brano lì, può inserirlo per permettere agli utenti di aprirlo su Spotify.
+
+Questo caricamento diretto completo è una proposta da implementare, non una funzione già pronta.
+
+9. COME FUNZIONEREBBE L'APP PUBBLICA
+
+Per l'ascoltatore:
+1. Registrazione su Next Wave tramite Supabase.
+2. Scelta dei generi musicali nell'app.
+3. Ascolto dei cinque brani, completando ciascuno prima di passare al successivo.
+4. Voto e gestione dei preferiti su Next Wave.
+5. Dopo il momento previsto per rivelare titolo e artista, eventuale pulsante “Apri su Spotify” se il brano ha un link.
+
+Per l'artista:
+1. Accesso a Next Wave.
+2. Caricamento del brano e compilazione dei dati.
+3. Conferma dei diritti e accettazione delle condizioni di utilizzo.
+4. Attesa della verifica.
+5. Partecipazione al contest dopo l'approvazione.
+
+Il link Spotify dovrebbe comparire dopo la rivelazione, per non anticipare l'identità dei brani durante l'ascolto anonimo.
+
+10. DECISIONI DA PRENDERE INSIEME
+
+- Confermare se rendere il caricamento diretto la fonte principale dei brani.
+- Scegliere i dati obbligatori e quelli da eliminare dal modulo artista.
+- Definire formati audio, dimensioni massime, condizioni sui diritti e verifica delle candidature.
+- Decidere se nascondere il collegamento Spotify al pubblico e conservarlo solo per i tester, oppure sospenderlo del tutto per il momento.
+- Confermare il link facoltativo “Apri su Spotify” dopo la rivelazione.
+
+Per queste funzioni principali le API Spotify non sono necessarie. Potrebbero tornare utili per funzioni aggiuntive, ma il progetto non deve dipendere dall'ottenimento futuro dell'accesso esteso.
+
+11. FONTI UFFICIALI
+
+Limiti, lista utenti e requisiti per Extended Quota Mode:
+https://developer.spotify.com/documentation/web-api/concepts/quota-modes
+
+Artisti e brani principali, permessi e campo generi deprecato:
+https://developer.spotify.com/documentation/web-api/reference/get-users-top-artists-and-tracks
+
+Regole per l'utilizzo delle API e dei dati Spotify:
+https://developer.spotify.com/policy
+https://developer.spotify.com/terms
+
+Le regole possono cambiare. Prima di una futura richiesta di accesso pubblico, verificare nuovamente la documentazione ufficiale.

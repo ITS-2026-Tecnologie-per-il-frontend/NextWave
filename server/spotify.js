@@ -44,7 +44,9 @@ export function context() {
   const redirect = new URL(env.SPOTIFY_REDIRECT_URI);
   if (
     redirect.protocol !== "https:" ||
-    redirect.pathname !== "/api/spotify/callback"
+    !["/api/spotify/callback", "/auth/spotify/callback"].includes(
+      redirect.pathname,
+    )
   )
     throw new Error("configuration");
   const db = createClient(
@@ -85,14 +87,20 @@ export function cookie(res, value, age = 600) {
     `__Host-nw-spotify=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`,
   );
 }
-export async function token(ctx, fields) {
+export async function token(ctx, fields, pkce = false) {
   const data = await spotifyJson("https://accounts.spotify.com/api/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(`${ctx.env.SPOTIFY_CLIENT_ID}:${ctx.env.SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
+      ...(!pkce
+        ? {
+            Authorization: `Basic ${Buffer.from(`${ctx.env.SPOTIFY_CLIENT_ID}:${ctx.env.SPOTIFY_CLIENT_SECRET}`).toString("base64")}`,
+          }
+        : {}),
     },
-    body: new URLSearchParams(fields),
+    body: new URLSearchParams(
+      pkce ? { ...fields, client_id: ctx.env.SPOTIFY_CLIENT_ID } : fields,
+    ),
     signal: AbortSignal.timeout(15000),
   });
   if (!data.access_token || !Number.isFinite(data.expires_in))
@@ -101,6 +109,10 @@ export async function token(ctx, fields) {
 }
 export function fail(res, error) {
   const messages = {
+    pkce_session:
+      "Sessione di collegamento Spotify scaduta o non valida. Ripeti il collegamento dal profilo Next Wave.",
+    profile_denied:
+      "Spotify ha negato l'accesso al profilo. Verifica l'account autorizzato in Users Management dell'app Spotify.",
     unauthorized: "Sessione Next Wave non valida. Esci e accedi nuovamente.",
     origin:
       "Apri Next Wave su https://next-wave-iota.vercel.app e riprova: il dominio deve coincidere con SPOTIFY_REDIRECT_URI.",

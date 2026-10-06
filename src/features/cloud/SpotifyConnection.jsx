@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
+import { SpotAuthProvider, SpotAuthBarrier } from "spot-auth/react";
+import {
+  ownerKey,
+  clearPkce,
+  spotifyRequest,
+} from "../../services/spotifyPkce.js";
 export default function SpotifyConnection({ client }) {
   const [connection, setConnection] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [pkce, setPkce] = useState(null);
   async function request(endpoint, method = "GET") {
     const { data } = await client.auth.getSession();
     if (!data.session) throw new Error("Accedi nuovamente a Next Wave.");
@@ -74,8 +81,11 @@ export default function SpotifyConnection({ client }) {
       if (connection?.connected)
         setConnection(await request("connection", "DELETE"));
       else {
-        const result = await request("start", "POST");
-        location.assign(result.url);
+        clearPkce();
+        const { data } = await client.auth.getSession();
+        if (!data.session) throw new Error("Accedi nuovamente a Next Wave.");
+        sessionStorage.setItem(ownerKey, data.session.user.id);
+        setPkce(await spotifyRequest(client, "pkce-config"));
       }
     } catch (e) {
       setError(e.message);
@@ -101,13 +111,41 @@ export default function SpotifyConnection({ client }) {
           </a>
         </p>
       )}
-      <button className="btn secondary" disabled={busy} onClick={act}>
+      <button className="btn secondary" disabled={busy || !!pkce} onClick={act}>
         {busy
           ? "Attendi…"
           : connection?.connected
             ? "Scollega Spotify"
             : "Collega Spotify"}
       </button>
+      {pkce && (
+        <SpotAuthProvider
+          clientId={pkce.clientId}
+          scope={pkce.scope}
+          redirectUri={pkce.redirectUri}
+          beforeAuthorize={async ({ state }) => {
+            const { data } = await client.auth.getSession();
+            if (data.session?.user.id !== sessionStorage.getItem(ownerKey))
+              throw new Error(
+                "L'account Next Wave è cambiato. Ripeti il collegamento.",
+              );
+            await spotifyRequest(client, "pkce-prepare", "POST", { state });
+          }}
+        >
+          <SpotAuthBarrier
+            fallback={
+              <p role="status">Apertura dell'autorizzazione Spotify…</p>
+            }
+            onError={(e) => {
+              clearPkce();
+              setPkce(null);
+              setError(e.message);
+            }}
+          >
+            <p>Autorizzazione Spotify pronta.</p>
+          </SpotAuthBarrier>
+        </SpotAuthProvider>
+      )}
       {error && <p role="alert">{error}</p>}
     </section>
   );
