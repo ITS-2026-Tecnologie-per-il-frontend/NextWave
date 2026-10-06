@@ -8,7 +8,8 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 grant usage on schema auth to authenticated, anon;
 grant execute on function auth.uid() to authenticated, anon;`);
 const files = (await readdir("supabase/migrations"))
-  .filter((file) => file.endsWith(".sql"))
+  // Regressione dello storico demo; il percorso reale è verificato da contests:test.
+  .filter((file) => file.endsWith(".sql") && !file.startsWith("20261006000600"))
   .sort();
 for (const file of files) {
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));

@@ -91,8 +91,11 @@ export function createCloudRepository(client: SupabaseClient) {
     vote: (id: string) => rpc("cast_vote", { p_selection: id }),
     favorite: (id: string, isTrack = false) =>
       rpc("toggle_favorite", { p_id: id, p_is_track: isTrack }),
-    rankings: (period: RankingPeriod) =>
-      rpc<RankingsResult>("get_rankings", { p_period: period }),
+    rankings: (period: RankingPeriod, day?: string) =>
+      rpc<RankingsResult>("get_rankings", {
+        p_period: period,
+        p_day: day || null,
+      }),
     reveal: (day: string) => rpc<RankingRow[]>("get_reveal", { p_day: day }),
     seenReveal: (day: string) => rpc("mark_reveal_seen", { p_day: day }),
     async submitApplication(data: Application, audio: File) {

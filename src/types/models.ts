@@ -49,6 +49,7 @@ export interface RankingRow extends Track {
 }
 
 export interface RankingsResult {
+  latestDay?: string;
   reference: string;
   rows: RankingRow[];
 }

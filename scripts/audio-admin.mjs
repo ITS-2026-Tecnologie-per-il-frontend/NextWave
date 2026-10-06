@@ -30,7 +30,7 @@ if (action === "upload-demo") {
   // Passa al percorso cloud soltanto quando tutti i cinque oggetti sono presenti.
   for (let index = 0; index < 5; index++) {
     const file = await readFile(
-      new URL(`../public/audio/${index}.wav`, import.meta.url),
+      new URL(`../tests/fixtures/audio/${index}.wav`, import.meta.url),
     );
     const result = await bucket.upload(`demo/${index}.wav`, file, {
       contentType: "audio/wav",

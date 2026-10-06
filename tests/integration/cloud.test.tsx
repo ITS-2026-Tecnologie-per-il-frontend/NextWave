@@ -114,6 +114,28 @@ function finish(audio: HTMLAudioElement, start = 0) {
 }
 
 describe("account cloud", () => {
+  test("un admin artista può caricare ancora dopo la traccia mensile", async () => {
+    const state = fixture();
+    state.adminAccess = { allowed: true, owner: false };
+    state.profile.accountType = "artist";
+    state.profile.applications = [
+      {
+        id: "already-sent",
+        title: "Track",
+        artist: "Artist",
+        listeners: 10,
+        subgenre: "Pop",
+        spotify: "https://open.spotify.com/track/1234567890123456789012",
+        submittedAt: state.serverTime,
+      },
+    ];
+    await mountCloud(state);
+    fireEvent.click(screen.getByRole("button", { name: "Per gli artisti" }));
+    await screen.findByRole("button", { name: "Candida un brano" });
+    expect(
+      screen.queryByText("La tua traccia del mese è stata inviata."),
+    ).toBeNull();
+  });
   test("la sezione artisti si attiva dal profilo e sparisce tornando ascoltatore", async () => {
     const { repository } = await mountCloud();
     expect(

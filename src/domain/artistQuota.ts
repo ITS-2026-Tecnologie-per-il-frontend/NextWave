@@ -5,14 +5,17 @@ export function artistQuota(
   applications: Application[],
   cloud = false,
   now = new Date(),
+  admin = false,
 ) {
   const month = rome(now).day.slice(0, 7);
-  const used = applications.some((application) => {
-    const timestamp = cloud
-      ? application.submittedAt
-      : application.submittedAt || application.created;
-    return timestamp && rome(new Date(timestamp)).day.slice(0, 7) === month;
-  });
+  const used =
+    !admin &&
+    applications.some((application) => {
+      const timestamp = cloud
+        ? application.submittedAt
+        : application.submittedAt || application.created;
+      return timestamp && rome(new Date(timestamp)).day.slice(0, 7) === month;
+    });
   const next = new Date(`${month}-01T12:00:00Z`);
   next.setUTCMonth(next.getUTCMonth() + 1);
   const uploading =

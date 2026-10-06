@@ -12,19 +12,21 @@ export default function Artist({
   onSubmit,
   cloud = false,
   now = new Date(),
+  admin = false,
 }: {
   applications: Application[];
   onSubmit: (application: Application, audio: File) => void | Promise<unknown>;
   cloud?: boolean;
   now?: Date;
+  admin?: boolean;
 }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
-  const quota = artistQuota(applications, cloud, now);
+  const quota = artistQuota(applications, cloud, now, admin);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const currentQuota = artistQuota(applications, cloud, now);
+    const currentQuota = artistQuota(applications, cloud, now, admin);
     if (currentQuota.used || currentQuota.uploading) {
       setError(
         currentQuota.used
@@ -87,28 +89,36 @@ export default function Artist({
   return (
     <>
       <Heading title="Il tuo spazio artista">
-        Segui le tue candidature e condividi una traccia al mese.
+        {admin
+          ? "Segui le tue candidature e carica i brani per le prove."
+          : "Segui le tue candidature e condividi una traccia al mese."}
       </Heading>
       <div className="formwrap">
         <div className="panel">
           <span className="eyebrow lime">
-            UNA TRACCIA AL MESE, SPAZIO A TUTTI
+            {admin
+              ? "ACCOUNT ADMIN · CARICAMENTI PER LE PROVE"
+              : "UNA TRACCIA AL MESE, SPAZIO A TUTTI"}
           </span>
           <h2>
-            {quota.used
-              ? "La tua traccia del mese è stata inviata."
-              : "La tua prossima traccia parte da qui."}
+            {admin
+              ? "Carica una nuova traccia."
+              : quota.used
+                ? "La tua traccia del mese è stata inviata."
+                : "La tua prossima traccia parte da qui."}
           </h2>
           <p className="hint">
             Candidatura gratuita per artisti con meno di 10.000 ascoltatori
             mensili. Nessuna posizione a pagamento.
           </p>
           <p className="hint">
-            {quota.used
-              ? `Potrai inviare una nuova candidatura dal ${quota.nextMonth}. Anche una traccia rifiutata conta nel limite mensile.`
-              : quota.uploading
-                ? "Hai un caricamento in corso. Completalo o attendi la sua scadenza."
-                : "Puoi inviare una traccia per mese solare, secondo l’orario italiano. I caricamenti non completati non consumano il limite."}
+            {admin && !quota.uploading
+              ? "Il tuo account admin non ha il limite mensile. Restano i controlli su audio, diritti e approvazione."
+              : quota.used
+                ? `Potrai inviare una nuova candidatura dal ${quota.nextMonth}. Anche una traccia rifiutata conta nel limite mensile.`
+                : quota.uploading
+                  ? "Hai un caricamento in corso. Completalo o attendi la sua scadenza."
+                  : "Puoi inviare una traccia per mese solare, secondo l’orario italiano. I caricamenti non completati non consumano il limite."}
           </p>
           {!quota.used && !quota.uploading && (
             <button
@@ -118,7 +128,9 @@ export default function Artist({
             >
               {showUpload
                 ? "Chiudi caricamento"
-                : "Candida la traccia del mese"}
+                : admin
+                  ? "Candida un brano"
+                  : "Candida la traccia del mese"}
             </button>
           )}
         </div>
@@ -192,7 +204,9 @@ export default function Artist({
         </section>
         {showUpload && !quota.used && !quota.uploading && (
           <form className="panel" onSubmit={submit}>
-            <h2>Candida la traccia del mese</h2>
+            <h2>
+              {admin ? "Candida un brano" : "Candida la traccia del mese"}
+            </h2>
             <div className="formgrid">
               <label>
                 Nome artista
@@ -297,7 +311,7 @@ export default function Artist({
               </label>
               <p className="hint full">
                 {cloud
-                  ? "Una traccia per artista al mese. Verifichiamo audio, diritti e link prima del contest. Audio, dati e link vengono conservati. La candidatura deve essere esaminata entro 7 giorni."
+                  ? `${admin ? "Caricamenti admin senza limite mensile." : "Una traccia per artista al mese."} Verifichiamo audio, diritti e link prima del contest. Audio, dati e link vengono conservati. La candidatura deve essere esaminata entro 7 giorni.`
                   : "Modalità demo: salviamo solo i dati in questo browser; l’audio non viene caricato. Per inviarlo usa un account NextWave."}
               </p>
               <p className="error full" role="alert">

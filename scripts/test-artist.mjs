@@ -10,7 +10,10 @@ grant execute on function auth.uid() to authenticated,anon;`);
 const files = (await readdir("supabase/migrations"))
   .filter((file) => file.endsWith(".sql"))
   .sort();
-for (const file of files.filter((file) => !file.startsWith("20261006000500")))
+for (const file of files.filter(
+  (file) =>
+    !file.startsWith("20261006000500") && !file.startsWith("20261006000600"),
+))
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));
 const oldArtist = "11111111-1111-1111-1111-111111111111";
 const newArtist = "22222222-2222-2222-2222-222222222222";
@@ -32,6 +35,12 @@ await db.query(
 await db.exec(
   await readFile(
     `supabase/migrations/${files.find((file) => file.startsWith("20261006000500"))}`,
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    `supabase/migrations/${files.find((file) => file.startsWith("20261006000600"))}`,
     "utf8",
   ),
 );

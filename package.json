@@ -15,6 +15,7 @@
     "db:test": "node scripts/test-database.mjs",
     "admin:test": "node scripts/test-admin.mjs",
     "artist:test": "node scripts/test-artist.mjs",
+    "contests:test": "node scripts/test-real-contests.mjs",
     "db:check": "node --env-file=.env.local scripts/check-supabase.mjs",
     "audio:admin": "node --env-file=.env.local --env-file-if-exists=.env.audio.local scripts/audio-admin.mjs",
     "audio:upload-demo": "npm run audio:admin -- upload-demo",

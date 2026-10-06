@@ -324,6 +324,7 @@ export function Account({
           {route === "artist" && profile.accountType === "artist" && (
             <Artist
               cloud
+              admin={canAdmin}
               now={new Date(now + offsetRef.current)}
               applications={profile.applications}
               onSubmit={(application, audio) =>

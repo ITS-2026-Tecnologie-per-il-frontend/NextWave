@@ -13,6 +13,17 @@ test("la quota usa il mese italiano e conta anche le candidature rifiutate", () 
   ).toBe(false);
 });
 
+test("gli admin sono esenti dal limite mensile ma non dal caricamento simultaneo", () => {
+  const now = new Date("2026-10-05T12:00:00Z");
+  const applications = [
+    { submittedAt: now.toISOString() },
+    { created: now.toISOString(), audioState: "uploading", status: "pending" },
+  ];
+  expect(artistQuota(applications, true, now, true).used).toBe(false);
+  expect(artistQuota(applications, true, now, true).uploading).toBe(true);
+  expect(artistQuota(applications, true, now, false).used).toBe(true);
+});
+
 test("un caricamento fallito non consuma il mese e il rinnovo gestisce fine anno", () => {
   const quota = artistQuota(
     [

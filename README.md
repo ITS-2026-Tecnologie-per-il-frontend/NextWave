@@ -12,19 +12,19 @@ Richiede Node.js 22.12 o successivo (oppure 20.19 o successivo).
 npm ci
 ```
 
-Copia `.env.example` in `.env.local`. Il modello usa `VITE_DATA_MODE=demo` per lo sviluppo senza account. Per usare gli account reali imposta `supabase` e configura URL e chiave pubblica. I file `.env.local` restano nella radice, dove Vite li legge, e sono esclusi da Git. Il modello `.env.example` è versionato senza credenziali. Non inserire chiavi service_role o password del database nelle variabili `VITE_`.
+Copia `.env.example` in `.env.local`. Il sito usa `VITE_DATA_MODE=supabase`: configura URL e chiave pubblica per gli account reali. La modalità demo è disattivata. I file `.env.local` restano nella radice, dove Vite li legge, e sono esclusi da Git. Il modello `.env.example` è versionato senza credenziali. Non inserire chiavi service_role o password del database nelle variabili `VITE_`.
 
 ```sh
 npm start
 ```
 
-Apri http://127.0.0.1:4173. Con `VITE_DATA_MODE=supabase` è disponibile il login reale; con `VITE_DATA_MODE=demo` puoi usare la demo locale senza account. In produzione una configurazione mancante viene segnalata.
+Apri http://127.0.0.1:4173 e accedi con un account reale. Una configurazione mancante viene segnalata, senza mostrare dati inventati.
 
 ## Database e pubblicazione
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
 
-Il catalogo iniziale rimane dimostrativo: 75 candidati inventati e cinque audio sintetici da 12 secondi, marcati come demo. Non sono stati creati utenti o voti fittizi. Il modulo artista richiede un MP3 e il link Spotify; il server verifica il file e i moderatori autorizzano il brano per un giorno di contest. Gli audio vengono conservati nello Storage privato, insieme ai dati della candidatura. Attivazione e trasferimento dei cinque campioni: [docs/audio-storage.md](docs/audio-storage.md).
+Il sito mostra solo brani e risultati reali. Il precedente catalogo demo è escluso da selezioni, storico visibile e classifiche. Il modulo artista richiede un MP3 e il link Spotify; il server verifica il file e i moderatori autorizzano il brano per un giorno di contest. Gli audio vengono conservati nello Storage privato, insieme ai dati della candidatura. Calendario delle classifiche ed esenzione mensile admin: [docs/real-contests.md](docs/real-contests.md).
 
 Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/generated/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.
 
@@ -53,7 +53,7 @@ I test dell’interfaccia usano account e risposte controllati, senza scrivere s
 - Il voto richiede cinque completamenti ed è unico per account/giorno, prima delle 21:00 Europe/Rome. Il database verifica orario e unicità.
 - Un ricaricamento conserva i completamenti; gli ascolti parziali ripartono dall’inizio.
 - I gusti modificati si applicano alla selezione successiva. Il cambio giorno ferma il vecchio audio.
-- Il reveal anticipato è disponibile soltanto nella demo locale.
+- Il reveal è disponibile dopo la chiusura del contest alle 21:00 Europe/Rome.
 
 ## Struttura
 

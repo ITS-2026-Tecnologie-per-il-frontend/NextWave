@@ -1,7 +1,6 @@
 import { getErrorMessage } from "../domain/errors.ts";
 import { lazy, Suspense } from "react";
 import { getDataConfig } from "../config/environment.ts";
-const DemoApp = lazy(() => import("./DemoApp.tsx"));
 const CloudApp = lazy(() => import("./CloudApp.tsx"));
 export default function App() {
   let config;
@@ -23,7 +22,7 @@ export default function App() {
         </main>
       }
     >
-      {config.mode === "supabase" ? <CloudApp /> : <DemoApp />}
+      {config.mode === "supabase" && <CloudApp />}
     </Suspense>
   );
 }

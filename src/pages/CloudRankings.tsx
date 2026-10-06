@@ -13,6 +13,7 @@ export default function CloudRankings({
 }) {
   const [period, setPeriod] = useState<RankingPeriod>("day");
   const [filter, setFilter] = useState("Tutti");
+  const [day, setDay] = useState("");
   const [result, setResult] = useState<RankingsResult | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -20,7 +21,7 @@ export default function CloudRankings({
     setResult(null);
     setError("");
     repository
-      .rankings(period)
+      .rankings(period, day || undefined)
       .then((data) => {
         if (alive) setResult(data);
       })
@@ -30,7 +31,7 @@ export default function CloudRankings({
     return () => {
       alive = false;
     };
-  }, [repository, period]);
+  }, [repository, period, day]);
   return (
     <>
       <Heading title="La musica sale">
@@ -51,6 +52,28 @@ export default function CloudRankings({
             {label}
           </button>
         ))}
+      </div>
+      <div className="panel">
+        <label>
+          {period === "day"
+            ? "Giorno della classifica"
+            : "Data di riferimento della settimana"}
+          <input
+            type="date"
+            value={day || result?.reference || ""}
+            max={result?.latestDay}
+            onChange={(event) => setDay(event.target.value)}
+          />
+        </label>
+        <button className="textbtn" onClick={() => setDay("")} disabled={!day}>
+          Torna all’ultimo contest concluso
+        </button>
+        {period === "week" && (
+          <p className="hint">
+            Mostriamo l’ultima settimana conclusa di domenica entro la data
+            scelta.
+          </p>
+        )}
       </div>
       <div className="chips">
         {["Tutti", ...genres].map((genre) => (
@@ -73,13 +96,18 @@ export default function CloudRankings({
       {result && (
         <>
           <p className="hint">
-            Contest concluso il{" "}
+            {period === "day" ? "Classifica del" : "Settimana conclusa il"}{" "}
             {result.reference.split("-").reverse().join("/")}. Punteggio: voti ÷
             esposizioni × 100.
           </p>
           {!result.rows.length && (
-            <p>La classifica apparirà dopo i primi contest conclusi.</p>
+            <p>Nessun risultato disponibile per il periodo scelto.</p>
           )}
+          {result.rows.length > 0 &&
+            filter !== "Tutti" &&
+            !result.rows.some((track) => track.genre === filter) && (
+              <p>Nessun risultato per questo genere nel periodo scelto.</p>
+            )}
           {(filter === "Tutti" ? genres : [filter]).map((genre) => {
             const rows = result.rows.filter((track) => track.genre === genre);
             if (!rows.length) return null;

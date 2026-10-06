@@ -54,6 +54,9 @@ function visit(file) {
   for (const dependency of graph.get(file) ?? []) visit(dependency);
 }
 visit("src/main.tsx");
+// I moduli della precedente demo restano solo per le prove di regressione.
+for (const file of files.filter((file) => file.startsWith("tests/")))
+  visit(file);
 for (const file of files.filter((file) => file.startsWith("src/"))) {
   if (!reachable.has(file))
     errors.push(`${file}: sorgente non raggiungibile dall'app`);

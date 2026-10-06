@@ -30,7 +30,7 @@ describe("audio privato", () => {
     await expect(validateMp3(new Uint8Array(10_000_001))).rejects.toThrow(
       "10 MB",
     );
-    const wav = await readFile("public/audio/0.wav");
+    const wav = await readFile("tests/fixtures/audio/0.wav");
     await expect(validateMp3(wav)).rejects.toThrow("vero MP3");
   });
   test("rimuove artista e titolo nei tag ID3 conservando i frame e la durata", async () => {
@@ -55,7 +55,7 @@ describe("audio privato", () => {
     expect(createSignedUrl).not.toHaveBeenCalled();
   });
   test("un file non MP3 non viene copiato nell’area ascoltabile né finalizzato", async () => {
-    const wav = await readFile("public/audio/0.wav");
+    const wav = await readFile("tests/fixtures/audio/0.wav");
     const rpc = vi.fn(async (_name: string, data: Record<string, unknown>) => ({
       data:
         data.p_action === "claim-upload"

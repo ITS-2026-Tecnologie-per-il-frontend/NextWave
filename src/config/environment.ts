@@ -9,10 +9,13 @@ type DataConfig =
 export function getDataConfig(
   env: DataEnvironment = import.meta.env,
 ): DataConfig {
-  const mode = env.VITE_DATA_MODE || (env.PROD ? "supabase" : "demo");
+  const mode = env.VITE_DATA_MODE || "supabase";
   if (!["demo", "supabase"].includes(mode))
     throw new Error("VITE_DATA_MODE deve essere demo o supabase.");
-  if (mode === "demo") return { mode };
+  if (mode === "demo")
+    throw new Error(
+      "La modalità demo è disattivata. Imposta VITE_DATA_MODE=supabase per usare dati reali.",
+    );
   const url = env.VITE_SUPABASE_URL;
   const key = env.VITE_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key)
