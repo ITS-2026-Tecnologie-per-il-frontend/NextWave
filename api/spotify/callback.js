@@ -21,7 +21,13 @@ export default async function handler(req, res) {
       .find((x) => x.startsWith("__Host-nw-spotify="))
       ?.slice("__Host-nw-spotify=".length);
     cookie(res, "", 0);
-    const session = unseal(raw || "", ctx.key);
+    if (!raw) throw new Error("cookie");
+    let session;
+    try {
+      session = unseal(raw, ctx.key);
+    } catch {
+      throw new Error("cookie");
+    }
     if (
       session.expires < Date.now() ||
       session.state !== url.searchParams.get("state")
@@ -41,7 +47,8 @@ export default async function handler(req, res) {
       headers: { Authorization: `Bearer ${credentials.access_token}` },
       signal: AbortSignal.timeout(15000),
     });
-    if (!response.ok) throw new Error("spotify");
+    if (!response.ok)
+      throw new Error(response.status === 403 ? "profile_denied" : "profile");
     const profile = await response.json();
     if (!profile.id || !credentials.refresh_token) throw new Error("spotify");
     await rpc(ctx, "save", session.id, {
@@ -53,9 +60,30 @@ export default async function handler(req, res) {
       id: profile.id,
     });
     res.redirect(303, `${ctx.redirect.origin}/?spotify=connected#profile`);
-  } catch {
+  } catch (error) {
+    const allowed = [
+      "cookie",
+      "state",
+      "denied",
+      "spotify",
+      "profile_denied",
+      "profile",
+      "database",
+      "configuration",
+    ];
+    const reason = allowed.includes(error.message)
+      ? error.message
+      : "unavailable";
+    console.error("Spotify callback failed", {
+      reason,
+      databaseCode: error.code,
+    });
     cookie(res, "", 0);
-    if (ctx) res.redirect(303, `${ctx.redirect.origin}/?spotify=error#profile`);
+    if (ctx)
+      res.redirect(
+        303,
+        `${ctx.redirect.origin}/?spotify=error&spotify_reason=${reason}#profile`,
+      );
     else res.status(503).send("Configurazione Spotify incompleta.");
   }
 }

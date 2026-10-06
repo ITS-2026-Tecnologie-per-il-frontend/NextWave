@@ -28,9 +28,29 @@ export default function SpotifyConnection({ client }) {
       });
     const url = new URL(location.href);
     if (url.searchParams.has("spotify")) {
-      if (url.searchParams.get("spotify") === "error")
-        setError("Autorizzazione Spotify non riuscita. Riprova.");
+      if (url.searchParams.get("spotify") === "error") {
+        const messages = {
+          cookie:
+            "La sessione di collegamento Spotify è andata persa. Riprova nello stesso browser, consentendo i cookie di Next Wave.",
+          state:
+            "Il collegamento è scaduto o già utilizzato. Premi nuovamente Collega Spotify.",
+          denied:
+            "Autorizzazione Spotify annullata o rifiutata. Riprova e autorizza Next Wave.",
+          spotify:
+            "Scambio del codice Spotify non riuscito. Verifica Client ID, Client Secret e redirect dell'app su Vercel.",
+          profile_denied:
+            "Spotify ha negato l'accesso al profilo. Verifica che questo account sia autorizzato in Users Management dell'app Spotify.",
+          profile: "Spotify non ha restituito il profilo. Riprova più tardi.",
+          database:
+            "Salvataggio del collegamento non riuscito. Verifica la migrazione Spotify su Supabase.",
+        };
+        setError(
+          messages[url.searchParams.get("spotify_reason")] ||
+            "Autorizzazione Spotify non riuscita. Riprova.",
+        );
+      }
       url.searchParams.delete("spotify");
+      url.searchParams.delete("spotify_reason");
       history.replaceState(null, "", url);
     }
     return () => {
