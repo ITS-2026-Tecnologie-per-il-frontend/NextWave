@@ -41,7 +41,7 @@ Il comando aggiorna il catalogo cloud solo quando tutti i cinque file sono prese
 ## Limiti e moderazione
 
 - MP3 fino a 10.000.000 byte, durata da 1 secondo a 30 minuti. Il server controlla il formato e rimuove i tag ID3/APE. La verifica dei metadati non può nascondere un’identità riconoscibile nell’audio stesso.
-- Una candidatura audio attiva per account e massimo 40 prenotazioni. Ogni prenotazione riserva 10 MB, con spazio per una copia originale e una preparata: fino a 800 MB, oltre ai campioni e agli altri dati dello Storage.
+- Una traccia con audio valido per account artista al mese solare (Europe/Rome), un solo caricamento incompleto alla volta e massimo 40 prenotazioni complessive. Ogni prenotazione riserva 10 MB, con spazio per una copia originale e una preparata: fino a 800 MB, oltre ai campioni e agli altri dati dello Storage.
 - I termini già presenti nello schema rimangono: caricamento entro 3 ore, revisione della candidatura pronta entro 7 giorni. Queste scadenze limitano le operazioni; non eliminano più i file.
 - Senza pulizia automatica lo spazio e le prenotazioni non si liberano da soli. Anche gli originali privati restano conservati. La gestione e la liberazione dello spazio vanno affrontate manualmente prima di aumentare il catalogo.
 - I moderatori verificano diritti, audio, corrispondenza del link e ascoltatori mensili autodichiarati. Una candidatura non entra automaticamente nel contest.

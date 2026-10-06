@@ -31,6 +31,24 @@ export default function Profile({
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
   const [error, setError] = useState("");
+  const [changingType, setChangingType] = useState(false);
+  const [typeError, setTypeError] = useState("");
+  async function changeType(accountType: "listener" | "artist") {
+    setChangingType(true);
+    try {
+      await onUpdate({ accountType });
+      setTypeError("");
+      notify(
+        accountType === "artist"
+          ? "Profilo artista attivato. Puoi accedere alla sezione artisti."
+          : "Profilo ascoltatore attivato.",
+      );
+    } catch (error) {
+      setTypeError(getErrorMessage(error));
+    } finally {
+      setChangingType(false);
+    }
+  }
   const rounds = Object.values(profile.rounds);
   const votes = rounds.filter((round) => round.vote);
   const selectedTheme =
@@ -81,6 +99,41 @@ export default function Profile({
           )}
         </div>
       </div>
+      <section className="panel" aria-labelledby="account-type-heading">
+        <h3 id="account-type-heading">Tipo di profilo</h3>
+        <p className="hint">
+          Come vuoi vivere Next Wave? Il profilo artista include anche ascolti e
+          voti. Le candidature inviate restano conservate quando cambi tipo.
+        </p>
+        <div
+          className="chips"
+          role="group"
+          aria-label="Scegli il tipo di profilo"
+        >
+          {(
+            [
+              ["listener", "Ascoltatore"],
+              ["artist", "Artista"],
+            ] as const
+          ).map(([type, label]) => (
+            <button
+              type="button"
+              key={type}
+              className={`chip ${(profile.accountType ?? "listener") === type ? "selected" : ""}`}
+              aria-pressed={(profile.accountType ?? "listener") === type}
+              disabled={busy || changingType}
+              onClick={() => void changeType(type)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        {typeError && (
+          <p className="error" role="alert">
+            {typeError}
+          </p>
+        )}
+      </section>
       <div className="statgrid">
         {[
           [votes.length, "Voti espressi"],

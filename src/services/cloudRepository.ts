@@ -76,6 +76,8 @@ export function createCloudRepository(client: SupabaseClient) {
         p_genres: profile.prefs,
         p_onboarded: profile.onboard,
       }),
+    setAccountType: (type: "listener" | "artist") =>
+      rpc("set_account_type", { p_type: type }),
     beginListening: (id: string) => audioApi<ListeningSession>("play", { id }),
     progress: (sessionId: string, position: number, finish = false) =>
       rpc<{ completed: boolean; creditedSeconds?: number }>(

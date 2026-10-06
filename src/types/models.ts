@@ -65,6 +65,7 @@ export interface Application {
   mood?: string;
   id?: string;
   created?: string;
+  submittedAt?: string | null;
   status?: string;
   audioState?: string | null;
   audioDeletedAt?: string | null;
@@ -72,6 +73,7 @@ export interface Application {
 }
 
 export interface Profile {
+  accountType?: "listener" | "artist";
   uid: string;
   name: string;
   prefs: string[];
@@ -84,7 +86,7 @@ export interface Profile {
 }
 
 export type ProfileChanges = Partial<
-  Pick<Profile, "name" | "prefs" | "onboard" | "theme">
+  Pick<Profile, "name" | "prefs" | "onboard" | "theme" | "accountType">
 >;
 export type ProfileUpdate = (
   changes: ProfileChanges,

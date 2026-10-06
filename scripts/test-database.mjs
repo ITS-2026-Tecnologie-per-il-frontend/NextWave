@@ -28,6 +28,7 @@ console.log(
 const user1 = "11111111-1111-1111-1111-111111111111";
 const user2 = "22222222-2222-2222-2222-222222222222";
 await db.query("insert into auth.users(id) values ($1), ($2)", [user1, user2]);
+await db.query("update public.profiles set account_type='artist'");
 assert.equal(
   (
     await db.query(
@@ -241,7 +242,7 @@ await assert.rejects(
     ...submission,
     spotifyId: "2234567890123456789012",
   }),
-  /candidatura attiva/,
+  /caricamento in corso/,
 );
 await assert.rejects(
   db.query("select public.audio_server('claim-upload',$1,$2::jsonb)", [
@@ -408,6 +409,9 @@ assert.equal(favorite.spotifyUrl, retainedReveal[0].spotifyUrl);
 await db.exec("reset role;");
 await db.query(
   "insert into auth.users(id) select md5('capacity-'||n)::uuid from generate_series(1,39) n",
+);
+await db.query(
+  "update public.profiles set account_type='artist' where id in(select md5('capacity-'||n)::uuid from generate_series(1,39) n)",
 );
 await db.query(
   "insert into public.artist_applications(user_id,artist,title,listeners,genre,language,subgenre,mood,spotify_id,rights_confirmed) select md5('capacity-'||n)::uuid,'Artist','Song',20,'Pop','Italiano','Pop','Intimo','1234567890123456789012',true from generate_series(1,39) n",

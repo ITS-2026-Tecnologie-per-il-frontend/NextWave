@@ -105,6 +105,9 @@ assert.equal(
   ).rows[0].n,
   0,
 );
+await db.query("update public.profiles set account_type='artist' where id=$1", [
+  regular,
+]);
 const application = (
   await db.query(
     `insert into public.artist_applications(user_id,artist,title,listeners,genre,language,subgenre,mood,spotify_id,rights_confirmed)

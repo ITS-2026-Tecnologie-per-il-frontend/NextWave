@@ -61,6 +61,14 @@ if (adminIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo temporary-audio.sql.\n-- Aggiunge il pannello admin e protegge il superadmin.\nbegin;\n${sql[adminIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${adminVersion}','admin_console') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const artistVersion = "20261006000500";
+const artistIndex = files.findIndex((file) => file.startsWith(artistVersion));
+if (artistIndex >= 0) {
+  await writeFile(
+    "supabase/updates/artist-profiles.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo admin-console.sql.\nbegin;\n${sql[artistIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${artistVersion}','artist_profiles') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

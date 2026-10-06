@@ -74,6 +74,9 @@ async function mountCloud(state = fixture()) {
     reveal: vi.fn(async () => []),
     seenReveal: vi.fn(async () => {}),
     submitApplication: vi.fn(async () => {}),
+    setAccountType: vi.fn(async (accountType: "listener" | "artist") => {
+      state.profile.accountType = accountType;
+    }),
     adminDashboard: vi.fn(async (): Promise<AdminDashboard> => ({
       access: { allowed: true, owner: true },
       applications: [],
@@ -111,6 +114,69 @@ function finish(audio: HTMLAudioElement, start = 0) {
 }
 
 describe("account cloud", () => {
+  test("la sezione artisti si attiva dal profilo e sparisce tornando ascoltatore", async () => {
+    const { repository } = await mountCloud();
+    expect(
+      screen.queryByRole("button", { name: "Per gli artisti" }),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Artista" }));
+    await screen.findByRole("button", { name: "Per gli artisti" });
+    expect(repository.setAccountType).toHaveBeenCalledWith("artist");
+    fireEvent.click(screen.getByRole("button", { name: "Per gli artisti" }));
+    await screen.findByText("Non hai ancora inviato candidature.");
+    expect(screen.queryByLabelText("Nome artista")).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Candida la traccia del mese" }),
+    );
+    expect(screen.getByLabelText("Nome artista")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ascoltatore" }));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Per gli artisti" }),
+      ).toBeNull(),
+    );
+  });
+  test("un ascoltatore che apre artist direttamente viene riportato al profilo", async () => {
+    await mountCloud();
+    await act(async () => {
+      location.hash = "artist";
+      window.dispatchEvent(new Event("hashchange"));
+    });
+    await screen.findByText("Tipo di profilo");
+    expect(screen.queryByLabelText("Nome artista")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Per gli artisti" }),
+    ).toBeNull();
+  });
+  test("la candidatura del mese resta in primo piano e blocca un nuovo caricamento", async () => {
+    const state = fixture();
+    state.profile.accountType = "artist";
+    state.profile.applications = [
+      {
+        id: "month-song",
+        title: "La mia traccia",
+        artist: "Artist",
+        listeners: 30,
+        subgenre: "Pop",
+        spotify: "https://open.spotify.com/track/1234567890123456789012",
+        created: state.serverTime,
+        submittedAt: state.serverTime,
+        status: "rejected",
+      },
+    ];
+    await mountCloud(state);
+    fireEvent.click(screen.getByRole("button", { name: "Per gli artisti" }));
+    await screen.findByText("La mia traccia");
+    expect(
+      screen.getByText("La tua traccia del mese è stata inviata."),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "Candida la traccia del mese" }),
+    ).toBeNull();
+    expect(screen.queryByLabelText("Nome artista")).toBeNull();
+  });
   test("nasconde il pannello agli utenti ordinari anche con URL admin", async () => {
     location.hash = "admin";
     const { repository } = await mountCloud();

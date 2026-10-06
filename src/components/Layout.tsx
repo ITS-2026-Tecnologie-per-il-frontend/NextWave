@@ -40,24 +40,37 @@ export default function Layout({
           {(admin
             ? [...navigation, ["admin", "Pannello admin"] as [Route, string]]
             : navigation
-          ).map(([id, label]) => (
-            <button
-              key={id}
-              className={route === id ? "active" : ""}
-              aria-current={route === id ? "page" : undefined}
-              onClick={() => navigate(id)}
-            >
-              <Icon name={id} />
-              {label}
-            </button>
-          ))}
+          )
+            .filter(
+              ([id]) => id !== "artist" || profile.accountType === "artist",
+            )
+            .map(([id, label]) => (
+              <button
+                key={id}
+                className={route === id ? "active" : ""}
+                aria-current={route === id ? "page" : undefined}
+                onClick={() => navigate(id)}
+              >
+                <Icon name={id} />
+                {label}
+              </button>
+            ))}
         </nav>
         <div className="sidefoot">
           <div className="minicard">
             <span className="lime">La tua musica merita ascolto.</span>
             <p>Meno di 10.000 ascoltatori? Questo è il tuo spazio.</p>
-            <button className="textbtn" onClick={() => navigate("artist")}>
-              Candida un brano ↗
+            <button
+              className="textbtn"
+              onClick={() =>
+                navigate(
+                  profile.accountType === "artist" ? "artist" : "profile",
+                )
+              }
+            >
+              {profile.accountType === "artist"
+                ? "Candida un brano ↗"
+                : "Attiva il profilo artista ↗"}
             </button>
           </div>
           <div className="user">

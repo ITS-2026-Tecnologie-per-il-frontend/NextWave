@@ -112,6 +112,15 @@ input[type="checkbox"] {
   max-width: 800px;
 }
 
+.artist-application .row {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.artist-application h3 {
+  margin: 0;
+}
+
 .hint {
   font-size: 13px;
   color: var(--muted);

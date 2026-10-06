@@ -29,6 +29,7 @@ import Profile from "../pages/Profile.tsx";
 import Artist from "../pages/Artist.tsx";
 
 import { readRoute } from "../config/routes.ts";
+import { artistQuota } from "../domain/artistQuota.ts";
 
 export default function DemoApp() {
   const clock = useRomeClock();
@@ -37,6 +38,12 @@ export default function DemoApp() {
   );
   const profileRef = useRef(profile);
   const [route, setRoute] = useState(readRoute);
+  useEffect(() => {
+    if (route === "artist" && profile.accountType !== "artist") {
+      setRoute("profile");
+      location.hash = "profile";
+    }
+  }, [route, profile.accountType]);
   const [dialog, setDialog] = useState<DemoDialog | null>(null);
   const [preview, setPreview] = useState(false);
   const [toast, setToast] = useState("");
@@ -225,14 +232,23 @@ export default function DemoApp() {
               notify={notify}
             />
           )}
-          {route === "artist" && (
+          {route === "artist" && profile.accountType === "artist" && (
             <Artist
               applications={profile.applications}
               onSubmit={(application) => {
-                update((current) => ({
-                  ...current,
-                  applications: [...current.applications, application],
-                }));
+                update((current) => {
+                  if (
+                    current.accountType !== "artist" ||
+                    artistQuota(current.applications).used
+                  )
+                    throw new Error(
+                      "Puoi inviare una traccia al mese con un profilo artista.",
+                    );
+                  return {
+                    ...current,
+                    applications: [...current.applications, application],
+                  };
+                });
                 notify(
                   "Candidatura demo salvata. Il brano resta in attesa di verifica.",
                 );

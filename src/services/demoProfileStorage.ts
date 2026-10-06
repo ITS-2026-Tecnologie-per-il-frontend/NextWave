@@ -15,6 +15,7 @@ export function createProfile(): Profile {
     applications: [],
     seenReveals: [],
     theme: "pulse",
+    accountType: "listener",
   };
 }
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -57,6 +58,13 @@ export function normalizeProfile(value: unknown): Profile {
   profile.uid = typeof value.uid === "string" ? value.uid : initial.uid;
   profile.onboard = value.onboard === true;
   profile.theme = typeof value.theme === "string" ? value.theme : initial.theme;
+  profile.accountType =
+    value.accountType === "artist" ||
+    (value.accountType === undefined &&
+      Array.isArray(value.applications) &&
+      value.applications.length > 0)
+      ? "artist"
+      : "listener";
   profile.rounds = {};
   for (const [day, round] of Object.entries(
     isRecord(value.rounds) ? value.rounds : {},

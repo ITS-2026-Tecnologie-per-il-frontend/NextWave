@@ -113,6 +113,12 @@ export function Account({
   const profile = data?.profile;
   const canAdmin = data?.adminAccess?.allowed === true;
   useEffect(() => {
+    if (profile && route === "artist" && profile.accountType !== "artist") {
+      setRoute("profile");
+      location.hash = "profile";
+    }
+  }, [profile, route]);
+  useEffect(() => {
     if (data && route === "admin" && !canAdmin) {
       setRoute("daily");
       location.hash = "daily";
@@ -177,6 +183,8 @@ export function Account({
     const currentProfile = dataRef.current?.profile;
     if (!currentProfile)
       return Promise.reject(new Error("Profilo non ancora disponibile."));
+    if (values.accountType)
+      return mutate(() => repository.setAccountType(values.accountType!));
     return mutate(() =>
       repository.saveProfile({ ...currentProfile, ...values }),
     );
@@ -303,7 +311,7 @@ export function Account({
               onUpdate={(values) => {
                 const promise = patchProfile(values);
                 // Gli aggiornamenti del form gestiscono il proprio errore; i pulsanti richiedono feedback.
-                if (!values.prefs) handled(promise);
+                if (!values.prefs && !values.accountType) handled(promise);
                 return promise;
               }}
               onSave={(id) =>
@@ -313,9 +321,10 @@ export function Account({
               onSignOut={signOut}
             />
           )}
-          {route === "artist" && (
+          {route === "artist" && profile.accountType === "artist" && (
             <Artist
               cloud
+              now={new Date(now + offsetRef.current)}
               applications={profile.applications}
               onSubmit={(application, audio) =>
                 mutate(
