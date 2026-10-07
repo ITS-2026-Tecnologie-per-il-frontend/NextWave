@@ -1,3 +1,4 @@
+import { useCustomStyle } from "../hooks/useCustomStyle.ts";
 import type { CSSProperties, ReactNode } from "react";
 import type { Profile, Route, Player, Round } from "../types/models.ts";
 interface LayoutProps {
@@ -30,6 +31,7 @@ export default function Layout({
   cloud = false,
   admin = false,
 }: LayoutProps) {
+  useCustomStyle(true);
   const initial = (profile.name || "Tu")[0].toUpperCase();
   const trackIndex = player.active ? round.ids.indexOf(player.active) : -1;
   return (

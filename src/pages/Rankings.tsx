@@ -35,6 +35,7 @@ export default function Rankings({
           <button
             key={value}
             className={period === value ? "active" : ""}
+            aria-pressed={period === value}
             onClick={() => setPeriod(value)}
           >
             {label}

@@ -2,7 +2,7 @@ export const themes = [
   {
     id: "pulse",
     name: "Neon Pulse",
-    mood: "L’energia di un live",
+    mood: "Notte scura, accenti luminosi",
     colors: "Lime e viola",
   },
   {
