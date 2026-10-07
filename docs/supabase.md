@@ -68,6 +68,7 @@ Le migrazioni sono la fonte dello schema:
 2. `20261005000200_reference_data.sql`: generi e profili per utenti già presenti.
 3. `20261005000300_contest_api.sql`: funzioni di profilo e contest.
 4. `20261005000400_bound_session_credit.sql`: limite cumulativo al credito di ascolto, anche con richieste ravvicinate.
+5. `20261007000500_allow_rewind.sql`: consente il riavvolgimento di 10 secondi senza accreditarlo due volte.
 
 ```sh
 npm run db:bundle
@@ -81,6 +82,8 @@ Il primo comando genera due script atomici per un progetto **vuoto**:
 - `supabase/generated/setup-demo.sql`: schema, generi e catalogo demo.
 
 **Non rieseguire questi setup sul database già inizializzato.** Lo script iniziale eseguito in questa sessione conteneva le prime tre migrazioni; la quarta è stata applicata separatamente con `supabase/updates/session-credit.sql`, con Success riportato dall’utente. I setup generati ora includono tutte e sette le migrazioni per nuovi progetti vuoti. Entrambi scrivono anche lo storico `supabase_migrations.schema_migrations`, compatibile con la successiva gestione CLI. Un secondo setup fallisce senza alterare lo schema, grazie alla transazione.
+
+Per un database già inizializzato applicare una sola volta `supabase/updates/allow-rewind.sql`, dopo `session-credit.sql`.
 
 Il catalogo demo è in `supabase/seeds/demo.sql` ed è ripetibile: 75 artisti inventati, 75 candidati, cinque WAV sintetici da 12 secondi, marcati `is_demo`. Non inserisce account, voti, esposizioni o ascolti fittizi. Le classifiche cloud partono dalle esposizioni e dai voti realmente registrati. L’app segnala cataloghi insufficienti invece di generare candidati nel browser.
 
