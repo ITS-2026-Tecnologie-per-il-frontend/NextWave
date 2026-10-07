@@ -1,12 +1,19 @@
 export function Brand({ onHome }: { onHome?: () => void }) {
   const content = (
     <>
-      <span className="logo" aria-hidden="true">
-        <i />
-        <i />
-        <i />
+      <picture className="brand-picture">
+        <source media="(max-width: 760px)" srcSet="/nextwave_senzanome.svg" />
+        <img
+          className="brand-logo"
+          src="/nextwave_connome.svg"
+          alt="Next Wave"
+          width="439"
+          height="369"
+        />
+      </picture>
+      <span className="brand-mobile-name" aria-hidden="true">
+        next<span>wave</span>
       </span>
-      next<span>wave</span>
     </>
   );
   return onHome ? (

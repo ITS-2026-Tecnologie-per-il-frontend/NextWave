@@ -130,27 +130,20 @@ small,
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple) 25%, transparent);
 }
 
-.logo {
-  display: inline-flex;
-  gap: 3px;
-  align-items: center;
-  height: 32px;
-}
-
-.logo i {
+.brand-picture {
   display: block;
-  width: 4px;
-  background: var(--lime);
-  height: 16px;
-  transform: skew(-13deg);
+  width: 150px;
+  max-width: 100%;
+  flex-shrink: 0;
 }
-
-.logo i:nth-child(2) {
-  height: 30px;
+.brand-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
-
-.logo i:nth-child(3) {
-  height: 22px;
+.brand-mobile-name {
+  display: none;
 }
 
 .sidebar {
@@ -166,7 +159,7 @@ small,
 }
 
 .sidebar .brand {
-  margin-bottom: 52px;
+  margin-bottom: 32px;
 }
 
 .nav {
