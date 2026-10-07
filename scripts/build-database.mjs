@@ -85,6 +85,14 @@ if (partialIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo real-contests.sql.\nbegin;\n${sql[partialIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${partialVersion}','partial_daily_selection') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const queueVersion = "20261007000200";
+const queueIndex = files.findIndex((file) => file.startsWith(queueVersion));
+if (queueIndex >= 0) {
+  await writeFile(
+    "supabase/updates/genre-queue.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo partial-daily-selection.sql.\nbegin;\n${sql[queueIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${queueVersion}','genre_queue') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

@@ -13,7 +13,8 @@ const files = (await readdir("supabase/migrations"))
     (file) =>
       file.endsWith(".sql") &&
       !file.startsWith("20261006000600") &&
-      !file.startsWith("20261007000100"),
+      !file.startsWith("20261007000100") &&
+      !file.startsWith("20261007000200"),
   )
   .sort();
 for (const file of files) {

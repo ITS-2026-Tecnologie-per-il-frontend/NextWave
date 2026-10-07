@@ -14,7 +14,8 @@ for (const file of files.filter(
   (file) =>
     !file.startsWith("20261006000500") &&
     !file.startsWith("20261006000600") &&
-    !file.startsWith("20261007000100"),
+    !file.startsWith("20261007000100") &&
+    !file.startsWith("20261007000200"),
 ))
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));
 const oldArtist = "11111111-1111-1111-1111-111111111111";

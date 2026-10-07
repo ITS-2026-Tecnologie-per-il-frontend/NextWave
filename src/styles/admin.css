@@ -65,3 +65,17 @@
     padding: 14px;
   }
 }
+.queue-calendar {
+  overflow-x: auto;
+}
+.queue-calendar table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.queue-calendar th,
+.queue-calendar td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}

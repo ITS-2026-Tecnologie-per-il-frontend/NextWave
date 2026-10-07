@@ -73,7 +73,12 @@ export default function Onboarding({
         {step === 1 && (
           <>
             <h1>Che musica senti tua?</h1>
-            <p>Scegli almeno un genere. La selezione di oggi partirà da qui.</p>
+            <p>Scegli da 1 a 5 generi. La selezione di oggi partirà da qui.</p>
+            {profile.prefs.length > 5 && (
+              <p role="alert">
+                Hai più di 5 preferenze: scegli quali mantenere per continuare.
+              </p>
+            )}
             <label>
               Come ti chiami?
               <input
@@ -91,7 +96,7 @@ export default function Onboarding({
             />
             <button
               className="btn"
-              disabled={!preferences.length || busy}
+              disabled={!preferences.length || preferences.length > 5 || busy}
               onClick={() =>
                 onFinish({
                   name: name.trim() || "Ascoltatore",
