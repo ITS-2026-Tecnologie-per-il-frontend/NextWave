@@ -244,7 +244,7 @@ export function Account({
   return (
     <>
       <audio ref={player.audioRef} preload="metadata" />
-      {!profile.onboard ? (
+      {!profile.onboard || profile.prefs.length > 5 ? (
         <Onboarding
           profile={profile}
           cloud

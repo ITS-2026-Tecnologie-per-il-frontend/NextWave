@@ -9,7 +9,12 @@ grant usage on schema auth to authenticated,anon; grant execute on function auth
 const files = (await readdir("supabase/migrations"))
   .filter((file) => file.endsWith(".sql"))
   .sort();
-for (const file of files.filter((file) => !file.startsWith("20261006000600")))
+for (const file of files.filter(
+  (file) =>
+    !file.startsWith("20261006000600") &&
+    !file.startsWith("20261007000100") &&
+    !file.startsWith("20261007000200"),
+))
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));
 await db.exec(await readFile("supabase/seeds/demo.sql", "utf8"));
 const owner = "11111111-1111-1111-1111-111111111111",

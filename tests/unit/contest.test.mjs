@@ -60,6 +60,14 @@ test("voto solo dopo cinque ascolti, unico e prima del reveal", () => {
   r.vote = "a";
   assert.equal(canVote(r, false), false);
 });
+
+test("con due brani il voto richiede due ascolti e una selezione vuota non vota", () => {
+  const round = { ids: ["a", "b"], listened: ["a"], vote: null };
+  assert.equal(canVote(round, false), false);
+  round.listened.push("b");
+  assert.equal(canVote(round, false), true);
+  assert.equal(canVote({ ...round, ids: [] }, false), false);
+});
 test("soglia rigorosa e rapporto normalizzato", () => {
   assert.equal(eligibility(9999), true);
   for (const n of [10000, -1, 1.2, NaN]) assert.equal(eligibility(n), false);

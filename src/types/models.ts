@@ -108,6 +108,7 @@ export interface AdminAccess {
 }
 
 export interface AdminApplication extends Application {
+  requestedDay?: string | null;
   id: string;
   duration: number | null;
   expires: string | null;

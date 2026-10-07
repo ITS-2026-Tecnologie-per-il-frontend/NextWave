@@ -22,7 +22,8 @@ export function canVote(round: Round, revealed: boolean) {
   return (
     !revealed &&
     !round.vote &&
-    round.ids.length === 5 &&
+    round.ids.length > 0 &&
+    round.ids.length <= 5 &&
     round.ids.every((id) => round.listened.includes(id))
   );
 }

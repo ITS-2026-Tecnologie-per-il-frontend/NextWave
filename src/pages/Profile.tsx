@@ -55,8 +55,8 @@ export default function Profile({
     themes.find((theme) => theme.id === profile.theme) || themes[0];
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!preferences.length) {
-      setError("Scegli almeno un genere.");
+    if (!preferences.length || preferences.length > 5) {
+      setError("Scegli da 1 a 5 generi.");
       return;
     }
     try {
@@ -225,7 +225,10 @@ export default function Profile({
             selected={preferences}
             onChange={setPreferences}
           />
-          <button className="btn small" disabled={busy}>
+          <button
+            className="btn small"
+            disabled={busy || !preferences.length || preferences.length > 5}
+          >
             Salva preferenze
           </button>
           <span className="error" role="alert">

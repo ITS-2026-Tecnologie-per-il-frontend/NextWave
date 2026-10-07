@@ -61,6 +61,7 @@ function ReviewCard({
     }
   }
   const pending = application.status === "pending";
+  const submittedAt = application.submittedAt ?? application.created;
   return (
     <article className="panel admin-review">
       <div className="admin-row">
@@ -78,11 +79,11 @@ function ReviewCard({
               : "Rifiutata"}
         </span>
       </div>
-      {application.created && (
+      {submittedAt && (
         <p className="hint">
           Candidatura inviata il{" "}
-          <time dateTime={application.created}>
-            {new Date(application.created).toLocaleString("it-IT", {
+          <time dateTime={submittedAt}>
+            {new Date(submittedAt).toLocaleString("it-IT", {
               timeZone: "Europe/Rome",
               day: "2-digit",
               month: "2-digit",
@@ -119,6 +120,14 @@ function ReviewCard({
           )}
         </p>
       )}
+      {application.requestedDay &&
+        application.contestDay &&
+        application.contestDay > application.requestedDay && (
+          <p className="hint">
+            In lista di attesa: i posti precedenti del genere sono occupati.
+            Data assegnata automaticamente in ordine di invio.
+          </p>
+        )}
       {application.reviewNote && (
         <p>Nota di revisione: {application.reviewNote}</p>
       )}
@@ -178,7 +187,7 @@ function ReviewCard({
           ))}
           <div className="formgrid">
             <label>
-              Giorno del contest
+              Primo giorno disponibile per la candidatura
               <input
                 type="date"
                 value={day}
@@ -198,15 +207,16 @@ function ReviewCard({
             </label>
           </div>
           <p className="hint">
-            Il brano diventa selezionabile nella data assegnata. La presenza nei
-            cinque brani dipende dai gusti degli ascoltatori e dal catalogo
-            disponibile.
+            Massimo 5 brani per genere e giorno. Se il giorno scelto è pieno, il
+            brano passa al primo giorno con un posto libero. La precedenza segue
+            l’orario di invio, anche se approvi in un ordine diverso. Le date
+            future possono cambiare; il contest iniziato resta fermo.
           </p>
           {decision ? (
             <div className="admin-confirm">
               <p>
                 {decision === "approve"
-                  ? `Confermi l’approvazione per il contest del ${day}?`
+                  ? `Confermi l’approvazione a partire dal ${day}? La data effettiva seguirà i posti disponibili e l’ordine di invio.`
                   : "Confermi il rifiuto di questa candidatura?"}
               </p>
               <div className="actions">
@@ -266,6 +276,28 @@ export default function Admin({
   const [revokeId, setRevokeId] = useState<string | null>(null);
   const alive = useRef(true);
   const accessLost = useRef(onAccessLost);
+  const calendar = new Map<
+    string,
+    { day: string; genre: string; titles: string[] }
+  >();
+  for (const application of data?.applications ?? []) {
+    if (
+      application.status !== "approved" ||
+      application.audioState !== "ready" ||
+      application.audioDeletedAt ||
+      !application.contestDay ||
+      application.contestDay < rome().day
+    )
+      continue;
+    const key = `${application.contestDay}:${application.genre}`;
+    const entry = calendar.get(key) ?? {
+      day: application.contestDay,
+      genre: application.genre ?? "Non indicato",
+      titles: [] as string[],
+    };
+    entry.titles.push(application.title);
+    calendar.set(key, entry);
+  }
   accessLost.current = onAccessLost;
   const refresh = useCallback(async () => {
     try {
@@ -338,6 +370,52 @@ export default function Admin({
         {!data && !error && <p role="status">Caricamento del pannello…</p>}
         {data && (
           <>
+            <section className="panel">
+              <h2>Calendario e lista di attesa</h2>
+              <p className="hint">
+                5 posti per genere al giorno. Le candidature sono ordinate dalla
+                prima inviata. I brani oltre il quinto vengono programmati nei
+                giorni successivi.
+              </p>
+              {!calendar.size ? (
+                <p>Nessun brano programmato.</p>
+              ) : (
+                <div className="queue-calendar">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Contest</th>
+                        <th>Genere</th>
+                        <th>Posti</th>
+                        <th>Brani in ordine di invio</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...calendar.values()]
+                        .sort(
+                          (a, b) =>
+                            a.day.localeCompare(b.day) ||
+                            a.genre.localeCompare(b.genre),
+                        )
+                        .map((entry) => (
+                          <tr key={`${entry.day}:${entry.genre}`}>
+                            <td>
+                              {new Date(
+                                `${entry.day}T12:00:00Z`,
+                              ).toLocaleDateString("it-IT", {
+                                timeZone: "Europe/Rome",
+                              })}
+                            </td>
+                            <td>{entry.genre}</td>
+                            <td>{entry.titles.length}/5</td>
+                            <td>{entry.titles.join(" · ")}</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
             <h2>Candidature</h2>
             <div className="chips">
               {[
@@ -365,6 +443,12 @@ export default function Admin({
             )}
             {data.applications
               .filter((item) => item.status === filter)
+              .sort(
+                (a, b) =>
+                  (a.submittedAt ?? a.created ?? "").localeCompare(
+                    b.submittedAt ?? b.created ?? "",
+                  ) || a.id.localeCompare(b.id),
+              )
               .map((application) => (
                 <ReviewCard
                   key={application.id}

@@ -36,7 +36,7 @@ export default function Daily({
   tracks = catalog,
   cloud = false,
 }: DailyProps) {
-  const empty = cloud && round.ids.length !== 5;
+  const empty = cloud && round.ids.length === 0;
   const showReveal = revealed && !empty;
   const left = Math.max(0, 21 * 3600 - clock.seconds);
   const countdown = [
@@ -83,10 +83,10 @@ export default function Daily({
           </h2>
           <p>
             {empty
-              ? "Cinque spazi per nuove voci. La tua selezione apparirà qui quando ci saranno abbastanza brani approvati nei generi che ami."
+              ? "Cinque spazi per nuove voci. La tua selezione apparirà qui quando ci saranno brani approvati per oggi nei generi che ami."
               : revealed
                 ? "Scopri tutti gli artisti della tua selezione."
-                : "Ascolta ogni brano fino alla fine per sbloccare il successivo. Dopo tutti e cinque, scegli il tuo preferito."}
+                : "Ascolta ogni brano fino alla fine per sbloccare il successivo. Dopo aver completato la selezione, scegli il tuo preferito."}
           </p>
         </div>
         <div className="countdown">
@@ -130,7 +130,7 @@ export default function Daily({
         <span className="progresslabel">
           {empty
             ? "5 spazi in attesa"
-            : `${round.listened.length}/5 completati`}
+            : `${round.listened.length}/${round.ids.length} completati`}
         </span>
         {showReveal && (
           <button className="textbtn" onClick={onReveal}>
@@ -139,30 +139,6 @@ export default function Daily({
         )}
       </div>
       <div className="tracks">
-        {empty &&
-          Array.from({ length: 5 }, (_, index) => (
-            <article
-              key={index}
-              className="track track-empty"
-              aria-label={`Spazio ${index + 1}, in attesa di un brano`}
-            >
-              <div className={`cover v${index}`} aria-hidden="true">
-                <span className="number">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="empty-vinyl" />
-              </div>
-              <div className="trackmeta">
-                <span>Nuova scoperta</span>
-                <span>In attesa</span>
-              </div>
-              <h3>Spazio {String(index + 1).padStart(2, "0")}</h3>
-              <p>Il prossimo ascolto parte da qui.</p>
-              <div className="empty-track-footer">
-                Brano non ancora disponibile
-              </div>
-            </article>
-          ))}
         {!empty &&
           round.ids.map((id, index) => {
             const track = tracks.find((item) => item.id === id);
@@ -235,11 +211,39 @@ export default function Daily({
                       ? "✓ Il tuo voto"
                       : round.vote
                         ? "Voto concluso"
-                        : round.listened.length < 5
+                        : !round.ids.every((id) => round.listened.includes(id))
                           ? "Completa tutti per votare"
                           : "Vota questo brano"}
                   </button>
                 )}
+              </article>
+            );
+          })}
+        {cloud &&
+          round.ids.length < 5 &&
+          Array.from({ length: 5 - round.ids.length }, (_, offset) => {
+            const index = round.ids.length + offset;
+            return (
+              <article
+                key={index}
+                className="track track-empty"
+                aria-label={`Spazio ${index + 1}, in attesa di un brano`}
+              >
+                <div className={`cover v${index}`} aria-hidden="true">
+                  <span className="number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className="empty-vinyl" />
+                </div>
+                <div className="trackmeta">
+                  <span>Nuova scoperta</span>
+                  <span>In attesa</span>
+                </div>
+                <h3>Spazio {String(index + 1).padStart(2, "0")}</h3>
+                <p>Il prossimo ascolto parte da qui.</p>
+                <div className="empty-track-footer">
+                  Brano non ancora disponibile
+                </div>
               </article>
             );
           })}
@@ -254,7 +258,7 @@ export default function Daily({
             </div>
             <div className="step">
               <span className="num">02</span>
-              <b>Segui l’istinto</b>Completa i 5 ascolti e vota.
+              <b>Segui l’istinto</b>Completa la tua selezione e vota.
             </div>
             <div className="step">
               <span className="num">03</span>
