@@ -114,6 +114,36 @@ function finish(audio: HTMLAudioElement, start = 0) {
 }
 
 describe("account cloud", () => {
+  test("due brani reali sono visibili e il voto si sblocca dopo entrambi", async () => {
+    const state = fixture();
+    state.profile.rounds[day].ids = ["slot1", "slot2"];
+    state.profile.rounds[day].listened = ["slot1", "slot2"];
+    state.tracks = state.tracks.slice(0, 2).map((track, index) => ({
+      ...track,
+      isDemo: false,
+      genre: index === 0 ? "Hip hop" : "Reggaeton",
+    }));
+    const { repository } = await mountCloud(state);
+    expect(
+      screen.getByRole("button", { name: "Ascolta brano 1" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Ascolta brano 2" }),
+    ).toBeTruthy();
+    expect(screen.getByText("2/2 completati")).toBeTruthy();
+    expect(
+      screen.getAllByRole("article", {
+        name: /Spazio .*in attesa di un brano/,
+      }),
+    ).toHaveLength(3);
+    const votes = screen.getAllByRole<HTMLButtonElement>("button", {
+      name: "Vota questo brano",
+    });
+    expect(votes[0].disabled).toBe(false);
+    fireEvent.click(votes[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Conferma voto" }));
+    await waitFor(() => expect(repository.vote).toHaveBeenCalledWith("slot1"));
+  });
   test("un admin artista può caricare ancora dopo la traccia mensile", async () => {
     const state = fixture();
     state.adminAccess = { allowed: true, owner: false };

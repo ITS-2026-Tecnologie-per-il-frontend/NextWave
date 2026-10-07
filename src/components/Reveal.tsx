@@ -33,7 +33,7 @@ export default function Reveal({
         <span className="lime">Ora scopri i nomi.</span>
       </h2>
       <p className="reveal-intro">
-        La classifica dei tuoi 5 brani. Ogni artista merita il suo spazio.
+        La classifica della tua selezione. Ogni artista merita il suo spazio.
       </p>
       <ol className="reveal-list">
         {selected.map((track, index) => (

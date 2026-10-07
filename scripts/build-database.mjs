@@ -77,6 +77,14 @@ if (realIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo artist-profiles.sql.\nbegin;\n${sql[realIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${realVersion}','real_contests') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const partialVersion = "20261007000100";
+const partialIndex = files.findIndex((file) => file.startsWith(partialVersion));
+if (partialIndex >= 0) {
+  await writeFile(
+    "supabase/updates/partial-daily-selection.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo real-contests.sql.\nbegin;\n${sql[partialIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${partialVersion}','partial_daily_selection') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

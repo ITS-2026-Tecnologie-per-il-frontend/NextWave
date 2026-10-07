@@ -9,7 +9,12 @@ grant usage on schema auth to authenticated, anon;
 grant execute on function auth.uid() to authenticated, anon;`);
 const files = (await readdir("supabase/migrations"))
   // Regressione dello storico demo; il percorso reale è verificato da contests:test.
-  .filter((file) => file.endsWith(".sql") && !file.startsWith("20261006000600"))
+  .filter(
+    (file) =>
+      file.endsWith(".sql") &&
+      !file.startsWith("20261006000600") &&
+      !file.startsWith("20261007000100"),
+  )
   .sort();
 for (const file of files) {
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));
