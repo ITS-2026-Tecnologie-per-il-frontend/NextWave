@@ -53,6 +53,14 @@ export default function Rankings({
               {genre}
             </button>
           ))}
+          {filter !== "Tutti" && (
+            <button
+              className="textbtn rankings-reset"
+              onClick={() => setFilter("Tutti")}
+            >
+              Azzera filtro
+            </button>
+          )}
         </div>
         <span className="hint">
           {period === "week" ? "Settimana conclusa il" : "Contest del"}{" "}
