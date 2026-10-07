@@ -98,9 +98,22 @@ export default function Layout({
             <Brand onHome={() => navigate("daily")} />
           </div>
           <div className="topright">
-            <span className="badge">
-              {cloud ? "NEXT WAVE" : "DEMO INTERATTIVA"}
-            </span>
+            <div
+              className="header-signature"
+              aria-label={cloud ? "NextWave" : "NextWave · Demo interattiva"}
+            >
+              <img
+                className="topbar-logo"
+                src="/brand/nextwave-symbol.svg"
+                alt=""
+                width="46"
+                height="34"
+              />
+              <div className="header-wordmark" aria-hidden="true">
+                Next<span>Wave</span>
+                {!cloud && <small>Demo interattiva</small>}
+              </div>
+            </div>
             <button
               className="avatar"
               aria-label="Apri profilo"

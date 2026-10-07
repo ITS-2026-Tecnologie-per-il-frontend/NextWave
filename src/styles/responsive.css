@@ -100,7 +100,8 @@
   }
 
   .topbar {
-    height: 75px;
+    height: 64px;
+    gap: 12px;
   }
 
   .topbar > span {
@@ -112,9 +113,22 @@
     font-size: 22px;
   }
 
-  .topright .badge {
-    font-size: 10px;
-    padding: 5px 8px;
+  .topright .badge,
+  .topright .header-signature {
+    display: none;
+  }
+
+  .topright .avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mobilebrand {
+    min-width: 0;
+  }
+
+  .mobilebrand .brand {
+    font-size: 22px;
   }
 
   .heading {
@@ -130,7 +144,7 @@
   }
 
   .hero {
-    padding: 25px 23px;
+    padding: 22px 18px;
     min-height: 285px;
     align-items: start;
     flex-direction: column;
@@ -138,7 +152,7 @@
   }
 
   .hero h2 {
-    font-size: 34px;
+    font-size: clamp(28px, 7vw, 34px);
     max-width: 300px;
   }
 
@@ -157,7 +171,8 @@
   .countdown {
     text-align: left;
     display: flex;
-    gap: 14px;
+    gap: 8px 14px;
+    flex-wrap: wrap;
     align-items: center;
     padding: 8px 12px;
   }
@@ -172,39 +187,68 @@
   }
 
   .tracks {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
 
   .track {
-    padding: 11px;
-  }
-
-  .track:last-child {
-    grid-column: 1/-1;
     display: grid;
-    grid-template-columns: 100px 1fr;
-    column-gap: 16px;
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 4px;
+    padding: 14px;
+    min-width: 0;
   }
 
-  .track:last-child .cover {
-    grid-row: 1/5;
+  .track .cover {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    align-self: start;
   }
 
-  .track:last-child .trackmeta {
+  .track .cover .number {
+    font-size: 42px;
+    letter-spacing: -4px;
+  }
+
+  .track .trackmeta {
+    grid-column: 2;
+    grid-row: 1;
     margin: 0;
+    gap: 4px 8px;
+    flex-wrap: wrap;
+    font-size: 11px;
   }
 
-  .track:last-child p {
+  .track h3 {
+    grid-column: 2;
+    grid-row: 2;
     margin: 0;
+    overflow-wrap: anywhere;
   }
 
-  .track:last-child .vote {
-    margin-top: 8px;
+  .track > p:not(.hint) {
+    grid-column: 2;
+    grid-row: 3;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .track > .hint,
+  .track > .vote,
+  .track > .textbtn {
+    grid-column: 1 / -1;
+    margin: 8px 0 0;
+  }
+
+  .track .vote {
+    min-height: 44px;
   }
 
   .sectionhead {
     align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .sectionhead h2 {
@@ -286,7 +330,23 @@
   }
 
   .steps {
-    gap: 12px;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .step {
+    position: relative;
+    padding-left: 38px;
+  }
+
+  .step .num {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .step b {
+    margin-top: 0;
   }
 
   .onboarding {
@@ -373,5 +433,17 @@
   * {
     scroll-behavior: auto !important;
     transition: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .brand .brand-image {
+    width: 62px;
+    height: 44px;
+  }
+
+  .auth-panel .brand-image {
+    width: 100px;
+    height: 72px;
   }
 }
