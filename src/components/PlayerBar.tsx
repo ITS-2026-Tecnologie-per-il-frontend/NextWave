@@ -39,25 +39,27 @@ export default function PlayerBar({
           )}
         </div>
       </div>
-      <button
-        className="player-rewind"
-        type="button"
-        disabled={!player.active || player.loading}
-        onClick={() => player.rewind()}
-        aria-label="Torna indietro di 10 secondi"
-        title="Indietro di 10 secondi"
-      >
-        <Icon name="rewind" />
-        <span>10</span>
-      </button>
-      <button
-        className="player-toggle"
-        disabled={!round.ids.length || player.loading || (cloud && revealed)}
-        onClick={() => player.play(player.active || round.ids[0])}
-        aria-label={player.playing ? "Pausa" : "Riproduci"}
-      >
-        <Icon name={player.playing ? "pause" : "play"} />
-      </button>
+      <div className="player-actions">
+        <button
+          className="player-rewind"
+          type="button"
+          disabled={!player.active || player.loading}
+          onClick={() => player.rewind()}
+          aria-label="Torna indietro di 10 secondi"
+          title="Indietro di 10 secondi"
+        >
+          <span aria-hidden="true">↶</span>
+          <b aria-hidden="true">10s</b>
+        </button>
+        <button
+          className="player-toggle"
+          disabled={!round.ids.length || player.loading || (cloud && revealed)}
+          onClick={() => player.play(player.active || round.ids[0])}
+          aria-label={player.playing ? "Pausa" : "Riproduci"}
+        >
+          <Icon name={player.playing ? "pause" : "play"} />
+        </button>
+      </div>
       <div
         className={`player-signal ${player.playing ? "active" : ""}`}
         aria-hidden="true"
@@ -83,7 +85,27 @@ export default function PlayerBar({
         />
       </div>
       <label className="volume">
-        <span aria-hidden="true">◖</span>
+        <span className="volume-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" className="volume-icon-svg">
+            <path
+              className="volume-speaker"
+              d="M4 10v4h3l4 3V7l-4 3H4z"
+              fill="currentColor"
+            />
+            <path
+              className={player.volume >= 0.2 ? "volume-wave active" : "volume-wave"}
+              d="M15 9.5a4 4 0 0 1 0 5"
+            />
+            <path
+              className={player.volume >= 0.5 ? "volume-wave active" : "volume-wave"}
+              d="M17.5 7a7.5 7.5 0 0 1 0 10"
+            />
+            <path
+              className={player.volume >= 0.8 ? "volume-wave active" : "volume-wave"}
+              d="M20 4.8a11 11 0 0 1 0 14.4"
+            />
+          </svg>
+        </span>
         <span className="sr-only">Volume</span>
         <input
           type="range"

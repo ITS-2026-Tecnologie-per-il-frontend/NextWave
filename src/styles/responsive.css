@@ -18,6 +18,7 @@
   .player {
     left: 190px;
     padding: 15px 24px;
+    grid-template-columns: 220px 120px 28px minmax(0, 1fr);
   }
 
   .hero h2 {
@@ -51,6 +52,7 @@
   .player label {
     display: none;
   }
+
 }
 
 @media (max-width: 760px) {
@@ -274,6 +276,7 @@
   }
 
   .player {
+    display: flex;
     left: 0;
     bottom: calc(68px + env(safe-area-inset-bottom, 0px));
     height: 64px;
@@ -310,13 +313,16 @@
     display: none;
   }
 
-  .player-toggle {
-    order: 1;
+  .player-actions {
+    justify-content: flex-end;
+  }
+
+  .player-actions .player-toggle {
     width: 44px;
     height: 44px;
   }
 
-  .player-rewind {
+  .player-actions .player-rewind {
     display: none !important;
   }
 
