@@ -12,6 +12,14 @@ import type {
 } from "../types/models.ts";
 import { getErrorMessage } from "../domain/errors.ts";
 import { AUDIO_BUCKET } from "../config/audio.ts";
+const AVATAR_BUCKET = "nextwave-avatars";
+const AVATAR_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+  ["image/gif", "gif"],
+]);
+const MAX_AVATAR_BYTES = 5_000_000;
 // I client non scrivono direttamente il ledger: usano RPC con controlli server.
 export function createCloudRepository(client: SupabaseClient) {
   async function audioApi<T>(
@@ -59,7 +67,57 @@ export function createCloudRepository(client: SupabaseClient) {
         rpc<Dashboard>("get_dashboard"),
         rpc<AdminAccess>("get_admin_access"),
       ]);
+      if (dashboard.profile.avatarPath) {
+        const signed = await client.storage
+          .from(AVATAR_BUCKET)
+          .createSignedUrl(dashboard.profile.avatarPath, 3600);
+        if (signed.error)
+          throw new Error("Impossibile caricare l’immagine del profilo.");
+        dashboard.profile.avatarUrl = signed.data.signedUrl;
+      }
       return { ...dashboard, adminAccess };
+    },
+    async uploadAvatar(file: File, oldPath?: string | null) {
+      const extension = AVATAR_TYPES.get(file.type);
+      if (!extension)
+        throw new Error("Usa un’immagine JPG, PNG, WebP o GIF.");
+      if (file.size > MAX_AVATAR_BYTES)
+        throw new Error("L’immagine deve pesare al massimo 5 MB.");
+      const { data: auth } = await client.auth.getSession();
+      const userId = auth.session?.user.id;
+      if (!userId) throw new Error("Accedi nuovamente a NextWave.");
+      const path = `${userId}/profile.${extension}`;
+      const uploaded = await client.storage
+        .from(AVATAR_BUCKET)
+        .upload(path, file, {
+          contentType: file.type,
+          upsert: true,
+          cacheControl: "3600",
+        });
+      if (uploaded.error)
+        throw new Error(
+          `Impossibile caricare l’immagine del profilo: ${uploaded.error.message}`,
+        );
+      try {
+        await rpc("set_avatar_path", { p_path: path });
+      } catch (error) {
+        await client.storage.from(AVATAR_BUCKET).remove([path]);
+        throw error;
+      }
+      if (oldPath && oldPath !== path)
+        await client.storage.from(AVATAR_BUCKET).remove([oldPath]);
+    },
+    async removeAvatar(path?: string | null) {
+      const { data: auth } = await client.auth.getSession();
+      if (!auth.session) throw new Error("Accedi nuovamente a NextWave.");
+      await rpc("set_avatar_path", { p_path: null });
+      if (path) {
+        const { error } = await client.storage.from(AVATAR_BUCKET).remove([path]);
+        if (error)
+          throw new Error(
+            `Impossibile rimuovere l’immagine del profilo: ${error.message}`,
+          );
+      }
     },
     adminDashboard: () =>
       rpc<AdminDashboard>("admin_console", { p_action: "dashboard" }),

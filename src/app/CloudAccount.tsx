@@ -302,6 +302,14 @@ export function Account({
               onSave={(id) =>
                 handled(mutate(() => repository.favorite(id, true)))
               }
+              onAvatarUpload={(file) =>
+                mutate(() =>
+                  repository.uploadAvatar(file, profile.avatarPath),
+                )
+              }
+              onAvatarRemove={() =>
+                mutate(() => repository.removeAvatar(profile.avatarPath))
+              }
               notify={notify}
               onSignOut={signOut}
             />

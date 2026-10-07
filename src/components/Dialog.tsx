@@ -4,10 +4,14 @@ export default function Dialog({
   children,
   onClose,
   reveal = false,
+  className = "",
+  ariaLabel,
 }: {
   children: ReactNode;
   onClose: () => void;
   reveal?: boolean;
+  className?: string;
+  ariaLabel?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -21,10 +25,8 @@ export default function Dialog({
   return (
     <dialog
       ref={ref}
-      className={reveal ? "revealmodal" : ""}
-      aria-label={
-        reveal ? "Classifica del contest concluso" : "Messaggio Next Wave"
-      }
+      className={reveal ? `revealmodal ${className}` : className}
+      aria-label={ariaLabel || (reveal ? "Classifica del contest concluso" : "Messaggio Next Wave")}
       onCancel={(event) => {
         event.preventDefault();
         onClose();

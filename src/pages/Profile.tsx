@@ -11,6 +11,8 @@ interface ProfileProps {
   cloud?: boolean;
   onSignOut?: () => void;
   busy?: boolean;
+  onAvatarUpload?: (file: File) => Promise<unknown>;
+  onAvatarRemove?: () => Promise<unknown>;
 }
 import { useState } from "react";
 import { catalog } from "../data/demo/catalog.ts";
@@ -18,6 +20,8 @@ import { genres } from "../data/genres.ts";
 import { themes } from "../data/themes.ts";
 import { GenrePicker } from "../components/ui/GenrePicker.tsx";
 import { Heading } from "../components/ui/Heading.tsx";
+import { Avatar } from "../components/ui/Avatar.tsx";
+import AvatarCropDialog from "../components/ui/AvatarCropDialog.tsx";
 export default function Profile({
   profile,
   onUpdate,
@@ -27,12 +31,45 @@ export default function Profile({
   cloud = false,
   onSignOut,
   busy = false,
+  onAvatarUpload,
+  onAvatarRemove,
 }: ProfileProps) {
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
   const [error, setError] = useState("");
   const [changingType, setChangingType] = useState(false);
   const [typeError, setTypeError] = useState("");
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
+  async function removeAvatar() {
+    if (!onAvatarRemove) return;
+    setAvatarBusy(true);
+    try {
+      await onAvatarRemove();
+      setAvatarError("");
+      notify("Immagine profilo rimossa.");
+    } catch (error) {
+      setAvatarError(getErrorMessage(error));
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
+  async function confirmAvatar(file: File) {
+    if (!onAvatarUpload) return;
+    setAvatarBusy(true);
+    try {
+      await onAvatarUpload(file);
+      setCropFile(null);
+      setAvatarError("");
+      notify("Immagine profilo aggiornata.");
+    } catch (error) {
+      setAvatarError(getErrorMessage(error));
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
   async function changeType(accountType: "listener" | "artist") {
     setChangingType(true);
     try {
@@ -78,9 +115,7 @@ export default function Profile({
       <div className="panel">
         <div className="row">
           <div className="user">
-            <div className="avatar">
-              {(profile.name || "Tu")[0].toUpperCase()}
-            </div>
+            <Avatar name={profile.name} imageUrl={profile.avatarUrl} />
             <div>
               <h3>{profile.name || "Ascoltatore"}</h3>
               <span className="hint">
@@ -89,16 +124,88 @@ export default function Profile({
             </div>
           </div>
           {cloud && (
-            <button
-              className="btn secondary small"
-              disabled={busy}
-              onClick={onSignOut}
-            >
-              Esci dall’account
-            </button>
+            <div className="profile-actions">
+              {onAvatarUpload && (
+                <button
+                  className="btn secondary small"
+                  type="button"
+                  disabled={busy || avatarBusy}
+                  aria-expanded={avatarEditorOpen}
+                  onClick={() => setAvatarEditorOpen((open) => !open)}
+                >
+                  {avatarEditorOpen ? "Chiudi personalizzazione" : "Personalizza immagine"}
+                </button>
+              )}
+              <button
+                className="btn secondary small"
+                disabled={busy}
+                onClick={onSignOut}
+              >
+                Esci dall’account
+              </button>
+            </div>
           )}
         </div>
+        {cloud && onAvatarUpload && avatarEditorOpen && (
+          <div className="avatar-editor">
+            <div className="avatar-editor-preview">
+              <Avatar
+                name={profile.name}
+                imageUrl={profile.avatarUrl}
+              />
+            </div>
+            <div className="avatar-editor-copy">
+              <div className="avatar-editor-title">
+                <strong>Immagine profilo</strong>
+                <span className="avatar-editor-badge">PERSONALIZZA</span>
+              </div>
+              <span className="hint">
+                Scegli un’immagine che ti rappresenta. Verrà mostrata nel menu
+                e nella barra superiore.
+              </span>
+              <div className="avatar-controls">
+                <label className="btn small avatar-upload">
+                  {avatarBusy ? "Caricamento…" : "Carica immagine"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    disabled={busy || avatarBusy}
+                    onChange={(event) => {
+                      setCropFile(event.target.files?.[0] || null);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+                {profile.avatarUrl && onAvatarRemove && (
+                  <button
+                    className="textbtn"
+                    type="button"
+                    disabled={busy || avatarBusy}
+                    onClick={() => void removeAvatar()}
+                  >
+                    Rimuovi immagine
+                  </button>
+                )}
+              </div>
+              <span className="hint avatar-format">
+                JPG, PNG, WebP o GIF · massimo 5 MB
+              </span>
+              {avatarError && (
+                <span className="error" role="alert">
+                  {avatarError}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+      {cropFile && (
+        <AvatarCropDialog
+          file={cropFile}
+          onCancel={() => setCropFile(null)}
+          onConfirm={confirmAvatar}
+        />
+      )}
       <section className="panel" aria-labelledby="account-type-heading">
         <h3 id="account-type-heading">Tipo di profilo</h3>
         <p className="hint">

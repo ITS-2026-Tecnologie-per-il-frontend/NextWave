@@ -2,6 +2,7 @@
 @import "./base-and-layout.css";
 @import "./forms.css";
 @import "./rankings-and-reveal.css";
+@import "./avatar-crop.css";
 @import "./responsive.css";
 @import "./themes.css";
 @import "./playback-and-auth.css";

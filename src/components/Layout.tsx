@@ -13,6 +13,7 @@ interface LayoutProps {
 }
 import { Brand } from "./ui/Brand.tsx";
 import { Icon } from "./ui/Icon.tsx";
+import { Avatar } from "./ui/Avatar.tsx";
 const navigation: [Route, string][] = [
   ["daily", "Daily wave"],
   ["ranks", "Classifiche"],
@@ -30,7 +31,6 @@ export default function Layout({
   cloud = false,
   admin = false,
 }: LayoutProps) {
-  const initial = (profile.name || "Tu")[0].toUpperCase();
   const trackIndex = player.active ? round.ids.indexOf(player.active) : -1;
   return (
     <>
@@ -74,13 +74,13 @@ export default function Layout({
             </button>
           </div>
           <div className="user">
-            <button
-              className="avatar"
-              aria-label="Apri il tuo profilo"
+            <Avatar
+              name={profile.name}
+              imageUrl={profile.avatarUrl}
+              button
+              label="Apri il tuo profilo"
               onClick={() => navigate("profile")}
-            >
-              {initial}
-            </button>
+            />
             <div>
               {profile.name || "Ascoltatore"}
               <br />
@@ -114,13 +114,13 @@ export default function Layout({
                 {!cloud && <small>Demo interattiva</small>}
               </div>
             </div>
-            <button
-              className="avatar"
-              aria-label="Apri profilo"
+            <Avatar
+              name={profile.name}
+              imageUrl={profile.avatarUrl}
+              button
+              label="Apri profilo"
               onClick={() => navigate("profile")}
-            >
-              {initial}
-            </button>
+            />
           </div>
         </header>
         {children}

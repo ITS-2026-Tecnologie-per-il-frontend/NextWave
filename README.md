@@ -24,6 +24,8 @@ Apri http://127.0.0.1:4173 e accedi con un account reale. Una configurazione man
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
 
+Gli account cloud possono caricare un’immagine profilo JPG, PNG, WebP o GIF (massimo 5 MB). Gli avatar sono conservati nel bucket privato `nextwave-avatars`, con accesso limitato alla cartella dell’utente.
+
 Il sito mostra solo brani e risultati reali. Il precedente catalogo demo è escluso da selezioni, storico visibile e classifiche. Il modulo artista richiede un MP3 e il link Spotify; il server verifica il file e i moderatori autorizzano il brano per un giorno di contest. Gli audio vengono conservati nello Storage privato, insieme ai dati della candidatura. Calendario delle classifiche ed esenzione mensile admin: [docs/real-contests.md](docs/real-contests.md).
 
 Schema, migrazioni, popolamento, regole di accesso e istruzioni Vercel sono descritti in [docs/supabase.md](docs/supabase.md). L’utente ha applicato `supabase/generated/setup-demo.sql`; non rieseguire il setup sul database già inizializzato.

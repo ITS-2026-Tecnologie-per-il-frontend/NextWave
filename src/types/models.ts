@@ -77,6 +77,8 @@ export interface Profile {
   accountType?: "listener" | "artist";
   uid: string;
   name: string;
+  avatarUrl?: string | null;
+  avatarPath?: string | null;
   prefs: string[];
   onboard: boolean;
   rounds: Record<string, Round>;
