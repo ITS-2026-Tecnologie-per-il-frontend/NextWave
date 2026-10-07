@@ -104,7 +104,7 @@
   }
 
   .topbar {
-    height: 64px;
+    height: 72px;
     gap: 12px;
   }
 
@@ -195,6 +195,7 @@
     gap: 12px;
   }
 
+
   .track {
     display: grid;
     grid-template-columns: 72px minmax(0, 1fr);
@@ -278,10 +279,10 @@
     height: 64px;
     min-height: 0;
     padding: 8px 16px 11px;
-    gap: 12px;
+    gap: 10px;
   }
 
-  .playerinfo {
+  .player-track {
     flex: 1;
     min-width: 0;
     width: auto;
@@ -295,26 +296,39 @@
     white-space: nowrap;
   }
 
-  .playerinfo span {
+
+
+  .player-signal {
+    display: none;
+  }
+
+  .playerinfo > span {
     font-size: 11px;
   }
 
-  .player .time {
-    font-size: 10px;
-    font-variant-numeric: tabular-nums;
+  .player-time {
+    display: none;
   }
 
-  .player button {
+  .player-toggle {
     order: 1;
     width: 44px;
     height: 44px;
   }
 
-  .player progress {
+  .player-rewind {
+    display: none !important;
+  }
+
+  .player-progress-wrap {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
+    display: block;
+  }
+
+  .player progress {
     height: 3px;
     border: 0;
     border-radius: 0;

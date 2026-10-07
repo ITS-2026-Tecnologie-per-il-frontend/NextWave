@@ -148,6 +148,7 @@ export interface PlayerStatus {
 export interface Player extends PlayerStatus {
   audioRef: RefObject<HTMLAudioElement | null>;
   play: (id: string) => Promise<void>;
+  rewind: (seconds?: number) => void;
   setVolume: (volume: number) => void;
   track?: Track;
 }

@@ -295,6 +295,108 @@ small,
   align-items: center;
 }
 
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--purple) 10%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--panel) 86%, transparent);
+  box-shadow: inset 0 1px 0 #ffffff08;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.account-card:hover {
+  border-color: color-mix(in srgb, var(--purple) 48%, var(--line));
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--purple) 16%, transparent),
+      transparent 70%
+    ),
+    var(--panel);
+  transform: translateY(-1px);
+}
+
+.account-card > .avatar {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border: 2px solid color-mix(in srgb, var(--lime) 72%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lime) 10%, transparent);
+}
+
+.account-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-copy strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-meta i {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--lime) 70%, transparent);
+}
+
+.account-open {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 15px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.account-open:hover {
+  border-color: var(--lime);
+  background: var(--accent-soft);
+  color: var(--lime);
+}
+
 .profile-actions {
   display: flex;
   align-items: center;
@@ -700,7 +802,7 @@ small,
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 25px;
+  padding: 26px;
   box-shadow: 0 8px 24px #0000000d;
 }
 
@@ -738,6 +840,7 @@ small,
   align-items: center;
   gap: 16px;
 }
+
 
 .btn {
   background: var(--lime);
@@ -789,21 +892,37 @@ small,
   bottom: 0;
   left: 226px;
   right: 0;
-  min-height: 86px;
+  min-height: 84px;
   background: color-mix(in srgb, var(--panel) 96%, transparent);
   border-top: 1px solid var(--line);
   z-index: 25;
   display: flex;
   align-items: center;
-  gap: 25px;
-  padding: 15px 40px;
+  gap: 18px;
+  padding: 12px 40px;
   backdrop-filter: blur(15px);
   box-shadow: 0 -8px 30px #00000020;
 }
 
+.player-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 250px;
+  min-width: 190px;
+}
+
 .playerinfo {
-  width: 180px;
-  min-width: 120px;
+  min-width: 0;
+  width: auto;
+  flex: 1;
+}
+
+.playerinfo strong,
+.playerinfo span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .playerinfo strong {
@@ -820,11 +939,116 @@ small,
   background: var(--lime);
   color: var(--ink);
   border-radius: 50%;
-  width: 43px;
-  height: 43px;
+  width: 46px;
+  height: 46px;
   flex-shrink: 0;
   display: grid;
   place-items: center;
+  box-shadow: 0 7px 20px color-mix(in srgb, var(--lime) 20%, transparent);
+  transition:
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.player button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: scale(1.05);
+}
+
+.player .player-rewind {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+}
+
+.player .player-rewind:hover:not(:disabled) {
+  color: var(--text);
+  filter: none;
+  transform: scale(1.08);
+}
+
+.player-rewind svg {
+  width: 21px;
+  height: 21px;
+}
+
+.player-rewind span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: 1px;
+  color: currentColor;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.player-rewind:disabled {
+  opacity: 0.35;
+}
+
+.player-toggle svg {
+  width: 19px;
+  height: 19px;
+}
+
+.player-signal {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 28px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+
+.player-signal i {
+  display: block;
+  width: 3px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--line);
+}
+
+.player-signal i:nth-child(2) {
+  height: 13px;
+}
+
+.player-signal i:nth-child(3) {
+  height: 18px;
+}
+
+.player-signal i:nth-child(4) {
+  height: 10px;
+}
+
+.player-signal.active i {
+  background: var(--lime);
+  animation: player-wave 0.9s ease-in-out infinite alternate;
+}
+
+.player-signal.active i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.player-signal.active i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.player-signal.active i:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+@keyframes player-wave {
+  from {
+    transform: scaleY(0.45);
+  }
+  to {
+    transform: scaleY(1);
+  }
 }
 
 /* Keep the range independent from form field styles. */
@@ -889,7 +1113,48 @@ small,
   outline-offset: 3px;
 }
 
+.player-progress-wrap {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-time {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.player progress {
+  width: 100%;
+  height: 5px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  accent-color: var(--lime);
+  background: var(--line);
+}
+
+.player progress::-webkit-progress-bar {
+  background: var(--line);
+}
+
+.player progress::-webkit-progress-value {
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--purple), var(--lime));
+}
+
+.player progress::-moz-progress-bar {
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--purple), var(--lime));
+}
+
 .player .time {
+  display: none;
   font-size: 12px;
   white-space: nowrap;
   color: var(--muted);
@@ -900,16 +1165,32 @@ small,
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  width: 150px;
+  width: 135px;
   flex-shrink: 0;
   margin: 0;
 }
 
-.player progress {
-  min-width: 0;
-  flex: 1;
-  accent-color: var(--lime);
-  height: 5px;
+.player .volume > span:first-child {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-signal.active i {
+    animation: none;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .brand-mobile-name {
