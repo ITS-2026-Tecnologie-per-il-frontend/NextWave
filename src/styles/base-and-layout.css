@@ -733,3 +733,12 @@ small,
   accent-color: var(--lime);
   height: 5px;
 }
+
+.brand-mobile-name {
+  display: none;
+}
+
+.brand .brand-mobile-name > span {
+  color: #b6ff13;
+  font-size: inherit;
+}

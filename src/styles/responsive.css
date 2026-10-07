@@ -54,6 +54,10 @@
 }
 
 @media (max-width: 760px) {
+  .brand-mobile-name {
+    display: inline;
+    color: var(--text);
+  }
   .sidebar {
     top: auto;
     bottom: 0;
