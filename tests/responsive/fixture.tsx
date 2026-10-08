@@ -22,9 +22,22 @@ import Onboarding from "../../src/pages/Onboarding.tsx";
 import Dialog from "../../src/components/Dialog.tsx";
 import Reveal from "../../src/components/Reveal.tsx";
 import AvatarCropDialog from "../../src/components/ui/AvatarCropDialog.tsx";
+import {
+  originalStyle,
+  saveNamedStyle,
+} from "../../src/services/customStyle.ts";
 import "../../src/styles/index.css";
 
 const stress = new URLSearchParams(location.search).get("stress") !== "false";
+if (new URLSearchParams(location.search).get("screen") === "library") {
+  for (let index = 0; index < 4; index++)
+    saveNamedStyle(
+      stress
+        ? "IlMioStilePersonaleConNomeLungo" + index
+        : "Atmosfera " + (index + 1),
+      originalStyle,
+    );
+}
 const longText = stress
   ? "UnaTracciaConUnTitoloMoltoLungoSenzaSpazi".repeat(3)
   : "Nuove prospettive";
@@ -165,9 +178,11 @@ function Fixture() {
   const [route, setRoute] = useState<Route>(
     screen === "rankings"
       ? "ranks"
-      : ["artist", "admin", "profile"].includes(screen)
-        ? (screen as Route)
-        : "daily",
+      : ["studio", "library"].includes(screen)
+        ? "profile"
+        : ["artist", "admin", "profile"].includes(screen)
+          ? (screen as Route)
+          : "daily",
   );
   if (screen === "auth") return <Auth client={client} />;
   if (screen === "onboarding")
@@ -184,14 +199,18 @@ function Fixture() {
     screen === "empty" ? { ...round, ids: [], listened: [] } : round;
   return (
     <Layout
-      profile={profile}
+      profile={{
+        ...profile,
+        accountType:
+          params.get("account") === "listener" ? "listener" : "artist",
+      }}
       route={route}
       navigate={setRoute}
       player={player}
       revealed={revealed}
       round={activeRound}
       cloud
-      admin
+      admin={params.get("admin") !== "false"}
     >
       {route === "profile" ? (
         <Profile

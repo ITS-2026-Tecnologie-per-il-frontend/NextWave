@@ -25,6 +25,13 @@ const navigation: [Route, string][] = [
   ["artist", "Per gli artisti"],
   ["profile", "Il tuo profilo"],
 ];
+const mobileLabels: Record<Route, string> = {
+  daily: "Daily",
+  ranks: "Classifica",
+  artist: "Artisti",
+  profile: "Profilo",
+  admin: "Admin",
+};
 export default function Layout({
   profile,
   route,
@@ -55,10 +62,14 @@ export default function Layout({
                 key={id}
                 className={route === id ? "active" : ""}
                 aria-current={route === id ? "page" : undefined}
+                aria-label={label}
                 onClick={() => navigate(id)}
               >
                 <Icon name={id} />
-                {label}
+                <span className="nav-label-desktop">{label}</span>
+                <span className="nav-label-mobile" aria-hidden="true">
+                  {mobileLabels[id]}
+                </span>
               </button>
             ))}
         </nav>
@@ -105,7 +116,7 @@ export default function Layout({
           </div>
         </div>
       </aside>
-      <main className="main">
+      <main className={`main main-${route}`}>
         <header className="topbar">
           <span>La scoperta inizia dall’ascolto.</span>
           <div className="mobilebrand">

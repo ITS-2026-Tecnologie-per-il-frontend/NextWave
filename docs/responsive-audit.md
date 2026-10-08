@@ -2,6 +2,8 @@
 
 Data: 8 ottobre 2026. La revisione riguarda presentazione e interazione delle pagine; non cambia autenticazione, contest, caricamenti audio o database.
 
+Questo documento conserva il primo collaudo. Per le nuove personalizzazioni, le dimensioni aggiornate dei contenitori e il nuovo menu mobile vedere la [seconda revisione responsive](responsive-refresh.md).
+
 ## Ambito dello studio
 
 Sono stati esaminati il contenitore dell’app, la navigazione, la barra superiore, il player, i moduli e gli stili specifici delle pagine. Il collaudo usa i componenti reali con dati in memoria in un’app di prova separata: non richiede accessi, non chiama Supabase e non scrive dati reali. L’app di prova è dentro `tests/responsive`, non viene importata dall’entry point del prodotto e non è inclusa nella compilazione pubblicata.

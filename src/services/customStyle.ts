@@ -251,6 +251,7 @@ export function styleVariables(style: CustomStyle): Record<string, string> {
     "--custom-control-text": "#f5f4f7",
     "--custom-player-color": playerColor(s.buttons),
     "--custom-sidebar-bg": `linear-gradient(160deg, ${sidebar.start}, ${sidebar.end})`,
+    "--custom-sidebar-start": sidebar.start,
     "--custom-sidebar-text": sidebar.text,
     "--custom-sidebar-line": mix(sidebar.text, sidebar.start, 0.3),
     "--custom-brand-primary": s.brandPrimary,
