@@ -1,7 +1,7 @@
 .onboarding {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .onboarding .visual {
@@ -45,6 +45,13 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--panel) 26%, transparent),
+      transparent 45%
+    ),
+    var(--bg);
 }
 
 .onboardform h1 {
@@ -54,6 +61,27 @@
 .onboardform .btn {
   margin-top: 25px;
   width: 100%;
+}
+
+.onboarding-progress {
+  display: flex;
+  gap: 7px;
+  margin: 22px 0 8px;
+}
+
+.onboarding-progress span {
+  width: 46px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.onboarding-progress span.active {
+  background: var(--lime);
+}
+
+.onboarding-back {
+  margin: 14px auto 0;
 }
 
 .chips {
@@ -74,6 +102,19 @@
   color: var(--lime);
   background: var(--accent-soft);
   border-color: var(--lime);
+}
+
+.chip {
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.chip:hover:not(.selected) {
+  border-color: var(--purple);
+  transform: translateY(-1px);
 }
 
 label {

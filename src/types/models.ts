@@ -77,6 +77,8 @@ export interface Profile {
   accountType?: "listener" | "artist";
   uid: string;
   name: string;
+  avatarUrl?: string | null;
+  avatarPath?: string | null;
   prefs: string[];
   onboard: boolean;
   rounds: Record<string, Round>;
@@ -146,6 +148,7 @@ export interface PlayerStatus {
 export interface Player extends PlayerStatus {
   audioRef: RefObject<HTMLAudioElement | null>;
   play: (id: string) => Promise<void>;
+  rewind: (seconds?: number) => void;
   setVolume: (volume: number) => void;
   track?: Track;
 }

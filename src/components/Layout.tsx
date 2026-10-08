@@ -2,7 +2,7 @@ import { useCustomStyle } from "../hooks/useCustomStyle.ts";
 import { defaultTheme } from "../data/themes.ts";
 import { AppearanceFilters } from "./ui/AppearanceFilters.tsx";
 import { BrandLogo } from "./ui/BrandLogo.tsx";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { Profile, Route, Player, Round } from "../types/models.ts";
 interface LayoutProps {
   profile: Profile;
@@ -17,6 +17,8 @@ interface LayoutProps {
 }
 import { Brand } from "./ui/Brand.tsx";
 import { Icon } from "./ui/Icon.tsx";
+import { Avatar } from "./ui/Avatar.tsx";
+import PlayerBar from "./PlayerBar.tsx";
 const navigation: [Route, string][] = [
   ["daily", "Daily wave"],
   ["ranks", "Classifiche"],
@@ -35,8 +37,6 @@ export default function Layout({
   admin = false,
 }: LayoutProps) {
   const appearance = useCustomStyle(true, defaultTheme(profile.theme).style);
-  const initial = (profile.name || "Tu")[0].toUpperCase();
-  const trackIndex = player.active ? round.ids.indexOf(player.active) : -1;
   return (
     <>
       <AppearanceFilters style={appearance.style} id="nextwave-wave" />
@@ -79,21 +79,29 @@ export default function Layout({
                 : "Attiva il profilo artista ↗"}
             </button>
           </div>
-          <div className="user">
-            <button
-              className="avatar"
-              aria-label="Apri il tuo profilo"
+          <div className="account-card">
+            <Avatar
+              name={profile.name}
+              imageUrl={profile.avatarUrl}
+              button
+              label="Apri il tuo profilo"
               onClick={() => navigate("profile")}
-            >
-              {initial}
-            </button>
-            <div>
-              {profile.name || "Ascoltatore"}
-              <br />
-              <span className="muted">
-                {cloud ? "Account Next Wave" : "Profilo demo"}
+            />
+            <div className="account-copy">
+              <strong>{profile.name || "Ascoltatore"}</strong>
+              <span className="account-meta">
+                <i aria-hidden="true" />
+                {profile.accountType === "artist" ? "Artista" : "Ascoltatore"}
               </span>
             </div>
+            <button
+              className="account-open"
+              type="button"
+              aria-label="Apri le impostazioni del profilo"
+              onClick={() => navigate("profile")}
+            >
+              <span aria-hidden="true">↗</span>
+            </button>
           </div>
         </div>
       </aside>
@@ -114,13 +122,13 @@ export default function Layout({
                 {!cloud && <small>Demo interattiva</small>}
               </div>
             </div>
-            <button
-              className="avatar"
-              aria-label="Apri profilo"
+            <Avatar
+              name={profile.name}
+              imageUrl={profile.avatarUrl}
+              button
+              label="Apri profilo"
               onClick={() => navigate("profile")}
-            >
-              {initial}
-            </button>
+            />
           </div>
         </header>
         {children}
@@ -132,49 +140,12 @@ export default function Layout({
           · Orario Europe/Rome
         </p>
       </main>
-      <section className="player" aria-label="Player musicale">
-        <div className="playerinfo">
-          <strong>
-            {player.active
-              ? revealed
-                ? player.track?.title
-                : `Brano ${String(trackIndex + 1).padStart(2, "0")}`
-              : "Pronto a scoprire?"}
-          </strong>
-          <span>
-            {player.active
-              ? `${player.track?.genre} · ${!cloud || player.track?.isDemo ? "Audio demo" : "Audio"}`
-              : "Ascolta ogni brano fino alla fine"}
-          </span>
-        </div>
-        <button
-          disabled={!round.ids.length || player.loading || (cloud && revealed)}
-          onClick={() => player.play(player.active || round.ids[0])}
-          aria-label={player.playing ? "Pausa" : "Riproduci"}
-        >
-          <Icon name={player.playing ? "pause" : "play"} />
-        </button>
-        <progress
-          value={player.time}
-          max={player.duration || 1}
-          aria-label="Avanzamento brano"
-        />
-        <span className="time">
-          {Math.floor(player.time)} / {Math.ceil(player.duration)} s
-        </span>
-        <label className="volume">
-          Volume
-          <input
-            type="range"
-            style={{ "--volume": `${player.volume * 100}%` } as CSSProperties}
-            min="0"
-            max="1"
-            step="0.05"
-            value={player.volume}
-            onChange={(event) => player.setVolume(Number(event.target.value))}
-          />
-        </label>
-      </section>
+      <PlayerBar
+        player={player}
+        round={round}
+        revealed={revealed}
+        cloud={cloud}
+      />
     </>
   );
 }

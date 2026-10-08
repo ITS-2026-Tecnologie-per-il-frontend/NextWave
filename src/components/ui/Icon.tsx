@@ -25,6 +25,18 @@ const paths: Record<string, ReactNode> = {
   ),
   play: <path d="m9 5 11 7-11 7z" fill="currentColor" />,
   pause: <path d="M8 5v14M16 5v14" strokeWidth="4" />,
+  rewind: (
+    <>
+      <path d="M9 8 4 12l5 4" />
+      <path d="M4 12h9a5 5 0 1 1-2.1-4.08" />
+    </>
+  ),
+  volume: (
+    <>
+      <path d="M4 10v4h3l4 3V7l-4 3H4z" fill="currentColor" />
+      <path d="M15 9.5a4 4 0 0 1 0 5M17.5 7a7.5 7.5 0 0 1 0 10" />
+    </>
+  ),
 };
 export function Icon({ name }: { name: string }) {
   return (

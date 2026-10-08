@@ -197,7 +197,7 @@
     .preview-tabs .active,
     .preview-side-active
   ),
-:root[data-custom="true"] .player > button,
+:root[data-custom="true"] .player .player-toggle,
 .custom-preview .preview-play {
   background: var(--custom-button);
   color: var(--custom-button-text);
@@ -229,12 +229,20 @@
   outline-offset: 3px;
 }
 :is(:root[data-custom="true"], .custom-preview) :is(.btn, .textbtn):disabled,
-:root[data-custom="true"] .player > button:disabled {
+:root[data-custom="true"] .player .player-toggle:disabled {
   opacity: 1;
   border-style: dashed;
 }
-:root[data-custom="true"] .player > button:disabled svg {
+:root[data-custom="true"] .player .player-toggle:disabled svg {
   opacity: 0.45;
+}
+:root[data-custom="true"] .player .player-rewind {
+  background: var(--custom-control-bg);
+  color: var(--custom-control-text);
+  border-color: var(--custom-button-edge);
+}
+:root[data-custom="true"] .player .player-signal.active i {
+  background: var(--custom-player-color);
 }
 :is(:root[data-custom="true"] .player, .custom-preview .preview-player)
   progress {
@@ -800,7 +808,7 @@ dialog.style-studio {
 .studio-save-name .studio-toggle {
   margin-top: 12px;
 }
-@media (max-width: 760px) {
+@media (max-width: 960px) {
   .brand .brand-full {
     display: none;
   }

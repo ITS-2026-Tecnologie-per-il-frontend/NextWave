@@ -212,5 +212,11 @@ export function useCloudPlayer(
     if (audioRef.current) audioRef.current.volume = volume;
     setStatus((previous) => ({ ...previous, volume }));
   }
-  return { audioRef, ...status, play, setVolume };
+  function rewind(seconds = 10) {
+    const audio = audioRef.current;
+    if (!audio || !sessionRef.current) return;
+    audio.currentTime = Math.max(0, audio.currentTime - seconds);
+    setStatus((previous) => ({ ...previous, time: audio.currentTime }));
+  }
+  return { audioRef, ...status, play, rewind, setVolume };
 }

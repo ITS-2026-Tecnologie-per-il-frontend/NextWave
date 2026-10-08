@@ -2,9 +2,9 @@
 @import "./base-and-layout.css";
 @import "./forms.css";
 @import "./rankings-and-reveal.css";
-@import "./responsive.css";
+@import "./avatar-crop.css";
 @import "./themes.css";
 @import "./playback-and-auth.css";
 @import "./admin.css";
-
 @import "./style-studio.css";
+@import "./responsive.css";

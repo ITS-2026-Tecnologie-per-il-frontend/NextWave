@@ -54,6 +54,14 @@ export default function Rankings({
               {genre}
             </button>
           ))}
+          {filter !== "Tutti" && (
+            <button
+              className="textbtn rankings-reset"
+              onClick={() => setFilter("Tutti")}
+            >
+              Azzera filtro
+            </button>
+          )}
         </div>
         <span className="hint">
           {period === "week" ? "Settimana conclusa il" : "Contest del"}{" "}
@@ -86,9 +94,8 @@ export default function Rankings({
                   </div>
                   <div className="metrics">
                     <small>
-                      {track.votes} voti
-                      <br />
-                      {track.exposures} esposizioni
+                      <span>{track.votes} voti</span>
+                      <span>{track.exposures} esposizioni</span>
                     </small>
                   </div>
                   <span className="score">

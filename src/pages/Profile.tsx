@@ -12,12 +12,16 @@ interface ProfileProps {
   cloud?: boolean;
   onSignOut?: () => void;
   busy?: boolean;
+  onAvatarUpload?: (file: File) => Promise<unknown>;
+  onAvatarRemove?: () => Promise<unknown>;
 }
 import { useState } from "react";
 import { catalog } from "../data/demo/catalog.ts";
 import { genres } from "../data/genres.ts";
 import { GenrePicker } from "../components/ui/GenrePicker.tsx";
 import { Heading } from "../components/ui/Heading.tsx";
+import { Avatar } from "../components/ui/Avatar.tsx";
+import AvatarCropDialog from "../components/ui/AvatarCropDialog.tsx";
 export default function Profile({
   profile,
   onUpdate,
@@ -27,12 +31,46 @@ export default function Profile({
   cloud = false,
   onSignOut,
   busy = false,
+  onAvatarUpload,
+  onAvatarRemove,
 }: ProfileProps) {
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
   const [error, setError] = useState("");
   const [changingType, setChangingType] = useState(false);
   const [typeError, setTypeError] = useState("");
+  const [avatarError, setAvatarError] = useState("");
+  const [avatarBusy, setAvatarBusy] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [avatarEditorOpen, setAvatarEditorOpen] = useState(false);
+  const [nameEditorOpen, setNameEditorOpen] = useState(false);
+  async function removeAvatar() {
+    if (!onAvatarRemove) return;
+    setAvatarBusy(true);
+    try {
+      await onAvatarRemove();
+      setAvatarError("");
+      notify("Immagine profilo rimossa.");
+    } catch (error) {
+      setAvatarError(getErrorMessage(error));
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
+  async function confirmAvatar(file: File) {
+    if (!onAvatarUpload) return;
+    setAvatarBusy(true);
+    try {
+      await onAvatarUpload(file);
+      setCropFile(null);
+      setAvatarError("");
+      notify("Immagine profilo aggiornata.");
+    } catch (error) {
+      setAvatarError(getErrorMessage(error));
+    } finally {
+      setAvatarBusy(false);
+    }
+  }
   async function changeType(accountType: "listener" | "artist") {
     setChangingType(true);
     try {
@@ -47,6 +85,22 @@ export default function Profile({
       setTypeError(getErrorMessage(error));
     } finally {
       setChangingType(false);
+    }
+  }
+  async function saveName(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const nextName = name.trim();
+    if (!nextName) {
+      setError("Inserisci un nome utente.");
+      return;
+    }
+    try {
+      await onUpdate({ name: nextName });
+      setError("");
+      setNameEditorOpen(false);
+      notify("Nome utente aggiornato.");
+    } catch (error) {
+      setError(getErrorMessage(error));
     }
   }
   const rounds = Object.values(profile.rounds);
@@ -76,9 +130,7 @@ export default function Profile({
       <div className="panel">
         <div className="row">
           <div className="user">
-            <div className="avatar">
-              {(profile.name || "Tu")[0].toUpperCase()}
-            </div>
+            <Avatar name={profile.name} imageUrl={profile.avatarUrl} />
             <div>
               <h3>{profile.name || "Ascoltatore"}</h3>
               <span className="hint">
@@ -87,16 +139,139 @@ export default function Profile({
             </div>
           </div>
           {cloud && (
+            <div className="profile-actions">
+              {onAvatarUpload && (
+                <button
+                  className="btn secondary small"
+                  type="button"
+                  disabled={busy || avatarBusy}
+                  aria-expanded={avatarEditorOpen}
+                  onClick={() => setAvatarEditorOpen((open) => !open)}
+                >
+                  {avatarEditorOpen
+                    ? "Chiudi personalizzazione"
+                    : "Personalizza immagine"}
+                </button>
+              )}
+              <button
+                className="btn secondary small"
+                type="button"
+                disabled={busy}
+                aria-expanded={nameEditorOpen}
+                onClick={() => setNameEditorOpen((open) => !open)}
+              >
+                {nameEditorOpen ? "Chiudi modifica" : "Modifica nome"}
+              </button>
+              <button
+                className="btn secondary small"
+                disabled={busy}
+                onClick={onSignOut}
+              >
+                Esci dall’account
+              </button>
+            </div>
+          )}
+          {!cloud && (
             <button
               className="btn secondary small"
+              type="button"
               disabled={busy}
-              onClick={onSignOut}
+              aria-expanded={nameEditorOpen}
+              onClick={() => setNameEditorOpen((open) => !open)}
             >
-              Esci dall’account
+              {nameEditorOpen ? "Chiudi modifica" : "Modifica nome"}
             </button>
           )}
         </div>
+        {cloud && onAvatarUpload && avatarEditorOpen && (
+          <div className="avatar-editor">
+            <div className="avatar-editor-preview">
+              <Avatar name={profile.name} imageUrl={profile.avatarUrl} />
+            </div>
+            <div className="avatar-editor-copy">
+              <div className="avatar-editor-title">
+                <strong>Immagine profilo</strong>
+                <span className="avatar-editor-badge">PERSONALIZZA</span>
+              </div>
+              <span className="hint">
+                Scegli un’immagine che ti rappresenta. Verrà mostrata nel menu e
+                nella barra superiore.
+              </span>
+              <div className="avatar-controls">
+                <label className="btn small avatar-upload">
+                  {avatarBusy ? "Caricamento…" : "Carica immagine"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    disabled={busy || avatarBusy}
+                    onChange={(event) => {
+                      setCropFile(event.target.files?.[0] || null);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+                {profile.avatarUrl && onAvatarRemove && (
+                  <button
+                    className="textbtn"
+                    type="button"
+                    disabled={busy || avatarBusy}
+                    onClick={() => void removeAvatar()}
+                  >
+                    Rimuovi immagine
+                  </button>
+                )}
+              </div>
+              <span className="hint avatar-format">
+                JPG, PNG, WebP o GIF · massimo 5 MB
+              </span>
+              {avatarError && (
+                <span className="error" role="alert">
+                  {avatarError}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
+      <section
+        className={`panel profile-name-panel ${nameEditorOpen ? "is-open" : ""}`}
+        aria-labelledby="profile-name-heading"
+      >
+        <div>
+          <span className="eyebrow lime">IDENTITÀ</span>
+          <h3 id="profile-name-heading">Come vuoi essere chiamato?</h3>
+          <p className="hint">
+            Questo nome apparirà nel profilo, nella navigazione e nelle tue
+            attività.
+          </p>
+        </div>
+        <form className="profile-name-form" onSubmit={saveName}>
+          <label>
+            Nome
+            <input
+              maxLength={35}
+              value={name}
+              placeholder="Il tuo nome"
+              onChange={(event) => setName(event.target.value)}
+            />
+          </label>
+          <button className="btn small" disabled={busy || !name.trim()}>
+            Salva nome
+          </button>
+        </form>
+        {error && (
+          <span className="error" role="alert">
+            {error}
+          </span>
+        )}
+      </section>
+      {cropFile && (
+        <AvatarCropDialog
+          file={cropFile}
+          onCancel={() => setCropFile(null)}
+          onConfirm={confirmAvatar}
+        />
+      )}
       <section className="panel" aria-labelledby="account-type-heading">
         <h3 id="account-type-heading">Tipo di profilo</h3>
         <p className="hint">
@@ -152,14 +327,6 @@ export default function Profile({
         <h3>I tuoi gusti, la tua selezione</h3>
         <p className="hint">I cambiamenti valgono dalla selezione di domani.</p>
         <form onSubmit={submit}>
-          <label>
-            Nome
-            <input
-              maxLength={35}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </label>
           <GenrePicker
             genres={genres}
             selected={preferences}
@@ -171,9 +338,6 @@ export default function Profile({
           >
             Salva preferenze
           </button>
-          <span className="error" role="alert">
-            {error}
-          </span>
         </form>
       </div>
       <h2>Le tue scoperte</h2>

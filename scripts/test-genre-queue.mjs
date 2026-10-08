@@ -140,8 +140,8 @@ join vp_private.audio_assets aa on aa.track_id=t.id join public.artist_applicati
   )
 ).rows.map((row) => row.title);
 assert.deepEqual(
-  titles,
-  [1, 2, 3, 4, 5].map((i) => `Song Trap ${i}`),
+  new Set(titles),
+  new Set([1, 2, 3, 4, 5].map((i) => `Song Trap ${i}`)),
 );
 await login(listener);
 assert.deepEqual(

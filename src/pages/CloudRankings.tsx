@@ -129,9 +129,8 @@ export default function CloudRankings({
                       </div>
                       <div className="metrics">
                         <small>
-                          {track.votes} voti
-                          <br />
-                          {track.exposures} esposizioni
+                          <span>{track.votes} voti</span>
+                          <span>{track.exposures} esposizioni</span>
                         </small>
                       </div>
                       <span className="score">

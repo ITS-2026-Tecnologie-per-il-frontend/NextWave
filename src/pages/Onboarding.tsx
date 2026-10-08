@@ -40,6 +40,13 @@ export default function Onboarding({
         <span className="eyebrow lime">
           {step + 1} / 2 — {["BENVENUTO IN NEXT WAVE", "I TUOI GUSTI"][step]}
         </span>
+        <div
+          className="onboarding-progress"
+          aria-label={`Passaggio ${step + 1} di 2`}
+        >
+          <span className={step >= 0 ? "active" : ""} />
+          <span className={step >= 1 ? "active" : ""} />
+        </div>
         {step === 0 && (
           <>
             <h1>
@@ -106,6 +113,14 @@ export default function Onboarding({
               }
             >
               Scopri i tuoi 5 brani →
+            </button>
+            <button
+              className="textbtn onboarding-back"
+              type="button"
+              disabled={busy}
+              onClick={() => setStep(0)}
+            >
+              ← Torna indietro
             </button>
           </>
         )}

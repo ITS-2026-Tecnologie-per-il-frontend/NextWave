@@ -91,6 +91,8 @@ async function mountCloud(state = fixture()) {
     })),
     adminAction: vi.fn(async () => {}),
     adminPreview: vi.fn(async () => ({ audioUrl: "/audio/0.wav" })),
+    uploadAvatar: vi.fn(async () => {}),
+    removeAvatar: vi.fn(async () => {}),
   };
   const client = { auth: { signOut: vi.fn(async () => ({ error: null })) } };
   render(

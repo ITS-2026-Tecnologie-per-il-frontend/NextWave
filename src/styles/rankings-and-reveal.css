@@ -8,6 +8,14 @@
   padding: 10px 18px;
   border-radius: 8px;
   background: var(--surface);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ranktabs button:hover:not(.active) {
+  background: var(--accent-soft);
+  transform: translateY(-1px);
 }
 
 .ranktabs button.active {
@@ -19,6 +27,7 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
+  background: color-mix(in srgb, var(--panel) 78%, transparent);
 }
 
 .rankrow {
@@ -28,6 +37,13 @@
   padding: 18px 25px;
   align-items: center;
   border-bottom: 1px solid var(--line);
+  transition:
+    background 0.2s ease,
+    padding 0.2s ease;
+}
+
+.rankrow:hover {
+  background: var(--accent-soft);
 }
 
 .rankrow:last-child {

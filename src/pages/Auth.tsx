@@ -8,6 +8,7 @@ export default function Auth({ client }: { client: SupabaseClient }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -60,11 +61,19 @@ export default function Auth({ client }: { client: SupabaseClient }) {
             Password
             <input
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               autoComplete={signup ? "new-password" : "current-password"}
               minLength={signup ? 8 : 1}
               required
             />
+            <button
+              className="password-toggle"
+              type="button"
+              onClick={() => setShowPassword((visible) => !visible)}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? "Nascondi password" : "Mostra password"}
+            </button>
           </label>
           <p className="error" role="alert">
             {error}
