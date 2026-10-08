@@ -5,7 +5,10 @@ import {
   readCustomStyle,
   saveCustomStyle,
   styleVariables,
+  readStyleLibrary,
+  saveNamedStyle,
 } from "../../src/services/customStyle.ts";
+import { themes } from "../../src/data/themes.ts";
 
 const storageKey = "nextwave-custom-style-v1";
 
@@ -79,6 +82,7 @@ describe("personalizzazione locale", () => {
     expect(readCustomStyle()).toEqual({
       active: true,
       style: {
+        ...originalStyle,
         background: "#ffff00",
         backgroundEnd: "#ffff00",
         cardStart: "#123456",
@@ -94,6 +98,10 @@ describe("personalizzazione locale", () => {
   it.each([
     { background: "url(https://example.com)" },
     { backgroundEnd: null },
+    { brandPrimary: "#fff" },
+    { brandSecondary: "url(x)" },
+    { sidebarAuto: "true" },
+    { sidebar: null },
     { cardStart: "#fff" },
     { cardEnd: null },
     { buttons: "red" },
@@ -268,5 +276,87 @@ describe("personalizzazione locale", () => {
     expect(repaired["--custom-card-text"]).toBe("#ffffff");
     expect(contrastText("#ffffff")).toBe("#000000");
     expect(contrastText("#000000")).toBe("#ffffff");
+  });
+
+  it("salva più stili, aggiorna per ID e mantiene le altre creazioni", () => {
+    const first = saveNamedStyle("Notte rossa", {
+      ...originalStyle,
+      brandPrimary: "#ff5252",
+    });
+    const second = saveNamedStyle(
+      "Mare",
+      themes.find((item) => item.id === "house")!.style,
+    );
+    expect(readStyleLibrary().map((item) => item.name)).toEqual([
+      "Mare",
+      "Notte rossa",
+    ]);
+    const updated = saveNamedStyle(
+      "Notte rubino",
+      { ...first.style, sidebarAuto: false, sidebar: "#110011" },
+      first.id,
+    );
+    expect(updated.id).toBe(first.id);
+    expect(readStyleLibrary()).toHaveLength(2);
+    expect(readStyleLibrary().find((item) => item.id === second.id)).toEqual(
+      second,
+    );
+    expect(readCustomStyle().savedStyleId).toBe(first.id);
+    const copy = saveNamedStyle("Notte rubino", updated.style);
+    expect(copy.id).not.toBe(first.id);
+    expect(readStyleLibrary()).toHaveLength(3);
+    expect(() => saveNamedStyle("  ", originalStyle)).toThrow();
+    expect(readStyleLibrary()).toHaveLength(3);
+  });
+
+  it("i dieci preset usano colori esatti e lo stesso modello delle creazioni", () => {
+    expect(themes.map((item) => item.color)).toEqual([
+      "#FF8A3D",
+      "#A56BFF",
+      "#FF5FA2",
+      "#A6C7A3",
+      "#23DDC5",
+      "#FFC857",
+      "#5B8CFF",
+      "#FF5252",
+      "#DFFF00",
+      "#A63D64",
+    ]);
+    for (const preset of themes) {
+      saveCustomStyle(preset.style, true, { presetId: preset.id });
+      expect(readCustomStyle().style).toEqual(preset.style);
+      expect(readCustomStyle().presetId).toBe(preset.id);
+      const tokens = styleVariables(preset.style);
+      expect(tokens["--custom-brand-primary"]).toBe(preset.color.toLowerCase());
+      expect(
+        contrast(tokens["--custom-button-text"], preset.style.buttons),
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("abbina la sidebar allo sfondo oppure mantiene i colori indipendenti scelti", () => {
+    const base = styleVariables(originalStyle);
+    const automatic = styleVariables({
+      ...originalStyle,
+      backgroundEnd: "#421122",
+    });
+    expect(automatic["--custom-sidebar-bg"]).not.toBe(
+      base["--custom-sidebar-bg"],
+    );
+    const manual = {
+      ...originalStyle,
+      sidebarAuto: false,
+      sidebar: "#ffffff",
+      sidebarEnd: "#ffffcc",
+    };
+    expect(styleVariables(manual)["--custom-sidebar-bg"]).toBe(
+      "linear-gradient(160deg, #ffffff, #ffffcc)",
+    );
+    expect(styleVariables(manual)["--custom-sidebar-text"]).toBe("#000000");
+    expect(
+      styleVariables({ ...manual, backgroundEnd: "#421122" })[
+        "--custom-sidebar-bg"
+      ],
+    ).toBe(styleVariables(manual)["--custom-sidebar-bg"]);
   });
 });

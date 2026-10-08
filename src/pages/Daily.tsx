@@ -61,7 +61,10 @@ export default function Daily({
         </div>
       )}
       <section className="hero">
-        <img src="/art.png" alt="Onda sonora cromata viola e lime" />
+        <img
+          src="/art.png"
+          alt="Onda sonora cromata nei colori del tuo stile"
+        />
         <div className="copy">
           <span className="eyebrow">
             {showReveal ? "IL MOMENTO DEL REVEAL" : "ASCOLTA OLTRE IL NOME"}

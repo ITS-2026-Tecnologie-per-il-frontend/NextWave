@@ -4,6 +4,11 @@ export const originalStyle = {
   cardStart: "#242035",
   cardEnd: "#18242b",
   buttons: "#ccff5f",
+  sidebarAuto: true,
+  sidebar: "#121314",
+  sidebarEnd: "#1b2435",
+  brandPrimary: "#a3ff12",
+  brandSecondary: "#7f12d7",
   radius: 14,
   font: "Space Grotesk",
   shadow: 12,
@@ -31,6 +36,22 @@ function normalizeStyle(value: unknown): CustomStyle | null {
   const cardEnd =
     source.cardEnd === undefined ? source.secondary : source.cardEnd;
   const buttons = source.buttons === undefined ? source.accent : source.buttons;
+  const sidebarAuto =
+    source.sidebarAuto === undefined ? true : source.sidebarAuto;
+  const sidebar =
+    source.sidebar === undefined ? originalStyle.sidebar : source.sidebar;
+  const sidebarEnd =
+    source.sidebarEnd === undefined
+      ? originalStyle.sidebarEnd
+      : source.sidebarEnd;
+  const brandPrimary =
+    source.brandPrimary === undefined
+      ? originalStyle.brandPrimary
+      : source.brandPrimary;
+  const brandSecondary =
+    source.brandSecondary === undefined
+      ? originalStyle.brandSecondary
+      : source.brandSecondary;
   const { radius, font, shadow } = source;
   if (
     !isHex(background) ||
@@ -38,6 +59,11 @@ function normalizeStyle(value: unknown): CustomStyle | null {
     !isHex(cardStart) ||
     !isHex(cardEnd) ||
     !isHex(buttons) ||
+    typeof sidebarAuto !== "boolean" ||
+    !isHex(sidebar) ||
+    !isHex(sidebarEnd) ||
+    !isHex(brandPrimary) ||
+    !isHex(brandSecondary) ||
     typeof font !== "string" ||
     !fonts.includes(font) ||
     typeof radius !== "number" ||
@@ -56,17 +82,39 @@ function normalizeStyle(value: unknown): CustomStyle | null {
     cardStart: cardStart.toLowerCase(),
     cardEnd: cardEnd.toLowerCase(),
     buttons: buttons.toLowerCase(),
+    sidebarAuto,
+    sidebar: sidebar.toLowerCase(),
+    sidebarEnd: sidebarEnd.toLowerCase(),
+    brandPrimary: brandPrimary.toLowerCase(),
+    brandSecondary: brandSecondary.toLowerCase(),
     radius,
     font,
     shadow,
   };
 }
 
-export function readCustomStyle(): { active: boolean; style: CustomStyle } {
+export interface StyleSelection {
+  presetId?: string;
+  savedStyleId?: string;
+}
+export function readCustomStyle(): StyleSelection & {
+  active: boolean;
+  style: CustomStyle;
+} {
   try {
     const saved = JSON.parse(localStorage.getItem(key) || "null");
     const style = normalizeStyle(saved?.style);
-    if (style) return { active: saved.active === true, style };
+    if (style)
+      return {
+        active: saved.active === true,
+        style,
+        ...(typeof saved.presetId === "string"
+          ? { presetId: saved.presetId }
+          : {}),
+        ...(typeof saved.savedStyleId === "string"
+          ? { savedStyleId: saved.savedStyleId }
+          : {}),
+      };
   } catch {
     /* Default if storage is unavailable or invalid. */
   }
@@ -99,7 +147,11 @@ function interpolate(a: RGB, b: RGB, amount: number): RGB {
   return a.map((channel, i) => channel + (b[i] - channel) * amount) as RGB;
 }
 
-function mix(foreground: string, background: string, amount: number): string {
+export function mix(
+  foreground: string,
+  background: string,
+  amount: number,
+): string {
   return `#${interpolate(rgb(background), rgb(foreground), amount)
     .map((channel) => Math.round(channel).toString(16).padStart(2, "0"))
     .join("")}`;
@@ -175,6 +227,10 @@ export function styleVariables(style: CustomStyle): Record<string, string> {
   const s = normalizeStyle(style) ?? originalStyle;
   const page = readableGradient(s.background, s.backgroundEnd);
   const card = readableGradient(s.cardStart, s.cardEnd);
+  const sidebar = readableGradient(
+    s.sidebarAuto ? mix("#000000", page.start, 0.22) : s.sidebar,
+    s.sidebarAuto ? mix("#000000", page.end, 0.22) : s.sidebarEnd,
+  );
   return {
     "--custom-page-start": page.start,
     "--custom-page-end": page.end,
@@ -194,15 +250,87 @@ export function styleVariables(style: CustomStyle): Record<string, string> {
     "--custom-control-bg": mix(s.buttons, "#202127", 0.08),
     "--custom-control-text": "#f5f4f7",
     "--custom-player-color": playerColor(s.buttons),
+    "--custom-sidebar-bg": `linear-gradient(160deg, ${sidebar.start}, ${sidebar.end})`,
+    "--custom-sidebar-text": sidebar.text,
+    "--custom-sidebar-line": mix(sidebar.text, sidebar.start, 0.3),
+    "--custom-brand-primary": s.brandPrimary,
+    "--custom-brand-secondary": s.brandSecondary,
     "--custom-radius": `${s.radius}px`,
     "--custom-font": s.font,
     "--custom-shadow": `0 ${s.shadow / 2}px ${s.shadow * 2}px #0003`,
   };
 }
 
-export function saveCustomStyle(style: CustomStyle, active: boolean) {
+export function saveCustomStyle(
+  style: CustomStyle,
+  active: boolean,
+  selection: StyleSelection = {},
+) {
   const normalized = normalizeStyle(style);
   if (!normalized) throw new TypeError("Stile personalizzato non valido");
-  localStorage.setItem(key, JSON.stringify({ style: normalized, active }));
+  localStorage.setItem(
+    key,
+    JSON.stringify({ style: normalized, active, ...selection }),
+  );
   window.dispatchEvent(new Event("nextwave-style"));
+}
+
+export interface SavedStyle {
+  id: string;
+  name: string;
+  style: CustomStyle;
+  updatedAt: string;
+}
+const libraryKey = "nextwave-style-library-v1";
+export function readStyleLibrary(): SavedStyle[] {
+  try {
+    const values: unknown = JSON.parse(
+      localStorage.getItem(libraryKey) || "[]",
+    );
+    if (!Array.isArray(values)) return [];
+    return values.flatMap((entry) => {
+      if (!entry || typeof entry !== "object") return [];
+      const style = normalizeStyle(entry.style);
+      if (
+        !style ||
+        typeof entry.id !== "string" ||
+        typeof entry.name !== "string" ||
+        !entry.name.trim()
+      )
+        return [];
+      return [
+        {
+          id: entry.id,
+          name: entry.name.trim().slice(0, 40),
+          style,
+          updatedAt: typeof entry.updatedAt === "string" ? entry.updatedAt : "",
+        },
+      ];
+    });
+  } catch {
+    return [];
+  }
+}
+export function saveNamedStyle(
+  name: string,
+  style: CustomStyle,
+  id?: string,
+): SavedStyle {
+  const normalized = normalizeStyle(style);
+  if (!normalized || !name.trim())
+    throw new TypeError("Dai un nome al tuo stile.");
+  const library = readStyleLibrary();
+  const existing = library.find((entry) => entry.id === id);
+  const entry = {
+    id: existing?.id ?? crypto.randomUUID(),
+    name: name.trim().slice(0, 40),
+    style: normalized,
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(
+    libraryKey,
+    JSON.stringify([entry, ...library.filter((item) => item.id !== entry.id)]),
+  );
+  saveCustomStyle(normalized, true, { savedStyleId: entry.id });
+  return entry;
 }

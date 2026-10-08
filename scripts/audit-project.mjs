@@ -28,7 +28,7 @@ for (const file of files) {
   );
   for (const [, specifier] of imports) {
     const target = path.posix.normalize(
-      path.posix.join(path.posix.dirname(file), specifier),
+      path.posix.join(path.posix.dirname(file), specifier.split("?")[0]),
     );
     try {
       await access(target);

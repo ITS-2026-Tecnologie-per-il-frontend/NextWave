@@ -186,11 +186,16 @@ describe("flussi React", () => {
     );
     fireEvent.click(
       screen.getByRole<HTMLButtonElement>("button", {
-        name: "Ocean House: Ciano e azzurro",
+        name: "House: #23DDC5",
       }),
     );
-    expect(document.documentElement.dataset.theme).toBe("house");
-    expect(stored().theme).toBe("house");
+    expect(
+      document.documentElement.style.getPropertyValue("--custom-button"),
+    ).toBe("#23ddc5");
+    expect(
+      JSON.parse(localStorage.getItem("nextwave-custom-style-v1") || "{}")
+        .presetId,
+    ).toBe("house");
     fireEvent.click(
       screen.getAllByRole<HTMLButtonElement>("button", {
         name: "Next Wave · Torna ai 5 brani",

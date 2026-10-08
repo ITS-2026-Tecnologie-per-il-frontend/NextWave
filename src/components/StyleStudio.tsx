@@ -1,19 +1,37 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, useId, type CSSProperties } from "react";
 import {
   originalStyle,
   readCustomStyle,
-  saveCustomStyle,
+  saveNamedStyle,
   styleVariables,
   type CustomStyle,
 } from "../services/customStyle.ts";
+import { BrandLogo } from "./ui/BrandLogo.tsx";
+import { AppearanceFilters } from "./ui/AppearanceFilters.tsx";
+import { Icon } from "./ui/Icon.tsx";
 
 const gradients = [
   { name: "Aurora", start: "#322345", end: "#173d42" },
   { name: "Blu notte", start: "#28375a", end: "#22223e" },
   { name: "Corallo", start: "#572e42", end: "#3e294c" },
 ];
-export function StyleStudio({ onClose }: { onClose: () => void }) {
-  const [draft, setDraft] = useState(() => readCustomStyle().style);
+export function StyleStudio({
+  onClose,
+  initialStyle,
+  initialName = "Il mio stile",
+  savedStyleId,
+}: {
+  onClose: () => void;
+  initialStyle?: CustomStyle;
+  initialName?: string;
+  savedStyleId?: string;
+}) {
+  const [draft, setDraft] = useState(
+    () => initialStyle ?? readCustomStyle().style,
+  );
+  const [name, setName] = useState(initialName);
+  const [saveCopy, setSaveCopy] = useState(false);
+  const waveId = `preview-wave-${useId().replace(/[^a-z0-9_-]/gi, "")}`;
   const [compare, setCompare] = useState(false);
   const [error, setError] = useState("");
   const [previewName, setPreviewName] = useState("");
@@ -30,7 +48,16 @@ export function StyleStudio({ onClose }: { onClose: () => void }) {
     setCompare(false);
   };
   const colorControl = (
-    key: "background" | "backgroundEnd" | "cardStart" | "cardEnd" | "buttons",
+    key:
+      | "background"
+      | "backgroundEnd"
+      | "cardStart"
+      | "cardEnd"
+      | "buttons"
+      | "sidebar"
+      | "sidebarEnd"
+      | "brandPrimary"
+      | "brandSecondary",
     label: string,
     hint?: string,
   ) => (
@@ -123,7 +150,40 @@ export function StyleStudio({ onClose }: { onClose: () => void }) {
             </p>
           </fieldset>
           <fieldset>
-            <legend>04 · Forma e carattere</legend>
+            <legend>04 · Sidebar</legend>
+            <label className="studio-toggle">
+              <input
+                type="checkbox"
+                checked={draft.sidebarAuto}
+                onChange={(event) =>
+                  change({ sidebarAuto: event.target.checked })
+                }
+              />{" "}
+              Abbina allo sfondo
+            </label>
+            <p className="studio-help">
+              {draft.sidebarAuto
+                ? "La sidebar riprende la sfumatura della pagina, con un tono più profondo."
+                : "Scegli una sfumatura indipendente per la navigazione."}
+            </p>
+            {!draft.sidebarAuto && (
+              <>
+                {colorControl("sidebar", "Sidebar: primo colore")}
+                {colorControl("sidebarEnd", "Sidebar: secondo colore")}
+              </>
+            )}
+          </fieldset>
+          <fieldset>
+            <legend>05 · Logo e onda cromata</legend>
+            <p className="studio-help">
+              Gli stessi due colori per simbolo, scritta e riflessi dell’onda.
+              Forme e brillantezza restano intatte.
+            </p>
+            {colorControl("brandPrimary", "Logo e onda: colore principale")}
+            {colorControl("brandSecondary", "Logo e onda: secondo colore")}
+          </fieldset>
+          <fieldset>
+            <legend>06 · Forma e carattere</legend>
             <label>
               Angoli delle schede <output>{draft.radius}px</output>
               <input
@@ -184,140 +244,203 @@ export function StyleStudio({ onClose }: { onClose: () => void }) {
           <div
             className="custom-preview"
             style={
-              styleVariables(compare ? originalStyle : draft) as CSSProperties
+              {
+                ...styleVariables(compare ? originalStyle : draft),
+                "--custom-wave-filter": `url(#${waveId})`,
+              } as CSSProperties
             }
           >
-            <div className="preview-topbar">
-              <div className="preview-brand">
-                <img src="/brand/nextwave-symbol.svg" alt="" />
-                <strong>
-                  Next<span>Wave</span>
-                </strong>
-              </div>
-              <span className="avatar" aria-label="Avatar invariato">
-                A
-              </span>
-            </div>
-            <div className="preview-content">
-              <h2>Il tuo daily wave.</h2>
-              <p>Cinque brani. Un voto. La tua atmosfera.</p>
-              <div className="preview-tabs" aria-label="Esempio di navigazione">
-                <span className="active">Daily wave</span>
-                <span>Classifiche</span>
-                <span>Profilo</span>
-              </div>
-              <div
-                className="ranktabs"
-                role="group"
-                aria-label="Periodo nell’anteprima"
-              >
-                {(
-                  [
-                    ["day", "Giornaliera"],
-                    ["week", "Settimanale"],
-                  ] as const
-                ).map(([value, label]) => (
-                  <button
-                    key={value}
-                    className={previewPeriod === value ? "active" : ""}
-                    aria-pressed={previewPeriod === value}
-                    onClick={() => setPreviewPeriod(value)}
+            <AppearanceFilters
+              style={compare ? originalStyle : draft}
+              id={waveId}
+            />
+            <div className="preview-shell">
+              <aside className="preview-sidebar" aria-label="Anteprima sidebar">
+                <BrandLogo variant="full" />
+                <span className="preview-side-active">
+                  <Icon name="daily" /> <span>Daily wave</span>
+                </span>
+                <span>
+                  <Icon name="ranks" /> <span>Classifiche</span>
+                </span>
+                <span>
+                  <Icon name="profile" /> <span>Profilo</span>
+                </span>
+              </aside>
+              <div className="preview-main">
+                <div className="preview-topbar">
+                  <div className="preview-brand">
+                    <BrandLogo />
+                    <strong>
+                      Next<span>Wave</span>
+                    </strong>
+                  </div>
+                  <span className="avatar" aria-label="Avatar invariato">
+                    A
+                  </span>
+                </div>
+                <div className="preview-content">
+                  <h2>Il tuo daily wave.</h2>
+                  <p>Cinque brani. Un voto. La tua atmosfera.</p>
+                  <div className="preview-wave">
+                    <img
+                      src="/art.png"
+                      alt="Anteprima dell’onda cromata personalizzata"
+                    />
+                    <strong>Ascolta oltre il nome.</strong>
+                  </div>
+                  <div
+                    className="preview-tabs"
+                    aria-label="Esempio di navigazione"
                   >
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <div className="preview-cards">
-                {["01", "02", "03"].map((n) => (
-                  <article className="track" key={n}>
-                    <div className="preview-cover">
-                      {n}
-                      <span>♪</span>
-                    </div>
-                    <h3>Brano {n}</h3>
-                    <p>Una nuova scoperta</p>
-                    <button className="btn" disabled>
-                      Ascolta
+                    <span className="active">Daily wave</span>
+                    <span>Classifiche</span>
+                    <span>Profilo</span>
+                  </div>
+                  <div
+                    className="ranktabs"
+                    role="group"
+                    aria-label="Periodo nell’anteprima"
+                  >
+                    {(
+                      [
+                        ["day", "Giornaliera"],
+                        ["week", "Settimanale"],
+                      ] as const
+                    ).map(([value, label]) => (
+                      <button
+                        key={value}
+                        className={previewPeriod === value ? "active" : ""}
+                        aria-pressed={previewPeriod === value}
+                        onClick={() => setPreviewPeriod(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="preview-cards">
+                    {["01", "02", "03"].map((n) => (
+                      <article className="track" key={n}>
+                        <div className="preview-cover">
+                          {n}
+                          <span>♪</span>
+                        </div>
+                        <h3>Brano {n}</h3>
+                        <p>Una nuova scoperta</p>
+                        <button className="btn" disabled>
+                          Ascolta
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="panel preview-form">
+                    <label>
+                      Il tuo nome
+                      <input
+                        type="text"
+                        value={previewName}
+                        onChange={(event) => setPreviewName(event.target.value)}
+                        placeholder="Prova a scrivere qui"
+                        autoComplete="off"
+                        maxLength={35}
+                      />
+                    </label>
+                    <p>
+                      Campo di scrittura sempre uguale, anche quando cambi
+                      sfondo.
+                    </p>
+                    <button className="textbtn" disabled>
+                      Candida un brano ↗
                     </button>
-                  </article>
-                ))}
-              </div>
-              <div className="panel preview-form">
-                <label>
-                  Il tuo nome
-                  <input
-                    type="text"
-                    value={previewName}
-                    onChange={(event) => setPreviewName(event.target.value)}
-                    placeholder="Prova a scrivere qui"
-                    autoComplete="off"
-                    maxLength={35}
+                  </div>
+                </div>
+                <div className="preview-player">
+                  <span className="preview-play">▶</span>
+                  <div>
+                    <strong>Pronto a scoprire?</strong>
+                    <p>Il player resta sempre leggibile.</p>
+                  </div>
+                  <progress
+                    className="preview-progress"
+                    value={38}
+                    max={100}
+                    aria-label="Anteprima avanzamento"
                   />
-                </label>
-                <p>
-                  Campo di scrittura sempre uguale, anche quando cambi sfondo.
-                </p>
-                <button className="textbtn" disabled>
-                  Candida un brano ↗
-                </button>
+                  <label className="preview-volume">
+                    Volume
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={previewVolume}
+                      style={
+                        {
+                          "--volume": `${previewVolume * 100}%`,
+                        } as CSSProperties
+                      }
+                      onChange={(event) =>
+                        setPreviewVolume(Number(event.target.value))
+                      }
+                    />
+                  </label>
+                </div>
               </div>
-            </div>
-            <div className="preview-player">
-              <span className="preview-play">▶</span>
-              <div>
-                <strong>Pronto a scoprire?</strong>
-                <p>Il player resta sempre leggibile.</p>
-              </div>
-              <progress
-                className="preview-progress"
-                value={38}
-                max={100}
-                aria-label="Anteprima avanzamento"
-              />
-              <label className="preview-volume">
-                Volume
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={previewVolume}
-                  style={
-                    { "--volume": `${previewVolume * 100}%` } as CSSProperties
-                  }
-                  onChange={(event) =>
-                    setPreviewVolume(Number(event.target.value))
-                  }
-                />
-              </label>
             </div>
           </div>
           <p className="studio-note">
-            Logo, avatar e campi di scrittura mantengono il loro aspetto. Testi
-            e sfumature si adattano per restare leggibili, anche sui colori più
-            chiari.
+            Sidebar, logo e onda seguono i tuoi colori. I campi di scrittura
+            restano stabili; testi e player si adattano per essere leggibili.
           </p>
         </section>
       </div>
       <footer className="studio-footer">
-        <p>
-          Lo stile viene salvato in questo browser. Nessuna modifica finché non
-          premi Applica.
-        </p>
+        <div className="studio-save-name">
+          <label>
+            Nome dello stile
+            <input
+              value={name}
+              maxLength={40}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Dai un nome alla tua atmosfera"
+            />
+          </label>
+          <p>Lo ritroverai in “I tuoi stili”, in questo browser.</p>
+          {savedStyleId && (
+            <label className="studio-toggle">
+              <input
+                type="checkbox"
+                checked={saveCopy}
+                onChange={(event) => setSaveCopy(event.target.checked)}
+              />{" "}
+              Salva come nuovo stile
+            </label>
+          )}
+        </div>
         <div>
           <button onClick={onClose}>Annulla</button>
           <button
             className="btn"
             onClick={() => {
               try {
-                saveCustomStyle(draft, true);
+                saveNamedStyle(
+                  name,
+                  draft,
+                  saveCopy ? undefined : savedStyleId,
+                );
                 onClose();
               } catch {
-                setError("Il browser non consente di salvare lo stile.");
+                setError(
+                  name.trim()
+                    ? "Il browser non consente di salvare lo stile."
+                    : "Dai un nome al tuo stile.",
+                );
               }
             }}
           >
-            Applica il mio stile
+            {savedStyleId && !saveCopy
+              ? "Aggiorna e applica"
+              : "Salva e applica"}
           </button>
         </div>
       </footer>

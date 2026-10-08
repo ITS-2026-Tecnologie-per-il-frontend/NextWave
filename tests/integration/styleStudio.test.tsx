@@ -49,9 +49,7 @@ describe("editor di personalizzazione", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Sfumatura Aurora" }));
     expect(preview.style.getPropertyValue("--custom-button")).toBe("#ff0000");
-    fireEvent.click(
-      screen.getByRole("button", { name: "Applica il mio stile" }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: "Salva e applica" }));
     expect(readCustomStyle()).toMatchObject({
       active: true,
       style: { buttons: "#ff0000", cardStart: "#322345", cardEnd: "#173d42" },
@@ -74,10 +72,12 @@ describe("editor di personalizzazione", () => {
       "",
     );
     act(() => saveCustomStyle(originalStyle, false));
-    expect(document.documentElement.dataset.custom).toBe("false");
+    expect(document.documentElement.dataset.custom).toBe("true");
     expect(
       document.documentElement.style.getPropertyValue("--custom-page-bg"),
-    ).toBe("");
+    ).toBe(
+      `linear-gradient(135deg, ${originalStyle.background}, ${originalStyle.backgroundEnd})`,
+    );
     unmount();
     expect(document.documentElement.dataset.custom).toBeUndefined();
   });
