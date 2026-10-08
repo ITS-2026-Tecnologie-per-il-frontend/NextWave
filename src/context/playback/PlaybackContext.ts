@@ -6,4 +6,7 @@ export const PlaybackContext = createContext<{
   round: Round;
   revealed: boolean;
   cloud: boolean;
+  saved?: boolean;
+  saving?: boolean;
+  onSave?: (id: string) => void;
 } | null>(null);

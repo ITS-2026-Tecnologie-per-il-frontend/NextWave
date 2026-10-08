@@ -29,7 +29,7 @@ export function useCloudPlayer(
     playing: false,
     time: 0,
     duration: 0,
-    volume: 0.65,
+    volume: 1,
     loading: false,
   });
 
@@ -69,7 +69,7 @@ export function useCloudPlayer(
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = 0.65;
+    audio.volume = 1;
     const update = () =>
       setStatus((previous) => ({
         ...previous,

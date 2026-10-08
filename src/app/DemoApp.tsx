@@ -192,6 +192,8 @@ export default function DemoApp() {
         round,
         revealed,
         cloud: false,
+        saved: Boolean(player.active && profile.saved.includes(player.active)),
+        onSave: saveTrack,
       }}
     >
       <audio ref={player.audioRef} preload="metadata" />

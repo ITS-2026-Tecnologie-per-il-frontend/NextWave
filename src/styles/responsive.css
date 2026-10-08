@@ -1,7 +1,7 @@
 /* Loaded last: layout breakpoints share the same sidebar, player and safe-area sizes. */
 :root {
   --sidebar-width: 226px;
-  --player-height: 84px;
+  --player-height: 104px;
   --mobile-nav-height: 88px;
   --mobile-player-gap: 8px;
   --content-width: 1440px;
@@ -391,14 +391,12 @@ input[type="file"] {
   left: var(--sidebar-width);
   min-height: var(--player-height);
   padding: 12px 24px calc(12px + var(--safe-bottom));
-  grid-template-columns:
-    minmax(100px, 0.8fr) auto 28px minmax(80px, 1fr)
-    minmax(100px, 130px);
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 520px) minmax(0, 1fr);
   gap: clamp(8px, 1vw, 16px);
 }
 
-.player label {
-  width: 100%;
+.player .volume {
+  width: min(100%, 160px);
   padding-left: 10px;
 }
 
@@ -508,10 +506,9 @@ dialog.revealmodal,
     flex-wrap: wrap;
   }
   .player {
-    grid-template-columns: minmax(100px, 0.8fr) auto minmax(80px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 380px) minmax(0, 1fr);
   }
-  .player-signal,
-  .player label {
+  .player-signal {
     display: none;
   }
   .profile-name-panel {
@@ -522,7 +519,7 @@ dialog.revealmodal,
 @media (max-width: 960px) {
   :root {
     --sidebar-width: 0px;
-    --player-height: 76px;
+    --player-height: 116px;
   }
   html {
     scroll-padding-bottom: calc(
@@ -731,7 +728,9 @@ dialog.revealmodal,
     grid-template-columns: minmax(0, 1fr);
   }
   .player {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 140px;
+    grid-template-rows: 44px 44px;
     left: max(12px, env(safe-area-inset-left, 0px));
     right: max(12px, env(safe-area-inset-right, 0px));
     max-width: 560px;
@@ -746,14 +745,39 @@ dialog.revealmodal,
     min-height: 0;
     padding: 10px max(16px, env(safe-area-inset-right, 0px)) 14px
       max(16px, env(safe-area-inset-left, 0px));
-    gap: 10px;
+    gap: 4px 10px;
   }
   .player-track {
     flex: 1 1 0;
     min-width: 0;
   }
+  .player-controls {
+    display: contents;
+  }
   .player-actions {
-    gap: 8px;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(3, 44px);
+    gap: 12px;
+  }
+  .player .player-save {
+    width: 44px;
+    height: 44px;
+  }
+  .player .volume {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    gap: 4px;
+  }
+  .player .volume input {
+    width: 80px;
+  }
+  .player-track {
+    grid-column: 1;
+    grid-row: 1;
   }
   .player .player-toggle {
     width: 44px;

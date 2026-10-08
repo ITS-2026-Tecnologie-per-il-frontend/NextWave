@@ -184,6 +184,9 @@ function AccountScreen() {
         round,
         revealed: clock.revealed,
         cloud: true,
+        saved: Boolean(currentTrack?.saved),
+        saving: busy,
+        onSave: (id) => handled(mutate(() => repository.favorite(id))),
       }}
     >
       <audio ref={player.audioRef} preload="metadata" />
