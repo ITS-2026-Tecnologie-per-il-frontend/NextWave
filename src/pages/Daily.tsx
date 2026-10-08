@@ -61,7 +61,10 @@ export default function Daily({
         </div>
       )}
       <section className="hero">
-        <img src="/art.png" alt="Onda sonora cromata viola e lime" />
+        <img
+          src="/art.png"
+          alt="Onda sonora cromata nei colori del tuo stile"
+        />
         <div className="copy">
           <span className="eyebrow">
             {showReveal ? "IL MOMENTO DEL REVEAL" : "ASCOLTA OLTRE IL NOME"}
@@ -270,8 +273,9 @@ export default function Daily({
           <span className="eyebrow lime">PIÙ SPAZIO A NUOVE VOCI</span>
           <h3>I tuoi gusti. Le loro opportunità.</h3>
           <p className="hint">
-            Selezione casuale tra i generi che ami, con più probabilità per i
-            brani meno esposti.
+            Cinque slot distribuiti in modo equilibrato tra i generi che ami. I
+            brani vengono sorteggiati all’interno di ogni genere e gli slot
+            extra ruotano nei giorni di partecipazione.
           </p>
           <button className="textbtn" onClick={onRanks}>
             Come funziona il ranking ↗

@@ -1,3 +1,4 @@
+import { AppearancePanel } from "../components/AppearancePanel.tsx";
 import { getErrorMessage } from "../domain/errors.ts";
 import { SpotifyLink } from "../components/ui/SpotifyLink.tsx";
 import type { FormEvent } from "react";
@@ -17,7 +18,6 @@ interface ProfileProps {
 import { useState } from "react";
 import { catalog } from "../data/demo/catalog.ts";
 import { genres } from "../data/genres.ts";
-import { themes } from "../data/themes.ts";
 import { GenrePicker } from "../components/ui/GenrePicker.tsx";
 import { Heading } from "../components/ui/Heading.tsx";
 import { Avatar } from "../components/ui/Avatar.tsx";
@@ -105,8 +105,6 @@ export default function Profile({
   }
   const rounds = Object.values(profile.rounds);
   const votes = rounds.filter((round) => round.vote);
-  const selectedTheme =
-    themes.find((theme) => theme.id === profile.theme) || themes[0];
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!preferences.length || preferences.length > 5) {
@@ -324,65 +322,7 @@ export default function Profile({
           </div>
         ))}
       </div>
-      <section className="panel theme-panel" aria-labelledby="theme-heading">
-        <div className="theme-heading">
-          <div>
-            <span className="eyebrow lime">CAMBIA ATMOSFERA</span>
-            <h3 id="theme-heading">
-              Il tuo stile<span className="lime">.</span>
-            </h3>
-          </div>
-          <span className="theme-current">
-            In uso: <strong>{selectedTheme.name}</strong>
-          </span>
-        </div>
-        <p className="hint">
-          Cinque palette, cinque modi di sentire la musica.
-        </p>
-        <div
-          className="theme-catalog"
-          role="group"
-          aria-label="Scegli i colori di Next Wave"
-        >
-          {themes.map((theme, index) => (
-            <button
-              key={theme.id}
-              type="button"
-              disabled={busy}
-              className="theme-choice"
-              data-palette={theme.id}
-              aria-pressed={selectedTheme.id === theme.id}
-              aria-label={`${theme.name}: ${theme.colors}`}
-              onClick={() => onUpdate({ theme: theme.id })}
-            >
-              <span className="theme-art" aria-hidden="true">
-                <span className="theme-number">0{index + 1}</span>
-                <span className="theme-vinyl" />
-                <span className="theme-wave">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                  <i />
-                </span>
-              </span>
-              <span className="theme-details">
-                <strong className="theme-name">{theme.name}</strong>
-                <span className="theme-mood">{theme.mood}</span>
-                <span className="theme-swatches" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </span>
-                <span className="theme-colors">{theme.colors}</span>
-                <span className="theme-status">
-                  {selectedTheme.id === theme.id ? "✓ In uso" : "Scegli"}
-                </span>
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
+      <AppearancePanel theme={profile.theme} />
       <div className="panel">
         <h3>I tuoi gusti, la tua selezione</h3>
         <p className="hint">I cambiamenti valgono dalla selezione di domani.</p>

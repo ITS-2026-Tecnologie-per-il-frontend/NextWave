@@ -1,19 +1,9 @@
+import { BrandLogo } from "./BrandLogo.tsx";
 export function Brand({ onHome }: { onHome?: () => void }) {
   const content = (
     <>
-      <picture>
-        <source
-          media="(max-width: 760px)"
-          srcSet="/brand/nextwave-symbol.svg"
-        />
-        <img
-          className="brand-image"
-          src="/brand/nextwave-full.svg"
-          alt="NextWave"
-          width="439"
-          height="369"
-        />
-      </picture>
+      <BrandLogo variant="full" className="brand-image brand-full" />
+      <BrandLogo className="brand-image brand-symbol" />
       <span className="brand-mobile-name" aria-hidden="true">
         Next<span>Wave</span>
       </span>
@@ -29,6 +19,8 @@ export function Brand({ onHome }: { onHome?: () => void }) {
       {content}
     </button>
   ) : (
-    <div className="brand">{content}</div>
+    <div className="brand" aria-label="NextWave">
+      {content}
+    </div>
   );
 }

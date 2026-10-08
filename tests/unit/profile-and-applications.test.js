@@ -92,3 +92,38 @@ test("candidature: diritti, soglia, link al brano e duplicati anche localizzati"
     ),
   ).toContain("già");
 });
+
+test("solo gli admin possono candidare link di altre piattaforme", () => {
+  const data = {
+    artist: "Artista",
+    title: "Brano",
+    listeners: 50,
+    subgenre: "Pop",
+    rights: true,
+    spotify: "https://suno.com/song/prova",
+  };
+  for (const spotify of [
+    data.spotify,
+    "https://youtube.com/watch?v=prova",
+    "http://example.com/music.mp3",
+  ]) {
+    expect(validateApplication({ ...data, spotify }, [], true)).toBe("");
+    expect(validateApplication({ ...data, spotify }, [])).toContain("Spotify");
+  }
+  for (const spotify of [
+    "javascript:alert(1)",
+    "data:text/html,test",
+    "file:///music.mp3",
+    "link non valido",
+    "https://user:password@example.com/song",
+  ]) {
+    expect(validateApplication({ ...data, spotify }, [], true)).not.toBe("");
+  }
+  expect(validateApplication(data, [data], true)).toContain("già");
+  expect(
+    validateApplication(data, [{ ...data, status: "rejected" }], true),
+  ).toBe("");
+  expect(validateApplication({ ...data, rights: false }, [], true)).toContain(
+    "diritti",
+  );
+});

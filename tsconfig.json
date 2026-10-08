@@ -19,6 +19,7 @@
     "server",
     "api",
     "tests/integration",
+    "tests/responsive",
     "tests/server",
     "vite.config.ts"
   ]

@@ -35,6 +35,7 @@ export default function Rankings({
           <button
             key={value}
             className={period === value ? "active" : ""}
+            aria-pressed={period === value}
             onClick={() => setPeriod(value)}
           >
             {label}
@@ -93,9 +94,8 @@ export default function Rankings({
                   </div>
                   <div className="metrics">
                     <small>
-                      {track.votes} voti
-                      <br />
-                      {track.exposures} esposizioni
+                      <span>{track.votes} voti</span>
+                      <span>{track.exposures} esposizioni</span>
                     </small>
                   </div>
                   <span className="score">

@@ -1,3 +1,7 @@
+import { useCustomStyle } from "../hooks/useCustomStyle.ts";
+import { defaultTheme } from "../data/themes.ts";
+import { AppearanceFilters } from "./ui/AppearanceFilters.tsx";
+import { BrandLogo } from "./ui/BrandLogo.tsx";
 import type { ReactNode } from "react";
 import type { Profile, Route, Player, Round } from "../types/models.ts";
 interface LayoutProps {
@@ -32,8 +36,10 @@ export default function Layout({
   cloud = false,
   admin = false,
 }: LayoutProps) {
+  const appearance = useCustomStyle(true, defaultTheme(profile.theme).style);
   return (
     <>
+      <AppearanceFilters style={appearance.style} id="nextwave-wave" />
       <aside className="sidebar">
         <Brand onHome={() => navigate("daily")} />
         <nav className="nav" aria-label="Navigazione principale">
@@ -110,13 +116,7 @@ export default function Layout({
               className="header-signature"
               aria-label={cloud ? "NextWave" : "NextWave · Demo interattiva"}
             >
-              <img
-                className="topbar-logo"
-                src="/brand/nextwave-symbol.svg"
-                alt=""
-                width="46"
-                height="34"
-              />
+              <BrandLogo className="topbar-logo" />
               <div className="header-wordmark" aria-hidden="true">
                 Next<span>Wave</span>
                 {!cloud && <small>Demo interattiva</small>}
@@ -140,7 +140,12 @@ export default function Layout({
           · Orario Europe/Rome
         </p>
       </main>
-      <PlayerBar player={player} round={round} revealed={revealed} cloud={cloud} />
+      <PlayerBar
+        player={player}
+        round={round}
+        revealed={revealed}
+        cloud={cloud}
+      />
     </>
   );
 }

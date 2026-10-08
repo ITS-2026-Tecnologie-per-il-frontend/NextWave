@@ -79,8 +79,7 @@ export function createCloudRepository(client: SupabaseClient) {
     },
     async uploadAvatar(file: File, oldPath?: string | null) {
       const extension = AVATAR_TYPES.get(file.type);
-      if (!extension)
-        throw new Error("Usa un’immagine JPG, PNG, WebP o GIF.");
+      if (!extension) throw new Error("Usa un’immagine JPG, PNG, WebP o GIF.");
       if (file.size > MAX_AVATAR_BYTES)
         throw new Error("L’immagine deve pesare al massimo 5 MB.");
       const { data: auth } = await client.auth.getSession();
@@ -112,7 +111,9 @@ export function createCloudRepository(client: SupabaseClient) {
       if (!auth.session) throw new Error("Accedi nuovamente a NextWave.");
       await rpc("set_avatar_path", { p_path: null });
       if (path) {
-        const { error } = await client.storage.from(AVATAR_BUCKET).remove([path]);
+        const { error } = await client.storage
+          .from(AVATAR_BUCKET)
+          .remove([path]);
         if (error)
           throw new Error(
             `Impossibile rimuovere l’immagine del profilo: ${error.message}`,
@@ -164,9 +165,12 @@ export function createCloudRepository(client: SupabaseClient) {
             ...data,
             listeners: Number(data.listeners),
             rights: Boolean(data.rights),
-            spotifyId: new URL(data.spotify).pathname.match(
-              /track\/([a-zA-Z0-9]{22})/,
-            )?.[1],
+            spotifyId:
+              new URL(data.spotify).hostname === "open.spotify.com"
+                ? new URL(data.spotify).pathname.match(
+                    /^\/(?:intl-[a-z]{2}\/)?track\/([a-zA-Z0-9]{22})\/?$/,
+                  )?.[1]
+                : undefined,
           },
         },
       );

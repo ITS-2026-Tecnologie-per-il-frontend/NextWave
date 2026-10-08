@@ -48,7 +48,7 @@ export default function Artist({
       mood: String(fields.get("mood") ?? ""),
       rights: fields.get("rights") === "on",
     };
-    const validation = validateApplication(data, applications);
+    const validation = validateApplication(data, applications, admin);
     if (validation) {
       setError(validation);
       return;
@@ -286,12 +286,18 @@ export default function Artist({
                 </select>
               </label>
               <label>
-                Link del brano su Spotify
+                {admin
+                  ? "Link del brano · qualsiasi piattaforma"
+                  : "Link del brano su Spotify"}
                 <input
                   name="spotify"
                   type="url"
                   required
-                  placeholder="https://open.spotify.com/track/…"
+                  placeholder={
+                    admin
+                      ? "https://suno.com/song/…"
+                      : "https://open.spotify.com/track/…"
+                  }
                 />
               </label>
               <label className="full">

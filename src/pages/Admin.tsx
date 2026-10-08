@@ -110,7 +110,7 @@ function ReviewCard({
         target="_blank"
         rel="noopener noreferrer"
       >
-        Verifica il brano su Spotify ↗
+        Verifica il brano dal link ↗
       </a>
       {application.contestDay && (
         <p>
@@ -166,7 +166,7 @@ function ReviewCard({
         <fieldset disabled={busy || disabled}>
           <legend>Verifica della candidatura</legend>
           {[
-            "Ho verificato la corrispondenza tra MP3 e brano Spotify",
+            "Ho verificato la corrispondenza tra MP3 e brano nel link",
             "Ho verificato i requisiti dell’artista e gli ascoltatori mensili",
             "Ho verificato la dichiarazione dei diritti e l’autorizzazione all’uso",
           ].map((label, index) => (
@@ -380,7 +380,12 @@ export default function Admin({
               {!calendar.size ? (
                 <p>Nessun brano programmato.</p>
               ) : (
-                <div className="queue-calendar">
+                <div
+                  className="queue-calendar"
+                  role="region"
+                  aria-label="Calendario dei contest: scorri per vedere tutte le colonne"
+                  tabIndex={0}
+                >
                   <table>
                     <thead>
                       <tr>

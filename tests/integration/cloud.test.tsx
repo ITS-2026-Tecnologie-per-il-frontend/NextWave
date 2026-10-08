@@ -460,7 +460,7 @@ describe("account cloud", () => {
     );
     await screen.findByText("Stiamo preparando la tua selezione.");
     expect(
-      screen.getByAltText("Onda sonora cromata viola e lime"),
+      screen.getByAltText("Onda sonora cromata nei colori del tuo stile"),
     ).toBeTruthy();
     expect(
       screen.getAllByRole("article", {

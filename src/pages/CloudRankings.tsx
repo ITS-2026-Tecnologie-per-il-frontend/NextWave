@@ -37,7 +37,7 @@ export default function CloudRankings({
       <Heading title="La musica sale">
         Voti ed esposizioni reali dei contest conclusi.
       </Heading>
-      <div className="ranktabs">
+      <div className="ranktabs" role="group" aria-label="Periodo classifica">
         {(
           [
             ["day", "Giornaliera"],
@@ -47,13 +47,14 @@ export default function CloudRankings({
           <button
             key={value}
             className={value === period ? "active" : ""}
+            aria-pressed={value === period}
             onClick={() => setPeriod(value)}
           >
             {label}
           </button>
         ))}
       </div>
-      <div className="panel">
+      <div className="panel rankings-date-panel">
         <label>
           {period === "day"
             ? "Giorno della classifica"
@@ -128,9 +129,8 @@ export default function CloudRankings({
                       </div>
                       <div className="metrics">
                         <small>
-                          {track.votes} voti
-                          <br />
-                          {track.exposures} esposizioni
+                          <span>{track.votes} voti</span>
+                          <span>{track.exposures} esposizioni</span>
                         </small>
                       </div>
                       <span className="score">

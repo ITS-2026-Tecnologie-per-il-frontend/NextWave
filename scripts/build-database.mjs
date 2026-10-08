@@ -93,6 +93,22 @@ if (queueIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo partial-daily-selection.sql.\nbegin;\n${sql[queueIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${queueVersion}','genre_queue') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const balanceVersion = "20261008000100";
+const balanceIndex = files.findIndex((file) => file.startsWith(balanceVersion));
+if (balanceIndex >= 0) {
+  await writeFile(
+    "supabase/updates/balanced-genre-selection.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo genre-queue.sql.\n-- Conserva selezioni, ascolti e voti già registrati.\nbegin;\n${sql[balanceIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${balanceVersion}','balanced_genre_selection') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const linksVersion = "20261008000200";
+const linksIndex = files.findIndex((file) => file.startsWith(linksVersion));
+if (linksIndex >= 0) {
+  await writeFile(
+    "supabase/updates/admin-application-links.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo balanced-genre-selection.sql.\nbegin;\n${sql[linksIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${linksVersion}','admin_application_links') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );
