@@ -144,7 +144,7 @@ I dati localStorage della vecchia demo non vengono importati automaticamente com
 
 ## Aggiornamento audio temporanei
 
-La settima migrazione aggiunge gli audio privati e aggiorna le RPC esistenti senza cancellare lo storico. Sul progetto già inizializzato eseguire una volta `supabase/updates/temporary-audio.sql`. Configurare il server Vercel seguendo [audio-storage.md](audio-storage.md). Il modulo cloud richiede ora un MP3 e il link Spotify; l’ascolto cloud passa dalla funzione Vercel `/api/audio`. Per il collaudo di queste funzioni usare Vercel, perché `npm start` avvia soltanto il frontend Vite.
+La settima migrazione aggiunge gli audio privati e aggiorna le RPC esistenti senza cancellare lo storico. Sul progetto già inizializzato eseguire una volta `supabase/updates/temporary-audio.sql`. Configurare il server Vercel seguendo [audio-storage.md](../deployment/audio-storage.md). Il modulo cloud richiede ora un MP3 e il link Spotify; l’ascolto cloud passa dalla funzione Vercel `/api/audio`. Per il collaudo di queste funzioni usare Vercel, perché `npm start` avvia soltanto il frontend Vite.
 
 ## Preferiti durante l’ascolto e storico candidature
 

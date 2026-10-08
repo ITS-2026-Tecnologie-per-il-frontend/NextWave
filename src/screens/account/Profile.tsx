@@ -1,8 +1,8 @@
-import { AppearancePanel } from "../components/AppearancePanel.tsx";
-import { getErrorMessage } from "../domain/errors.ts";
-import { ProfileActivity } from "../components/ProfileActivity.tsx";
-import { rome } from "../domain/time.ts";
-import type { Clock } from "../types/models.ts";
+import { AppearancePanel } from "../../components/appearance/AppearancePanel.tsx";
+import { getErrorMessage } from "../../domain/shared/errors.ts";
+import { ProfileActivity } from "../../components/account/ProfileActivity.tsx";
+import { rome } from "../../domain/shared/time.ts";
+import type { Clock } from "../../types/models.ts";
 import type { FormEvent } from "react";
 import type {
   Profile,

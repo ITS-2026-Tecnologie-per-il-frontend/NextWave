@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { Clock, Profile, Track } from "../types/models.ts";
-import Dialog from "./Dialog.tsx";
-import { SpotifyLink } from "./ui/SpotifyLink.tsx";
-import { Icon } from "./ui/Icon.tsx";
+import type { Clock, Profile, Track } from "../../types/models.ts";
+import Dialog from "../dialogs/Dialog.tsx";
+import { SpotifyLink } from "../ui/SpotifyLink.tsx";
+import { Icon } from "../ui/Icon.tsx";
 
 type Activity = "votes" | "completed" | "saved";
 type Entry = { id: string; day?: string; slot?: number; track?: Track };

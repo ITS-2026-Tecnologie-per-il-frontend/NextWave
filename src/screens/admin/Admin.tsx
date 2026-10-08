@@ -2,7 +2,7 @@ import {
   ApplicationFilters,
   emptyApplicationFilters,
   matchesApplication,
-} from "../components/ApplicationFilters.tsx";
+} from "../../components/artist/ApplicationFilters.tsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CloudRepository } from "../../services/cloud/cloudRepository.ts";
 import type { AdminApplication, AdminDashboard } from "../../types/models.ts";

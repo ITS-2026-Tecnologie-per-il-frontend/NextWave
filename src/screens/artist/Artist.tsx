@@ -2,8 +2,8 @@ import {
   ApplicationFilters,
   emptyApplicationFilters,
   matchesApplication,
-} from "../components/ApplicationFilters.tsx";
-import { getErrorMessage } from "../domain/errors.ts";
+} from "../../components/artist/ApplicationFilters.tsx";
+import { getErrorMessage } from "../../domain/shared/errors.ts";
 import type { FormEvent } from "react";
 import type { Application } from "../../types/models.ts";
 import { useState } from "react";

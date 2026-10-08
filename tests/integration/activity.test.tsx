@@ -1,12 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
-import { ProfileActivity } from "../../src/components/ProfileActivity.tsx";
+import { ProfileActivity } from "../../src/components/account/ProfileActivity.tsx";
 import {
   emptyApplicationFilters,
   matchesApplication,
-} from "../../src/components/ApplicationFilters.tsx";
-import { createProfile } from "../../src/services/demoProfileStorage.ts";
-import Artist from "../../src/pages/Artist.tsx";
+} from "../../src/components/artist/ApplicationFilters.tsx";
+import { createProfile } from "../../src/services/demo/demoProfileStorage.ts";
+import Artist from "../../src/screens/artist/Artist.tsx";
 import type { Application } from "../../src/types/models.ts";
 
 const day = "2026-10-08";

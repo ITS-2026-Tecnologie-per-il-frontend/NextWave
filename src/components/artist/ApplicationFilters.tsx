@@ -1,5 +1,5 @@
-import type { Application } from "../types/models.ts";
-import { rome } from "../domain/time.ts";
+import type { Application } from "../../types/models.ts";
+import { rome } from "../../domain/shared/time.ts";
 
 export const emptyApplicationFilters = {
   artist: "",

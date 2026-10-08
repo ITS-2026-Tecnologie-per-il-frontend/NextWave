@@ -302,7 +302,7 @@ describe("account cloud", () => {
         },
       ],
     });
-    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
     await screen.findByText(
       "Audio mancante: la candidatura non può essere approvata.",
     );
@@ -423,7 +423,7 @@ describe("account cloud", () => {
       applications: [],
       accounts: [],
     });
-    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
     await screen.findByText(
       "Nessuna candidatura corrisponde ai filtri selezionati.",
     );
