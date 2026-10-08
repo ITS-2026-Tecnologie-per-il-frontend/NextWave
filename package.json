@@ -31,7 +31,8 @@
     "db:start": "supabase start",
     "audit:structure": "node scripts/quality/audit-project.mjs",
     "check": "npm run audit:structure && npm run typecheck && npm run format:check && npm test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "superadmins:test": "node tests/database/test-superadmins.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

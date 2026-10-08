@@ -119,6 +119,16 @@ if (identityIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo admin-application-links.sql.\nbegin;\n${sql[identityIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${identityVersion}','admin_profile_identity') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const superadminsVersion = "20261008000400";
+const superadminsIndex = files.findIndex((file) =>
+  file.startsWith(superadminsVersion),
+);
+if (superadminsIndex >= 0) {
+  await writeFile(
+    "supabase/updates/multiple-superadmins.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo admin-profile-identity.sql.\nbegin;\n${sql[superadminsIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${superadminsVersion}','multiple_superadmins') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

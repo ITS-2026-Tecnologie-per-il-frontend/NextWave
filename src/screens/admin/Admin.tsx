@@ -468,7 +468,7 @@ export default function Admin({
               <section className="panel">
                 <h2>Account autorizzati</h2>
                 <p>
-                  Gli admin possono esaminare i brani. Solo il superadmin può
+                  Gli admin possono esaminare i brani. Solo i superadmin possono
                   gestire gli accessi.
                 </p>
                 <form
