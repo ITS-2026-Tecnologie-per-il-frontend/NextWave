@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 const paths: Record<string, ReactNode> = {
+  heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />,
   admin: <path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4zM8 12l3 3 5-6" />,
   daily: (
     <>

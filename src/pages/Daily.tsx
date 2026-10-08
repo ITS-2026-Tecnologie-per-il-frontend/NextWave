@@ -14,6 +14,7 @@ interface DailyProps {
   onProfile?: () => void;
   tracks?: Track[];
   cloud?: boolean;
+  saving?: boolean;
 }
 import { catalog } from "../data/demo/catalog.ts";
 import { canPlay, canVote } from "../domain/contest.ts";
@@ -35,6 +36,7 @@ export default function Daily({
   onProfile,
   tracks = catalog,
   cloud = false,
+  saving = false,
 }: DailyProps) {
   const empty = cloud && round.ids.length === 0;
   const showReveal = revealed && !empty;
@@ -149,6 +151,7 @@ export default function Daily({
             const heard = round.listened.includes(id);
             const locked = !canPlay(round, id);
             const playing = player.active === id && player.playing;
+            const favorite = cloud ? Boolean(track.saved) : saved.includes(id);
             return (
               <article
                 key={id}
@@ -179,6 +182,17 @@ export default function Daily({
                           : "Audio del contest"}
                   </span>
                 </div>
+                <button
+                  type="button"
+                  className={`favorite-toggle ${favorite ? "selected" : ""}`}
+                  aria-label={`${favorite ? "Rimuovi dai preferiti" : "Salva nei preferiti"}: brano ${index + 1}`}
+                  aria-pressed={favorite}
+                  disabled={saving || (locked && !revealed && !favorite)}
+                  onClick={() => onSave(id)}
+                >
+                  <Icon name="heart" />
+                  <span>{favorite ? "Salvato" : "Salva"}</span>
+                </button>
                 <h3>
                   {revealed
                     ? track.title
@@ -193,17 +207,7 @@ export default function Daily({
                   </p>
                 )}
                 {revealed ? (
-                  <>
-                    <button
-                      className={`vote ${(cloud ? track.saved : saved.includes(id)) ? "chosen" : ""}`}
-                      onClick={() => onSave(id)}
-                    >
-                      {(cloud ? track.saved : saved.includes(id))
-                        ? "✓ Salvato"
-                        : "＋ Salva scoperta"}
-                    </button>
-                    <SpotifyLink track={track} />
-                  </>
+                  <SpotifyLink track={track} />
                 ) : (
                   <button
                     className={`vote ${round.vote === id ? "chosen" : ""}`}

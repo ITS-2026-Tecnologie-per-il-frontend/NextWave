@@ -1,3 +1,8 @@
+import {
+  ApplicationFilters,
+  emptyApplicationFilters,
+  matchesApplication,
+} from "../components/ApplicationFilters.tsx";
 import { getErrorMessage } from "../domain/errors.ts";
 import type { FormEvent } from "react";
 import type { Application } from "../types/models.ts";
@@ -13,16 +18,40 @@ export default function Artist({
   cloud = false,
   now = new Date(),
   admin = false,
+  onRemove,
 }: {
   applications: Application[];
   onSubmit: (application: Application, audio: File) => void | Promise<unknown>;
   cloud?: boolean;
   now?: Date;
   admin?: boolean;
+  onRemove?: (id: string) => void | Promise<unknown>;
 }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
+  const [search, setSearch] = useState({ ...emptyApplicationFilters });
+  const [status, setStatus] = useState("all");
+  const [removing, setRemoving] = useState<string | null>(null);
+  const visible = applications.filter((item) => !item.removedAt);
+  const filtered = visible.filter(
+    (item) =>
+      (status === "all" || (item.status || "pending") === status) &&
+      matchesApplication(item, search),
+  );
+  async function remove(id: string) {
+    if (!onRemove) return;
+    setBusy(true);
+    setError("");
+    try {
+      await onRemove(id);
+      setRemoving(null);
+    } catch (error) {
+      setError(getErrorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  }
   const quota = artistQuota(applications, cloud, now, admin);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -138,7 +167,35 @@ export default function Artist({
           <h2 id="artist-applications-heading">
             {cloud ? "Le tue candidature" : "Le tue candidature demo"}
           </h2>
-          {!applications.length && (
+          <div className="chips" aria-label="Stato delle tue candidature">
+            {[
+              ["all", "Tutte"],
+              ["pending", "In attesa"],
+              ["approved", "Approvate"],
+              ["rejected", "Non accettate"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                className={`chip ${status === value ? "selected" : ""}`}
+                aria-pressed={status === value}
+                onClick={() => setStatus(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <ApplicationFilters value={search} onChange={setSearch} />
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          {visible.length > 0 && !filtered.length && (
+            <p className="panel">
+              Nessuna candidatura corrisponde ai filtri selezionati.
+            </p>
+          )}
+          {!visible.length && (
             <div className="panel">
               <p>Non hai ancora inviato candidature.</p>
               <p className="hint">
@@ -147,7 +204,7 @@ export default function Artist({
               </p>
             </div>
           )}
-          {[...applications]
+          {[...filtered]
             .sort((a, b) => (b.created ?? "").localeCompare(a.created ?? ""))
             .map((application) => (
               <article
@@ -191,6 +248,45 @@ export default function Artist({
                     ).toLocaleDateString("it-IT")}
                   </p>
                 )}
+                {onRemove &&
+                  application.id &&
+                  application.status !== "approved" && (
+                    <div className="application-remove">
+                      {removing === application.id ? (
+                        <>
+                          <p>
+                            Rimuovere questa candidatura? Se è in attesa, verrà
+                            ritirata dalla revisione. Il limite mensile rimane
+                            invariato.
+                          </p>
+                          <div className="actions">
+                            <button
+                              className="btn"
+                              disabled={busy}
+                              onClick={() => void remove(application.id!)}
+                            >
+                              Conferma eliminazione
+                            </button>
+                            <button
+                              className="btn secondary"
+                              disabled={busy}
+                              onClick={() => setRemoving(null)}
+                            >
+                              Annulla
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <button
+                          className="btn secondary small"
+                          disabled={busy}
+                          onClick={() => setRemoving(application.id!)}
+                        >
+                          Elimina candidatura
+                        </button>
+                      )}
+                    </div>
+                  )}
                 {application.audioDeletedAt ? (
                   <p className="hint">Audio eliminato, dati conservati.</p>
                 ) : application.audioState === "uploading" ||

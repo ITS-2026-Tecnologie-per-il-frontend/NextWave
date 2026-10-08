@@ -17,7 +17,7 @@ const palettes = [
   ["rnb", "R&B", "#A63D64", "Bordeaux vellutato, luce soffusa"],
 ] as const;
 
-export const themes = palettes.map(([id, name, color, mood]) => {
+const genreThemes = palettes.map(([id, name, color, mood]) => {
   const primary = color.toLowerCase();
   const style: CustomStyle = {
     ...originalStyle,
@@ -33,7 +33,26 @@ export const themes = palettes.map(([id, name, color, mood]) => {
   return { id, name, color, mood, style };
 });
 
+export const themes = [
+  {
+    id: "nextwave",
+    name: "NextWave",
+    color: "#A3FF12",
+    mood: "Il logo originale: viola profondo e lime luminoso",
+    style: {
+      ...originalStyle,
+      background: "#101112",
+      backgroundEnd: "#1d1230",
+      cardStart: "#2a1b40",
+      cardEnd: "#192219",
+      buttons: originalStyle.brandPrimary,
+      sidebarAuto: true,
+    },
+  },
+  ...genreThemes,
+];
+
 export function defaultTheme(id: string) {
   const migrated = id === "pulse" ? "dance" : id === "jazz" ? "reggaeton" : id;
-  return themes.find((theme) => theme.id === migrated) ?? themes[8];
+  return themes.find((theme) => theme.id === migrated) ?? genreThemes[8];
 }

@@ -15,7 +15,10 @@ const files = (await readdir("supabase/migrations"))
       !file.startsWith("20261006000600") &&
       !file.startsWith("20261007000100") &&
       !file.startsWith("20261007000200") &&
-      !file.startsWith("20261008000100"),
+      !file.startsWith("20261008000100") &&
+      !file.startsWith("20261008000300") &&
+      !file.startsWith("20261008000400") &&
+      !file.startsWith("20261008000200"),
   )
   .sort();
 let legacyDashboard;

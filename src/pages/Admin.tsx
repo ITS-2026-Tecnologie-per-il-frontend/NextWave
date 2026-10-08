@@ -1,3 +1,8 @@
+import {
+  ApplicationFilters,
+  emptyApplicationFilters,
+  matchesApplication,
+} from "../components/ApplicationFilters.tsx";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CloudRepository } from "../services/cloudRepository.ts";
 import type { AdminApplication, AdminDashboard } from "../types/models.ts";
@@ -28,7 +33,9 @@ function ReviewCard({
   const [audioUrl, setAudioUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [decision, setDecision] = useState<"approve" | "reject" | null>(null);
+  const [decision, setDecision] = useState<
+    "approve" | "reject" | "remove" | null
+  >(null);
   async function preview() {
     setBusy(true);
     setError("");
@@ -68,7 +75,7 @@ function ReviewCard({
         <div>
           <h3>{application.title}</h3>
           <p>
-            {application.artist} · {application.genre} · {application.language}
+            {application.artist} / {application.genre} / {application.language}
           </p>
         </div>
         <span className="badge">
@@ -135,7 +142,9 @@ function ReviewCard({
         <p className="hint">
           {application.audioState === "ready"
             ? "Termine di revisione scaduto."
-            : "Audio non ancora pronto per la revisione."}
+            : application.audioState
+              ? "Audio non ancora pronto per la revisione."
+              : "Audio mancante: la candidatura non può essere approvata."}
         </p>
       )}
       {(application.reviewable || application.status === "approved") && (
@@ -162,7 +171,7 @@ function ReviewCard({
           )}
         </div>
       )}
-      {application.reviewable && (
+      {application.reviewable && decision !== "remove" && (
         <fieldset disabled={busy || disabled}>
           <legend>Verifica della candidatura</legend>
           {[
@@ -251,6 +260,52 @@ function ReviewCard({
           )}
         </fieldset>
       )}
+      {pending && (
+        <div className="application-remove">
+          {decision === "remove" ? (
+            <div className="admin-confirm">
+              <p>
+                Eliminare la candidatura “{application.title}”? Scomparirà dagli
+                elenchi e l’eventuale caricamento audio verrà annullato.
+              </p>
+              <label>
+                Motivo dell’eliminazione
+                <input
+                  value={note}
+                  maxLength={1000}
+                  onChange={(event) => setNote(event.target.value)}
+                  placeholder="Es. audio mancante o requisiti non rispettati"
+                  disabled={busy || disabled}
+                />
+              </label>
+              <div className="actions">
+                <button
+                  className="btn"
+                  disabled={busy || disabled || !note.trim()}
+                  onClick={() => void submit()}
+                >
+                  Conferma eliminazione
+                </button>
+                <button
+                  className="btn secondary"
+                  disabled={busy || disabled}
+                  onClick={() => setDecision(null)}
+                >
+                  Annulla
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              className="btn secondary"
+              disabled={busy || disabled}
+              onClick={() => setDecision("remove")}
+            >
+              Elimina candidatura
+            </button>
+          )}
+        </div>
+      )}
       {error && (
         <p className="error" role="alert">
           {error}
@@ -273,6 +328,7 @@ export default function Admin({
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState("pending");
+  const [search, setSearch] = useState({ ...emptyApplicationFilters });
   const [revokeId, setRevokeId] = useState<string | null>(null);
   const alive = useRef(true);
   const accessLost = useRef(onAccessLost);
@@ -413,7 +469,7 @@ export default function Admin({
                             </td>
                             <td>{entry.genre}</td>
                             <td>{entry.titles.length}/5</td>
-                            <td>{entry.titles.join(" · ")}</td>
+                            <td>{entry.titles.join(" / ")}</td>
                           </tr>
                         ))}
                     </tbody>
@@ -443,11 +499,20 @@ export default function Admin({
                 </button>
               ))}
             </div>
-            {!data.applications.some((item) => item.status === filter) && (
-              <p className="panel">Nessuna candidatura in questa sezione.</p>
+            <ApplicationFilters value={search} onChange={setSearch} />
+            {!data.applications.some(
+              (item) =>
+                item.status === filter && matchesApplication(item, search),
+            ) && (
+              <p className="panel">
+                Nessuna candidatura corrisponde ai filtri selezionati.
+              </p>
             )}
             {data.applications
-              .filter((item) => item.status === filter)
+              .filter(
+                (item) =>
+                  item.status === filter && matchesApplication(item, search),
+              )
               .sort(
                 (a, b) =>
                   (a.submittedAt ?? a.created ?? "").localeCompare(

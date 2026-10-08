@@ -70,6 +70,7 @@ async function mountCloud(state = fixture()) {
       state.profile.rounds[day].vote = id;
     }),
     favorite: vi.fn(async () => {}),
+    removeApplication: vi.fn(async () => {}),
     rankings: vi.fn(async () => ({ reference: day, rows: [] })),
     reveal: vi.fn(async () => []),
     seenReveal: vi.fn(async () => {}),
@@ -116,6 +117,21 @@ function finish(audio: HTMLAudioElement, start = 0) {
 }
 
 describe("account cloud", () => {
+  test("il cuore salva il brano durante il contest senza rivelarne il titolo", async () => {
+    const { repository } = await mountCloud();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Salva nei preferiti: brano 1" }),
+    );
+    await waitFor(() =>
+      expect(repository.favorite).toHaveBeenCalledWith("slot1"),
+    );
+    expect(
+      screen
+        .getByRole("button", { name: "Salva nei preferiti: brano 2" })
+        .hasAttribute("disabled"),
+    ).toBe(true);
+  });
+
   test("due brani reali sono visibili e il voto si sblocca dopo entrambi", async () => {
     const state = fixture();
     state.profile.rounds[day].ids = ["slot1", "slot2"];
@@ -247,6 +263,69 @@ describe("account cloud", () => {
     expect(screen.getByText("Superadmin · protetto")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Revoca accesso" })).toBeNull();
   });
+  test("elimina una candidatura senza audio solo dopo motivo e conferma", async () => {
+    const state = fixture();
+    state.adminAccess = { allowed: true, owner: true };
+    const { repository } = await mountCloud(state);
+    repository.adminDashboard.mockResolvedValue({
+      access: state.adminAccess,
+      accounts: [],
+      applications: [
+        {
+          id: "orphan",
+          artist: "Artista",
+          title: "Senza audio",
+          listeners: 50,
+          subgenre: "Rap",
+          spotify: "https://example.com",
+          status: "pending",
+          audioState: null,
+          reviewable: false,
+          reviewNote: null,
+          reviewedAt: null,
+          expires: null,
+          duration: null,
+        },
+      ],
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    await screen.findByText(
+      "Audio mancante: la candidatura non può essere approvata.",
+    );
+    expect(
+      screen.queryByRole("button", { name: "Approva e programma" }),
+    ).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Elimina candidatura" }),
+    );
+    expect(repository.adminAction).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", {
+        name: "Conferma eliminazione",
+      }).disabled,
+    ).toBe(true);
+    fireEvent.change(screen.getByLabelText("Motivo dell’eliminazione"), {
+      target: { value: "Audio mancante" },
+    });
+    repository.adminDashboard.mockResolvedValue({
+      access: state.adminAccess,
+      accounts: [],
+      applications: [],
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Conferma eliminazione" }),
+    );
+    await waitFor(() =>
+      expect(repository.adminAction).toHaveBeenCalledWith(
+        "remove",
+        expect.objectContaining({
+          applicationId: "orphan",
+          note: "Audio mancante",
+        }),
+      ),
+    );
+    await waitFor(() => expect(screen.queryByText("Senza audio")).toBeNull());
+  });
   test("approva solo dopo checklist e conferma e autorizza un altro admin", async () => {
     const state = fixture();
     state.adminAccess = { allowed: true, owner: true };
@@ -331,7 +410,9 @@ describe("account cloud", () => {
       accounts: [],
     });
     fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
-    await screen.findByText("Nessuna candidatura in questa sezione.");
+    await screen.findByText(
+      "Nessuna candidatura corrisponde ai filtri selezionati.",
+    );
     expect(
       screen.queryByRole("button", { name: "Autorizza admin" }),
     ).toBeNull();

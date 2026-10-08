@@ -12,7 +12,7 @@ describe("catalogo e raccolta stili", () => {
     const choices = within(
       screen.getByRole("group", { name: "Scegli lo stile di NextWave" }),
     );
-    expect(choices.getAllByRole("button")).toHaveLength(10);
+    expect(choices.getAllByRole("button")).toHaveLength(11);
     fireEvent.click(choices.getByRole("button", { name: "Rock: #FF5252" }));
     fireEvent.click(
       screen.getByRole("button", { name: /Modifica il tuo stile/ }),

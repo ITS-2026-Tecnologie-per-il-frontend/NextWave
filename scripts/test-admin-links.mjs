@@ -17,6 +17,7 @@ for (const signature of [
   "vp_private.schedule_genre(text)",
   "vp_private.ensure_daily_selection(uuid)",
   "public.get_dashboard()",
+  "public.toggle_favorite(uuid,boolean)",
   "public.admin_console(text,jsonb)",
 ]) {
   const definition = (
@@ -123,10 +124,9 @@ const spotify =
 const valid = await reserve(user, spotify);
 assert.ok(valid.id);
 const stored = (
-  await db.query(
-    "select source_url,spotify_id from public.artist_applications where user_id=$1",
-    [user],
-  )
+  await db.query("select * from public.artist_applications where user_id=$1", [
+    user,
+  ])
 ).rows[0];
 assert.equal(stored.source_url, spotify);
 assert.equal(stored.spotify_id, "1234567890123456789012");
@@ -150,9 +150,35 @@ await db.query(
   [owner, track.id],
 );
 await db.query(
-  "insert into vp_private.favorites(user_id,track_id) values($1,$2)",
+  "insert into vp_private.favorites(user_id,track_id,selection_id) values($1,$2,(select id from vp_private.daily_selections where user_id=$1 and track_id=$2 limit 1))",
   [owner, track.id],
 );
+await db.exec(
+  "set role authenticated; set request.jwt.claim.sub='" + owner + "'",
+);
+const hidden = (await db.query("select public.get_dashboard() value")).rows[0]
+  .value;
+assert.equal(hidden.favorites[0].title, null);
+assert.equal(hidden.favorites[0].artist, null);
+assert.equal(hidden.favorites[0].spotifyUrl, null);
+assert.equal(hidden.favorites[0].revealed, false);
+await db.query("select public.toggle_favorite($1,true)", [track.id]);
+const slot = hidden.tracks[0].id;
+await db.query("select public.toggle_favorite($1,false)", [slot]);
+assert.equal(
+  (await db.query("select public.get_dashboard() value")).rows[0].value.profile
+    .saved.length,
+  1,
+);
+await db.exec(
+  "reset role; set role authenticated; set request.jwt.claim.sub='" +
+    user +
+    "'",
+);
+await assert.rejects(() =>
+  db.query("select public.toggle_favorite($1,false)", [slot]),
+);
+await db.exec("reset role");
 await db.exec(
   "update public.test_clock set stamp='2026-10-08T20:00:00Z'; set role authenticated; set request.jwt.claim.sub='" +
     owner +
@@ -169,6 +195,92 @@ const ranking = (
   )
 ).rows[0].value;
 assert.equal(ranking[0].spotifyUrl, track.source_url);
+// Ritiro: proprietario, quota conservata, invisibile all'admin, approvati protetti.
+await db.exec(
+  "set role authenticated; set request.jwt.claim.sub='" + delegated + "'",
+);
+await assert.rejects(() =>
+  db.query("select public.remove_application($1)", [stored.id]),
+);
+await db.exec(
+  "reset role; set role authenticated; set request.jwt.claim.sub='" +
+    user +
+    "'",
+);
+await db.query("select public.remove_application($1)", [stored.id]);
+await db.exec("reset role");
+const withdrawn = (
+  await db.query("select * from public.artist_applications where id=$1", [
+    stored.id,
+  ])
+).rows[0];
+assert.equal(withdrawn.status, "rejected");
+assert.ok(withdrawn.removed_at);
+assert.equal(String(withdrawn.submitted_at), String(stored.submitted_at));
+await db.exec(
+  "set role authenticated; set request.jwt.claim.sub='" + owner + "'",
+);
+const admin = (await db.query("select public.admin_console('dashboard') value"))
+  .rows[0].value;
+assert.ok(!admin.applications.some((a) => a.id === stored.id));
+const approved = admin.applications.find((a) => a.status === "approved");
+await assert.rejects(() =>
+  db.query("select public.remove_application($1)", [approved.id]),
+);
+await db.exec("reset role");
+// Candidatura orfana: eliminazione admin senza audio e senza checklist.
+const orphan = (
+  await db.query(
+    `insert into public.artist_applications(user_id,artist,title,listeners,genre,language,subgenre,mood,spotify_id,rights_confirmed)
+values($1,'Artist','Senza audio',50,'Rap','Italiano','Rap','Intimo','9999999999999999999999',true) returning id`,
+    [owner],
+  )
+).rows[0].id;
+await db.exec(
+  "set role authenticated; set request.jwt.claim.sub='" + user + "'",
+);
+await assert.rejects(
+  () =>
+    db.query("select public.admin_console('remove',$1::jsonb)", [
+      JSON.stringify({ applicationId: orphan, note: "Audio mancante" }),
+    ]),
+  /Accesso non autorizzato/,
+);
+await db.exec(
+  "reset role; set role authenticated; set request.jwt.claim.sub='" +
+    owner +
+    "'",
+);
+await assert.rejects(
+  () =>
+    db.query("select public.admin_console('remove',$1::jsonb)", [
+      JSON.stringify({ applicationId: orphan }),
+    ]),
+  /motivo/,
+);
+await assert.rejects(
+  () =>
+    db.query("select public.admin_console('remove',$1::jsonb)", [
+      JSON.stringify({ applicationId: approved.id, note: "Test" }),
+    ]),
+  /ancora in attesa/,
+);
+await db.query("select public.admin_console('remove',$1::jsonb)", [
+  JSON.stringify({ applicationId: orphan, note: "Audio mancante" }),
+]);
+const afterRemoval = (
+  await db.query("select public.admin_console('dashboard') value")
+).rows[0].value;
+assert.ok(!afterRemoval.applications.some((a) => a.id === orphan));
+await db.exec("reset role");
+const audit = (
+  await db.query("select * from public.artist_applications where id=$1", [
+    orphan,
+  ])
+).rows[0];
+assert.equal(audit.review_note, "Audio mancante");
+assert.equal(audit.reviewed_by, owner);
+assert.ok(audit.removed_at);
 console.log(
   "Link admin: ruoli, revoca, utenti ordinari, URL non sicuri, duplicati, approvazione, dashboard, reveal, preferiti e classifiche verificati.",
 );

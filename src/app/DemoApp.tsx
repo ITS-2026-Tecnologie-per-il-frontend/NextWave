@@ -227,6 +227,7 @@ export default function DemoApp() {
           {route === "profile" && (
             <Profile
               profile={profile}
+              clock={clock}
               onUpdate={patchProfile}
               onSave={saveTrack}
               notify={notify}
@@ -235,6 +236,20 @@ export default function DemoApp() {
           {route === "artist" && profile.accountType === "artist" && (
             <Artist
               applications={profile.applications}
+              onRemove={(id) =>
+                update((current) => ({
+                  ...current,
+                  applications: current.applications.map((item) =>
+                    item.id === id && item.status !== "approved"
+                      ? {
+                          ...item,
+                          status: "rejected",
+                          removedAt: new Date().toISOString(),
+                        }
+                      : item,
+                  ),
+                }))
+              }
               onSubmit={(application) => {
                 update((current) => {
                   if (
@@ -246,7 +261,10 @@ export default function DemoApp() {
                     );
                   return {
                     ...current,
-                    applications: [...current.applications, application],
+                    applications: [
+                      ...current.applications,
+                      { ...application, id: crypto.randomUUID() },
+                    ],
                   };
                 });
                 notify(

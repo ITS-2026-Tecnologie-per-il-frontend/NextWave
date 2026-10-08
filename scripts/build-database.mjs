@@ -109,6 +109,22 @@ if (linksIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo balanced-genre-selection.sql.\nbegin;\n${sql[linksIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${linksVersion}','admin_application_links') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const historyVersion = "20261008000300";
+const historyIndex = files.findIndex((file) => file.startsWith(historyVersion));
+if (historyIndex >= 0) {
+  await writeFile(
+    "supabase/updates/favorites-and-application-history.sql",
+    `-- UNA VOLTA, dopo admin-application-links.sql.\nbegin;\n${sql[historyIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${historyVersion}','favorites_and_application_history') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const removalVersion = "20261008000400";
+const removalIndex = files.findIndex((file) => file.startsWith(removalVersion));
+if (removalIndex >= 0) {
+  await writeFile(
+    "supabase/updates/admin-remove-applications.sql",
+    `-- UNA VOLTA, dopo favorites-and-application-history.sql.\nbegin;\n${sql[removalIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${removalVersion}','admin_remove_applications') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

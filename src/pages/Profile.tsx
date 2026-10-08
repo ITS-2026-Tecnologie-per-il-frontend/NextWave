@@ -1,6 +1,8 @@
 import { AppearancePanel } from "../components/AppearancePanel.tsx";
 import { getErrorMessage } from "../domain/errors.ts";
-import { SpotifyLink } from "../components/ui/SpotifyLink.tsx";
+import { ProfileActivity } from "../components/ProfileActivity.tsx";
+import { rome } from "../domain/time.ts";
+import type { Clock } from "../types/models.ts";
 import type { FormEvent } from "react";
 import type { Profile, ProfileUpdate, Notify, Track } from "../types/models.ts";
 interface ProfileProps {
@@ -9,6 +11,8 @@ interface ProfileProps {
   onSave: (id: string) => void;
   notify: Notify;
   tracks?: Track[];
+  activityTracks?: Track[];
+  clock?: Clock;
   cloud?: boolean;
   onSignOut?: () => void;
   busy?: boolean;
@@ -28,6 +32,8 @@ export default function Profile({
   onSave,
   notify,
   tracks = catalog,
+  activityTracks = tracks,
+  clock = rome(),
   cloud = false,
   onSignOut,
   busy = false,
@@ -103,8 +109,6 @@ export default function Profile({
       setError(getErrorMessage(error));
     }
   }
-  const rounds = Object.values(profile.rounds);
-  const votes = rounds.filter((round) => round.vote);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!preferences.length || preferences.length > 5) {
@@ -307,21 +311,15 @@ export default function Profile({
           </p>
         )}
       </section>
-      <div className="statgrid">
-        {[
-          [votes.length, "Voti espressi"],
-          [
-            rounds.reduce((count, round) => count + round.listened.length, 0),
-            "Brani completati",
-          ],
-          [profile.saved.length, "Scoperte salvate"],
-        ].map(([count, label]) => (
-          <div className="panel" key={label}>
-            <strong>{count}</strong>
-            <small>{label}</small>
-          </div>
-        ))}
-      </div>
+      <ProfileActivity
+        profile={profile}
+        tracks={activityTracks}
+        favorites={tracks}
+        clock={clock}
+        cloud={cloud}
+        busy={busy}
+        onSave={onSave}
+      />
       <AppearancePanel theme={profile.theme} />
       <div className="panel">
         <h3>I tuoi gusti, la tua selezione</h3>
@@ -340,41 +338,6 @@ export default function Profile({
           </button>
         </form>
       </div>
-      <h2>Le tue scoperte</h2>
-      <div className="savedlist">
-        {profile.saved.length ? (
-          profile.saved.map((id) => {
-            const track = tracks.find((item) => item.id === id);
-            if (!track) return null;
-            return (
-              <div key={id} className="panel">
-                <b>{track.title}</b>
-                <p className="hint">
-                  {track.artist} · {track.genre}
-                </p>
-                <button className="textbtn" onClick={() => onSave(id)}>
-                  Rimuovi dai salvati
-                </button>
-                <SpotifyLink track={track} />
-              </div>
-            );
-          })
-        ) : (
-          <p>Le scoperte che salvi dopo il reveal appariranno qui.</p>
-        )}
-      </div>
-      <h2>Il tuo diario di ascolto</h2>
-      {votes.length ? (
-        votes.map((round) => (
-          <div className="historyitem" key={round.day}>
-            {round.day} · Voto registrato per il brano{" "}
-            {round.ids.indexOf(round.vote ?? "") + 1} · {round.listened.length}
-            /5 completati
-          </div>
-        ))
-      ) : (
-        <p>Il tuo primo voto è ancora da scrivere.</p>
-      )}
     </>
   );
 }

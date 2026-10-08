@@ -1,6 +1,8 @@
 import { defineConfig } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 
+const port = Number(process.env.NW_TEST_PORT || 4174);
+
 export default defineConfig({
   testDir: ".",
   testMatch: "*.spec.ts",
@@ -13,7 +15,7 @@ export default defineConfig({
     ["html", { outputFolder: "../../playwright-report", open: "never" }],
   ],
   use: {
-    baseURL: "http://127.0.0.1:4174",
+    baseURL: `http://127.0.0.1:${port}`,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
@@ -33,9 +35,8 @@ export default defineConfig({
   ],
   webServer: {
     cwd: fileURLToPath(new URL("../../", import.meta.url)),
-    command:
-      "node node_modules/vite/bin/vite.js --config tests/responsive/vite.config.ts",
-    url: "http://127.0.0.1:4174",
+    command: `node node_modules/vite/bin/vite.js --config tests/responsive/vite.config.ts --port ${port}`,
+    url: `http://127.0.0.1:${port}`,
     reuseExistingServer: !process.env.CI,
   },
 });

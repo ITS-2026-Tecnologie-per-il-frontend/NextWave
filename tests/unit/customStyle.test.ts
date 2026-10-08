@@ -309,8 +309,9 @@ describe("personalizzazione locale", () => {
     expect(readStyleLibrary()).toHaveLength(3);
   });
 
-  it("i dieci preset usano colori esatti e lo stesso modello delle creazioni", () => {
+  it("i preset NextWave e dei dieci generi mantengono colori e contrasto", () => {
     expect(themes.map((item) => item.color)).toEqual([
+      "#A3FF12",
       "#FF8A3D",
       "#A56BFF",
       "#FF5FA2",

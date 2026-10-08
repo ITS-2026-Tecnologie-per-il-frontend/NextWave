@@ -145,3 +145,19 @@ I dati localStorage della vecchia demo non vengono importati automaticamente com
 ## Aggiornamento audio temporanei
 
 La settima migrazione aggiunge gli audio privati e aggiorna le RPC esistenti senza cancellare lo storico. Sul progetto già inizializzato eseguire una volta `supabase/updates/temporary-audio.sql`. Configurare il server Vercel seguendo [audio-storage.md](audio-storage.md). Il modulo cloud richiede ora un MP3 e il link Spotify; l’ascolto cloud passa dalla funzione Vercel `/api/audio`. Per il collaudo di queste funzioni usare Vercel, perché `npm start` avvia soltanto il frontend Vite.
+
+## Preferiti durante l’ascolto e storico candidature
+
+L’aggiornamento `supabase/updates/favorites-and-application-history.sql` va eseguito una volta nel SQL Editor, dopo `admin-application-links.sql`. In alternativa usare le migrazioni con `supabase db push` su un progetto già collegato. Non rieseguire il setup completo su un database esistente.
+
+- Il cuore aggiunge o rimuove un preferito dalla propria selezione. Prima del reveal occorre sbloccare il brano completando quelli precedenti.
+- I preferiti sono unici per utente e brano. Il contatore conta i brani, non i clic sul cuore. Il collegamento al contest conserva l’anonimato di titolo, artista e link fino alla sua chiusura.
+- I popup del profilo mostrano voti, ascolti completati e preferiti. Gli ascolti completati contano le singole selezioni giornaliere.
+- `remove_application` consente soltanto al proprietario di ritirare candidature in attesa o non accettate. Le candidature approvate restano protette. Il record viene conservato con `removed_at` per rispettare la quota mensile; scompare dagli elenchi e gli audio passano alla pulizia già prevista dal server.
+- I filtri per data usano il fuso Europe/Rome e distinguono invio e contest.
+
+Verifica locale del database: `npm run admin:links:test` copre anche preferiti anonimi, reveal, ritiro, proprietà e protezione delle candidature approvate. Questa verifica non applica la migrazione al progetto Supabase remoto.
+
+### Eliminazione amministrativa senza audio
+
+Eseguire una volta `supabase/updates/admin-remove-applications.sql`, dopo `favorites-and-application-history.sql`. Aggiunge l’azione admin `remove`: richiede accesso amministrativo, candidatura ancora in attesa e motivo non vuoto. Funziona anche senza record audio; nasconde la candidatura dagli elenchi, conserva quota e traccia della revisione e annulla eventuali upload. Nessuna candidatura viene eliminata automaticamente applicando questa migrazione.

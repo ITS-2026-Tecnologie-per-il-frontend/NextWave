@@ -276,6 +276,7 @@ export function Account({
               revealed={clock.revealed}
               preview={false}
               player={player}
+              saving={busy}
               saved={profile.saved}
               onVote={(id) => {
                 if (!busy && canVote(round, clock.revealed))
@@ -293,6 +294,8 @@ export function Account({
               busy={busy}
               profile={profile}
               tracks={data.favorites}
+              activityTracks={data.tracks}
+              clock={clock}
               onUpdate={(values) => {
                 const promise = patchProfile(values);
                 // Gli aggiornamenti del form gestiscono il proprio errore; i pulsanti richiedono feedback.
@@ -303,9 +306,7 @@ export function Account({
                 handled(mutate(() => repository.favorite(id, true)))
               }
               onAvatarUpload={(file) =>
-                mutate(() =>
-                  repository.uploadAvatar(file, profile.avatarPath),
-                )
+                mutate(() => repository.uploadAvatar(file, profile.avatarPath))
               }
               onAvatarRemove={() =>
                 mutate(() => repository.removeAvatar(profile.avatarPath))
@@ -320,6 +321,12 @@ export function Account({
               admin={canAdmin}
               now={new Date(now + offsetRef.current)}
               applications={profile.applications}
+              onRemove={(id) =>
+                mutate(
+                  () => repository.removeApplication(id),
+                  "Candidatura eliminata.",
+                )
+              }
               onSubmit={(application, audio) =>
                 mutate(
                   () => repository.submitApplication(application, audio),
