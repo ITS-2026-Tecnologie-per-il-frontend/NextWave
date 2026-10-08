@@ -174,7 +174,7 @@
     .tabs button,
     .chip,
     .btn.secondary,
-    .nav button,
+    .nav a,
     .preview-tabs span
   ) {
   background: var(--custom-control-bg);
@@ -190,7 +190,7 @@
     .btn:not(.secondary),
     .textbtn,
     .chip.selected,
-    .nav button.active,
+    .nav a.active,
     .track .vote.chosen,
     .tabs button.active,
     .ranktabs button.active,
@@ -218,13 +218,11 @@
   text-align: center;
 }
 :is(:root[data-custom="true"], .custom-preview)
-  :is(.btn, .textbtn, .ranktabs button, .nav button, .chip):not(
-    :disabled
-  ):hover {
+  :is(.btn, .textbtn, .ranktabs button, .nav a, .chip):not(:disabled):hover {
   box-shadow: 0 0 0 2px var(--custom-button-edge);
 }
 :is(:root[data-custom="true"], .custom-preview)
-  :is(.btn, .textbtn, .ranktabs button, .nav button, .chip):focus-visible {
+  :is(.btn, .textbtn, .ranktabs button, .nav a, .chip):focus-visible {
   outline: 2px solid var(--text);
   outline-offset: 3px;
 }

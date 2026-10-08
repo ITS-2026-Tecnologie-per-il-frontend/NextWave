@@ -28,7 +28,9 @@ import Rankings from "../screens/rankings/Rankings.tsx";
 import Profile from "../screens/account/Profile.tsx";
 import Artist from "../screens/artist/Artist.tsx";
 
-import { readRoute } from "../config/routes.ts";
+import { routePaths, routeForPath } from "../config/routes.ts";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AccountRoutes } from "./routing/AccountRoutes.tsx";
 import { artistQuota } from "../domain/artist/artistQuota.ts";
 
 export default function DemoApp() {
@@ -37,13 +39,9 @@ export default function DemoApp() {
     ensureRound(readProfile(), rome().day),
   );
   const profileRef = useRef(profile);
-  const [route, setRoute] = useState(readRoute);
-  useEffect(() => {
-    if (route === "artist" && profile.accountType !== "artist") {
-      setRoute("profile");
-      location.hash = "profile";
-    }
-  }, [route, profile.accountType]);
+  const location = useLocation();
+  const go = useNavigate();
+  const route = routeForPath(location.pathname);
   const [dialog, setDialog] = useState<DemoDialog | null>(null);
   const [preview, setPreview] = useState(false);
   const [toast, setToast] = useState("");
@@ -95,10 +93,6 @@ export default function DemoApp() {
       themes.find((theme) => theme.id === profile.theme)?.id || "pulse";
   }, [profile.theme]);
   useEffect(() => {
-    const hashChanged = () => {
-      setRoute(readRoute());
-      setDialog(null);
-    };
     const storageChanged = (event: StorageEvent) => {
       if (event.key !== STORAGE_KEY) return;
       try {
@@ -112,13 +106,14 @@ export default function DemoApp() {
         notify("Impossibile leggere i dati aggiornati nell’altra scheda.");
       }
     };
-    window.addEventListener("hashchange", hashChanged);
     window.addEventListener("storage", storageChanged);
     return () => {
-      window.removeEventListener("hashchange", hashChanged);
       window.removeEventListener("storage", storageChanged);
     };
   }, [notify]);
+  const pagePath =
+    location.pathname === "/" ? routePaths.daily : location.pathname;
+  useEffect(() => setDialog(null), [pagePath]);
   useEffect(() => {
     if (!profile.onboard || preview || dialog) return;
     const day = Object.keys(profile.rounds)
@@ -135,8 +130,7 @@ export default function DemoApp() {
 
   function navigate(next: Route) {
     setDialog(null);
-    setRoute(next);
-    location.hash = next;
+    if (location.pathname !== routePaths[next]) go(routePaths[next]);
   }
   function patchProfile(values: ProfileChanges) {
     update((current) => ({ ...current, ...values }));
@@ -193,18 +187,24 @@ export default function DemoApp() {
       {!profile.onboard ? (
         <Onboarding profile={profile} onFinish={patchProfile} />
       ) : (
-        <Layout
-          profile={profile}
-          route={route}
-          navigate={navigate}
-          player={{
-            ...player,
-            track: catalog.find((track) => track.id === player.active),
-          }}
-          round={round}
-          revealed={revealed}
-        >
-          {route === "daily" && (
+        <AccountRoutes
+          isArtist={profile.accountType === "artist"}
+          layout={
+            <Layout
+              profile={profile}
+              route={route}
+              navigate={navigate}
+              player={{
+                ...player,
+                track: catalog.find((track) => track.id === player.active),
+              }}
+              round={round}
+              revealed={revealed}
+            >
+              <Outlet />
+            </Layout>
+          }
+          daily={
             <Daily
               round={round}
               clock={clock}
@@ -220,19 +220,17 @@ export default function DemoApp() {
               onPreview={togglePreview}
               onRanks={() => navigate("ranks")}
             />
-          )}
-          {route === "ranks" && (
-            <Rankings clock={clock} rounds={profile.rounds} />
-          )}
-          {route === "profile" && (
+          }
+          ranks={<Rankings clock={clock} rounds={profile.rounds} />}
+          profile={
             <Profile
               profile={profile}
               onUpdate={patchProfile}
               onSave={saveTrack}
               notify={notify}
             />
-          )}
-          {route === "artist" && profile.accountType === "artist" && (
+          }
+          artist={
             <Artist
               applications={profile.applications}
               onSubmit={(application) => {
@@ -254,8 +252,8 @@ export default function DemoApp() {
                 );
               }}
             />
-          )}
-        </Layout>
+          }
+        />
       )}
       {dialog && (
         <Dialog

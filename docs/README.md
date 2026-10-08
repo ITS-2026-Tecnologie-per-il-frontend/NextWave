@@ -70,6 +70,7 @@ docs/
 
 - [Organizzazione e convenzioni](development/organizzazione.md)
 - [Architettura](development/architecture.md)
+- [Navigazione con React Router](development/react-router.md)
 - [Database e Supabase](database/supabase.md)
 - [Audio e pubblicazione](deployment/audio-storage.md)
 - [Contest reali](features/real-contests.md)

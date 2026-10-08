@@ -4,6 +4,8 @@
 
 `main.tsx` carica `app/App.tsx`, che valida la configurazione e sceglie la modalità. In cloud, `CloudApp.tsx` gestisce l'accesso e `CloudAccount.tsx` coordina le schermate dell'account. Le schermate raccolgono dati e ricevono funzioni tramite proprietà. `services/cloud/cloudRepository.ts` traduce le operazioni in RPC Supabase. Il database applica i permessi e le regole del contest.
 
+`main.tsx` monta `BrowserRouter`; `app/routing/AccountRoutes.tsx` definisce le pagine annidate nel layout con `Outlet`. Il menu usa `NavLink` e i callback usano `useNavigate`. Dettagli, URL e configurazione del server sono in [react-router.md](react-router.md).
+
 La demo usa `DemoApp.tsx`, `demoProfileStorage.ts` e il catalogo inventato. La chiave localStorage resta invariata per conservare i dati salvati.
 
 ## Dove aggiungere codice

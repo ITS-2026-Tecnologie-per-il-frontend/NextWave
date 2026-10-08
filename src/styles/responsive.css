@@ -572,7 +572,7 @@ dialog.revealmodal,
   .nav-label-mobile {
     display: block;
   }
-  .nav button {
+  .nav a {
     flex: 1 1 0;
     min-width: 0;
     min-height: 44px;
@@ -591,30 +591,30 @@ dialog.revealmodal,
     width: 22px;
     height: 22px;
   }
-  .sidebar .nav button {
+  .sidebar .nav a {
     background: none;
     border: 0;
   }
-  :root[data-custom="true"] .sidebar .nav button:not(.active) {
+  :root[data-custom="true"] .sidebar .nav a:not(.active) {
     background: transparent;
     border: 0;
     color: var(--custom-sidebar-text);
   }
-  :root[data-custom="true"] .sidebar .nav button.active {
+  :root[data-custom="true"] .sidebar .nav a.active {
     border: 0;
   }
-  .sidebar .nav button.active {
+  .sidebar .nav a.active {
     background: var(--accent-soft);
     color: var(--lime);
   }
-  :root[data-custom="true"] .sidebar .nav button.active {
+  :root[data-custom="true"] .sidebar .nav a.active {
     background: var(--custom-control-bg);
     color: var(--custom-control-text);
   }
-  .sidebar .nav button:hover:not(.active) {
+  .sidebar .nav a:hover:not(.active) {
     transform: none;
   }
-  .sidebar .nav button:focus-visible {
+  .sidebar .nav a:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: -3px;
   }

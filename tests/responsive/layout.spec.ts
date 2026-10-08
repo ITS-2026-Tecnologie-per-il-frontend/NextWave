@@ -136,7 +136,7 @@ test("mobile keeps rewind usable, navigation readable and footer above fixed con
   const target = await rewind.boundingBox();
   expect(target!.width).toBeGreaterThanOrEqual(44);
   expect(target!.height).toBeGreaterThanOrEqual(44);
-  for (const button of await page.locator(".nav button").all()) {
+  for (const button of await page.locator(".nav a").all()) {
     const box = await button.boundingBox();
     expect(box!.width).toBeGreaterThanOrEqual(44);
     expect(box!.height).toBeGreaterThanOrEqual(44);
@@ -291,7 +291,7 @@ test("touch navigation reaches the profile", async ({ page }, info) => {
   await prepare(page, "daily");
   await page
     .getByRole("navigation")
-    .getByRole("button", { name: "Il tuo profilo" })
+    .getByRole("link", { name: "Il tuo profilo" })
     .tap();
   await expect(
     page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
@@ -338,7 +338,7 @@ test("solid mobile dock fits listener, artist and admin navigation", async ({
       const nav = page.getByRole("navigation", {
         name: "Navigazione principale",
       });
-      await expect(nav.getByRole("button")).toHaveCount(count);
+      await expect(nav.getByRole("link")).toHaveCount(count);
       const appearance = await nav.evaluate((element) => ({
         background: getComputedStyle(element).backgroundColor,
         image: getComputedStyle(element).backgroundImage,
@@ -352,17 +352,17 @@ test("solid mobile dock fits listener, artist and admin navigation", async ({
           .evaluate((element) => getComputedStyle(element).backdropFilter),
       ).toBe("none");
       expect(appearance.background).not.toBe("rgba(0, 0, 0, 0)");
-      for (const button of await nav.getByRole("button").all()) {
+      for (const button of await nav.getByRole("link").all()) {
         const box = await button.boundingBox();
         expect(box!.width).toBeGreaterThanOrEqual(44);
         expect(box!.height).toBeGreaterThanOrEqual(44);
       }
-      await nav.getByRole("button", { name: "Il tuo profilo" }).click();
+      await nav.getByRole("link", { name: "Il tuo profilo" }).click();
       await expect(
         page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
       ).toBeVisible();
       await expect(
-        nav.getByRole("button", { name: "Il tuo profilo" }),
+        nav.getByRole("link", { name: "Il tuo profilo" }),
       ).toHaveAttribute("aria-current", "page");
       expect(await overflow(page)).toEqual({ page: false, offenders: [] });
     }

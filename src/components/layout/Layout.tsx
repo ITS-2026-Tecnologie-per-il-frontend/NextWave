@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+import { routePaths } from "../../config/routes.ts";
 import { useCustomStyle } from "../../hooks/useCustomStyle.ts";
 import { defaultTheme } from "../../data/themes.ts";
 import { AppearanceFilters } from "../appearance/AppearanceFilters.tsx";
@@ -58,19 +60,19 @@ export default function Layout({
               ([id]) => id !== "artist" || profile.accountType === "artist",
             )
             .map(([id, label]) => (
-              <button
+              <NavLink
                 key={id}
-                className={route === id ? "active" : ""}
-                aria-current={route === id ? "page" : undefined}
+                to={routePaths[id]}
+                end
+                className={({ isActive }) => (isActive ? "active" : "")}
                 aria-label={label}
-                onClick={() => navigate(id)}
               >
                 <Icon name={id} />
                 <span className="nav-label-desktop">{label}</span>
                 <span className="nav-label-mobile" aria-hidden="true">
                   {mobileLabels[id]}
                 </span>
-              </button>
+              </NavLink>
             ))}
         </nav>
         <div className="sidefoot">

@@ -5,6 +5,12 @@
   "outputDirectory": "dist",
   "installCommand": "npm ci",
   "functions": { "api/audio.ts": { "maxDuration": 60 } },
+  "rewrites": [
+    {
+      "source": "/:path((?!api(?:/|$)|assets(?:/|$)|brand(?:/|$)|images(?:/|$)|.*\\.[^/]+$).*)",
+      "destination": "/index.html"
+    }
+  ],
   "redirects": [
     {
       "source": "/art.png",

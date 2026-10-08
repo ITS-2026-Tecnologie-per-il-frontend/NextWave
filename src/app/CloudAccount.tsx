@@ -21,7 +21,9 @@ import Profile from "../screens/account/Profile.tsx";
 import Artist from "../screens/artist/Artist.tsx";
 import Admin from "../screens/admin/Admin.tsx";
 
-import { readRoute } from "../config/routes.ts";
+import { routePaths, routeForPath } from "../config/routes.ts";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AccountRoutes } from "./routing/AccountRoutes.tsx";
 
 export function Account({
   client,
@@ -34,7 +36,9 @@ export function Account({
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [busy, setBusy] = useState(false);
-  const [route, setRoute] = useState(() => readRoute(location.hash, true));
+  const location = useLocation();
+  const go = useNavigate();
+  const route = routeForPath(location.pathname);
   const [dialog, setDialog] = useState<CloudDialog | null>(null);
   const [now, setNow] = useState(Date.now());
   const offsetRef = useRef(0);
@@ -84,16 +88,11 @@ export function Account({
   }, [refresh]);
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
-    const changed = () => {
-      setRoute(readRoute(location.hash, true));
-      setDialog(null);
-    };
-    window.addEventListener("hashchange", changed);
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("hashchange", changed);
-    };
+    return () => clearInterval(timer);
   }, []);
+  const pagePath =
+    location.pathname === "/" ? routePaths.daily : location.pathname;
+  useEffect(() => setDialog(null), [pagePath]);
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(""), 5000);
@@ -112,18 +111,6 @@ export function Account({
   }, [clock.day, clock.revealed, refresh, notify]);
   const profile = data?.profile;
   const canAdmin = data?.adminAccess?.allowed === true;
-  useEffect(() => {
-    if (profile && route === "artist" && profile.accountType !== "artist") {
-      setRoute("profile");
-      location.hash = "profile";
-    }
-  }, [profile, route]);
-  useEffect(() => {
-    if (data && route === "admin" && !canAdmin) {
-      setRoute("daily");
-      location.hash = "daily";
-    }
-  }, [data, route, canAdmin]);
   const round = profile?.rounds[clock.day] || {
     day: clock.day,
     ids: [],
@@ -192,10 +179,10 @@ export function Account({
   function handled(promise: Promise<unknown>) {
     promise.catch((error) => notify(getErrorMessage(error)));
   }
-  function navigate(next: Route) {
-    setRoute(next);
+  function navigate(next: Route, replace = false) {
     setDialog(null);
-    location.hash = next;
+    if (location.pathname !== routePaths[next])
+      go(routePaths[next], { replace });
   }
   async function signOut() {
     const { error } = await client.auth.signOut();
@@ -252,22 +239,30 @@ export function Account({
           onFinish={(values) => handled(patchProfile(values))}
         />
       ) : (
-        <Layout
-          cloud
-          admin={canAdmin}
-          profile={profile}
-          route={route}
-          navigate={navigate}
-          player={{ ...player, track: currentTrack }}
-          round={round}
-          revealed={clock.revealed}
-        >
-          {error && (
-            <p className="error connection-error" role="alert">
-              {error} I progressi non confermati dal server non vengono salvati.
-            </p>
-          )}
-          {route === "daily" && (
+        <AccountRoutes
+          isArtist={profile.accountType === "artist"}
+          canAdmin={canAdmin}
+          layout={
+            <Layout
+              cloud
+              admin={canAdmin}
+              profile={profile}
+              route={route}
+              navigate={navigate}
+              player={{ ...player, track: currentTrack }}
+              round={round}
+              revealed={clock.revealed}
+            >
+              {error && (
+                <p className="error connection-error" role="alert">
+                  {error} I progressi non confermati dal server non vengono
+                  salvati.
+                </p>
+              )}
+              <Outlet />
+            </Layout>
+          }
+          daily={
             <Daily
               cloud
               tracks={tracks}
@@ -286,8 +281,8 @@ export function Account({
               onRanks={() => navigate("ranks")}
               onProfile={() => navigate("profile")}
             />
-          )}
-          {route === "profile" && (
+          }
+          profile={
             <Profile
               cloud
               busy={busy}
@@ -311,8 +306,8 @@ export function Account({
               notify={notify}
               onSignOut={signOut}
             />
-          )}
-          {route === "artist" && profile.accountType === "artist" && (
+          }
+          artist={
             <Artist
               cloud
               admin={canAdmin}
@@ -325,18 +320,18 @@ export function Account({
                 )
               }
             />
-          )}
-          {route === "ranks" && <CloudRankings repository={repository} />}
-          {route === "admin" && canAdmin && (
+          }
+          ranks={<CloudRankings repository={repository} />}
+          admin={
             <Admin
               repository={repository}
               onAccessLost={() => {
                 void refresh();
-                navigate("daily");
+                navigate("daily", true);
               }}
             />
-          )}
-        </Layout>
+          }
+        />
       )}
       {dialog && (
         <Dialog

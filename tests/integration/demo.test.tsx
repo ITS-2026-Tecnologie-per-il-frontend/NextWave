@@ -1,3 +1,4 @@
+import { BrowserRouter } from "react-router-dom";
 import type { Profile } from "../../src/types/models.ts";
 import { getAudio } from "../helpers/dom.ts";
 import { describe, test, expect, vi } from "vitest";
@@ -24,7 +25,7 @@ function mount({
       day,
     );
   localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-  const view = render(<App />);
+  const view = render(<App />, { wrapper: BrowserRouter });
   const audio = getAudio();
   return { ...view, audio, initial };
 }
@@ -124,7 +125,7 @@ describe("ascolti giornalieri", () => {
     await play();
     finish(first.audio);
     first.unmount();
-    render(<App />);
+    render(<App />, { wrapper: BrowserRouter });
     expect(
       screen.getByRole<HTMLButtonElement>("button", { name: "Ascolta brano 2" })
         .disabled,
@@ -167,6 +168,18 @@ describe("ascolti giornalieri", () => {
 });
 
 describe("flussi React", () => {
+  test("completare l’onboarding conserva la pagina richiesta direttamente", () => {
+    history.replaceState(null, "", "/profile");
+    mount({ onboard: false });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Entra in Next Wave →" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Scopri i tuoi 5 brani →" }),
+    );
+    expect(location.pathname).toBe("/profile");
+    expect(screen.getByText("Tipo di profilo")).toBeTruthy();
+  });
   test("onboarding, navigazione e palette restano disponibili", () => {
     mount({ onboard: false });
     fireEvent.click(

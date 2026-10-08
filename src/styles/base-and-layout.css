@@ -217,7 +217,8 @@ small,
   gap: 9px;
 }
 
-.nav button {
+.nav a {
+  text-decoration: none;
   display: flex;
   gap: 16px;
   text-align: left;
@@ -231,13 +232,13 @@ small,
     transform 0.2s ease;
 }
 
-.nav button:hover:not(.active) {
+.nav a:hover:not(.active) {
   background: color-mix(in srgb, var(--panel) 70%, transparent);
   color: var(--text);
   transform: translateX(3px);
 }
 
-.nav button.active {
+.nav a.active {
   background: var(--accent-soft);
   color: var(--lime);
 }

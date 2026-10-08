@@ -20,6 +20,8 @@ npm start
 
 Apri http://127.0.0.1:4173 e accedi con un account reale. Una configurazione mancante viene segnalata, senza mostrare dati inventati.
 
+La navigazione usa React Router 6 con URL di pagina, cronologia del browser e layout condiviso. Configurazione e compatibilità dei vecchi link: [guida React Router](docs/development/react-router.md).
+
 ## Database e pubblicazione
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.

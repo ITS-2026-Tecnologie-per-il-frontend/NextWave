@@ -1,6 +1,8 @@
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { routeForPath } from "../../src/config/routes.ts";
 // Real components with isolated in-memory data. Never imported by the product entry point.
 import { createRoot } from "react-dom/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import type {
@@ -173,6 +175,7 @@ function CropFixture() {
 }
 
 function Fixture() {
+  const routerLocation = useLocation();
   const params = new URLSearchParams(location.search);
   const screen = params.get("screen") || "daily";
   const [route, setRoute] = useState<Route>(
@@ -184,6 +187,10 @@ function Fixture() {
           ? (screen as Route)
           : "daily",
   );
+  useEffect(() => {
+    if (routerLocation.pathname !== "/")
+      setRoute(routeForPath(routerLocation.pathname));
+  }, [routerLocation.pathname]);
   if (screen === "auth") return <Auth client={client} />;
   if (screen === "onboarding")
     return (
@@ -273,4 +280,8 @@ function Fixture() {
     </Layout>
   );
 }
-createRoot(document.getElementById("app")!).render(<Fixture />);
+createRoot(document.getElementById("app")!).render(
+  <MemoryRouter>
+    <Fixture />
+  </MemoryRouter>,
+);
