@@ -209,7 +209,10 @@ export function useCloudPlayer(
     }
   }
   function setVolume(volume: number) {
-    if (audioRef.current) audioRef.current.volume = volume;
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+      audioRef.current.muted = volume === 0;
+    }
     setStatus((previous) => ({ ...previous, volume }));
   }
   function rewind(seconds = 10) {

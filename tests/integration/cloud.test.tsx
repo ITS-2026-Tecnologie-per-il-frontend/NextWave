@@ -647,3 +647,18 @@ describe("autenticazione e configurazione", () => {
     await expect(repository.dashboard()).rejects.toThrow("SQL Editor");
   });
 });
+
+test("player cloud: volume massimo e mute con ripristino", async () => {
+  const { audio } = await mountCloud();
+  const volume = screen.getByRole<HTMLInputElement>("slider", {
+    name: "Volume",
+  });
+  expect(volume.value).toBe("1");
+  expect(audio.volume).toBe(1);
+  fireEvent.click(screen.getByRole("button", { name: "Disattiva audio" }));
+  expect(audio.volume).toBe(0);
+  expect(audio.muted).toBe(true);
+  fireEvent.click(screen.getByRole("button", { name: "Riattiva audio" }));
+  expect(audio.volume).toBe(1);
+  expect(audio.muted).toBe(false);
+});

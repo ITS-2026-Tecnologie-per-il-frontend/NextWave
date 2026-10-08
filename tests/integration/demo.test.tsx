@@ -305,3 +305,40 @@ test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel
   fireEvent.click(screen.getByRole("button", { name: "Rimuovi dai salvati" }));
   expect(stored().saved).toEqual([]);
 });
+
+test("player: volume massimo, mute con ripristino e preferiti condivisi con il contest", async () => {
+  const { audio, initial } = mount();
+  const volume = screen.getByRole<HTMLInputElement>("slider", {
+    name: "Volume",
+  });
+  expect(volume.value).toBe("1");
+  expect(audio.volume).toBe(1);
+  fireEvent.change(volume, { target: { value: "0.4" } });
+  expect(audio.volume).toBe(0.4);
+  fireEvent.click(screen.getByRole("button", { name: "Disattiva audio" }));
+  expect(audio.volume).toBe(0);
+  expect(audio.muted).toBe(true);
+  expect(volume.value).toBe("0");
+  fireEvent.click(screen.getByRole("button", { name: "Riattiva audio" }));
+  expect(audio.volume).toBe(0.4);
+  expect(audio.muted).toBe(false);
+  expect(volume.value).toBe("0.4");
+  const save = screen.getByRole<HTMLButtonElement>("button", {
+    name: "Salva il brano nei preferiti",
+  });
+  expect(save.disabled).toBe(true);
+  await play();
+  expect(save.disabled).toBe(true);
+  finish(audio);
+  fireEvent.click(save);
+  expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
+  expect(
+    screen
+      .getByRole("button", { name: "Rimuovi dai salvati brano 1" })
+      .getAttribute("aria-pressed"),
+  ).toBe("true");
+  fireEvent.click(
+    screen.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
+  );
+  expect(stored().saved).toEqual([]);
+});

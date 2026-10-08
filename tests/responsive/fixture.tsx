@@ -216,7 +216,14 @@ function Fixture() {
     screen === "empty" ? { ...round, ids: [], listened: [] } : round;
   return (
     <PlaybackContext.Provider
-      value={{ player, round: activeRound, revealed, cloud: true }}
+      value={{
+        player,
+        round: activeRound,
+        revealed,
+        cloud: true,
+        saved: true,
+        onSave: () => {},
+      }}
     >
       <Layout
         profile={{

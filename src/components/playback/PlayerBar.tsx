@@ -141,7 +141,10 @@ export default function PlayerBar() {
           title={player.volume === 0 ? "Riattiva audio" : "Disattiva audio"}
         >
           <span className="volume-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" className="volume-icon-svg">
+            <svg
+              viewBox="0 0 24 24"
+              className={`volume-icon-svg ${player.volume === 0 ? "muted" : ""}`}
+            >
               {player.volume === 0 && (
                 <path d="m15 9 6 6m0-6-6 6" className="volume-muted" />
               )}
@@ -180,6 +183,7 @@ export default function PlayerBar() {
           value={player.volume}
           onChange={(event) => player.setVolume(Number(event.target.value))}
           aria-label="Volume"
+          aria-valuetext={`${Math.round(player.volume * 100)}%`}
         />
       </div>
     </section>

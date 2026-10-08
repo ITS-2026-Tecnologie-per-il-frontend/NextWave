@@ -426,3 +426,36 @@ test("all presets keep a solid dock and the safe area clear", async ({
   const footer = await page.locator(".footerline").boundingBox();
   expect(footer!.y + footer!.height).toBeLessThanOrEqual(player!.y);
 });
+
+test("player controls and progress stay centered with accessible volume and favorites", async ({
+  page,
+}, info) => {
+  for (const width of [320, 390, 768, 961, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await prepare(page, "daily");
+    const bar = page.getByRole("region", { name: "Player musicale" });
+    const play = bar.getByRole("button", { name: "Riproduci", exact: true });
+    const volume = bar.getByRole("slider", { name: "Volume" });
+    const mute = bar.getByRole("button", { name: "Disattiva audio" });
+    await expect(volume).toBeVisible();
+    await expect(mute).toBeVisible();
+    await expect(
+      bar.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
+    ).toBeVisible();
+    const bounds = await bar.boundingBox();
+    const button = await play.boundingBox();
+    expect(
+      Math.abs(button!.x + button!.width / 2 - bounds!.x - bounds!.width / 2),
+    ).toBeLessThan(2);
+    expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+    for (const target of [play, mute, bar.locator(".player-save")]) {
+      const box = await target.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
+    if (info.project.name === "chromium" && [390, 1440].includes(width))
+      await bar.screenshot({
+        path: info.outputPath("player-" + width + ".png"),
+      });
+  }
+});
