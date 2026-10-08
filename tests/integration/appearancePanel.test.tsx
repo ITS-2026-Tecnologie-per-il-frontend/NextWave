@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { AppearancePanel } from "../../src/components/AppearancePanel.tsx";
+import { AppearancePanel } from "../../src/components/appearance/AppearancePanel.tsx";
 import {
   readCustomStyle,
   readStyleLibrary,
-} from "../../src/services/customStyle.ts";
+} from "../../src/services/appearance/customStyle.ts";
 
 describe("catalogo e raccolta stili", () => {
   it("parte da un preset, salva, ricarica la raccolta e modifica senza duplicare", () => {

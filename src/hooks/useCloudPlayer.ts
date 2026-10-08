@@ -1,9 +1,9 @@
-import { getErrorMessage } from "../domain/errors.ts";
-import type { CloudRepository } from "../services/cloudRepository.ts";
+import { getErrorMessage } from "../domain/shared/errors.ts";
+import type { CloudRepository } from "../services/cloud/cloudRepository.ts";
 import type { Round, Notify, PlayerStatus } from "../types/models.ts";
 import { useEffect, useRef, useState } from "react";
-import { canPlay } from "../domain/contest.ts";
-import { fullyPlayed } from "../domain/playback.ts";
+import { canPlay } from "../domain/contest/contest.ts";
+import { fullyPlayed } from "../domain/audio/playback.ts";
 
 export function useCloudPlayer(
   round: Round,

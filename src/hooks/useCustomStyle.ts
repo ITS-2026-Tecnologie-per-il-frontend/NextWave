@@ -5,7 +5,7 @@ import {
   readStyleLibrary,
   styleVariables,
   type CustomStyle,
-} from "../services/customStyle.ts";
+} from "../services/appearance/customStyle.ts";
 export function useCustomStyle(
   apply = false,
   fallback: CustomStyle = originalStyle,

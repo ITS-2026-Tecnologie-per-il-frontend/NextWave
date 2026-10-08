@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AUDIO_BUCKET } from "../../src/config/audio.ts";
-import { rome } from "../../src/domain/time.ts";
+import { rome } from "../../src/domain/shared/time.ts";
 import { validateMp3 } from "./validateMp3.ts";
 
 export function createAudioService(admin: SupabaseClient) {

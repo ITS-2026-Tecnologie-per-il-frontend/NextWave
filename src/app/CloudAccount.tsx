@@ -1,6 +1,6 @@
-import { getErrorMessage } from "../domain/errors.ts";
+import { getErrorMessage } from "../domain/shared/errors.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CloudRepository } from "../services/cloudRepository.ts";
+import type { CloudRepository } from "../services/cloud/cloudRepository.ts";
 import type {
   Dashboard,
   CloudDialog,
@@ -8,18 +8,18 @@ import type {
   Route,
 } from "../types/models.ts";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { canVote } from "../domain/contest.ts";
-import { rome } from "../domain/time.ts";
+import { canVote } from "../domain/contest/contest.ts";
+import { rome } from "../domain/shared/time.ts";
 import { useCloudPlayer } from "../hooks/useCloudPlayer.ts";
-import CloudRankings from "../pages/CloudRankings.tsx";
-import Layout from "../components/Layout.tsx";
-import Dialog from "../components/Dialog.tsx";
-import Reveal from "../components/Reveal.tsx";
-import Onboarding from "../pages/Onboarding.tsx";
-import Daily from "../pages/Daily.tsx";
-import Profile from "../pages/Profile.tsx";
-import Artist from "../pages/Artist.tsx";
-import Admin from "../pages/Admin.tsx";
+import CloudRankings from "../screens/rankings/CloudRankings.tsx";
+import Layout from "../components/layout/Layout.tsx";
+import Dialog from "../components/dialogs/Dialog.tsx";
+import Reveal from "../components/contest/Reveal.tsx";
+import Onboarding from "../screens/auth/Onboarding.tsx";
+import Daily from "../screens/contest/Daily.tsx";
+import Profile from "../screens/account/Profile.tsx";
+import Artist from "../screens/artist/Artist.tsx";
+import Admin from "../screens/admin/Admin.tsx";
 
 import { readRoute } from "../config/routes.ts";
 
@@ -303,9 +303,7 @@ export function Account({
                 handled(mutate(() => repository.favorite(id, true)))
               }
               onAvatarUpload={(file) =>
-                mutate(() =>
-                  repository.uploadAvatar(file, profile.avatarPath),
-                )
+                mutate(() => repository.uploadAvatar(file, profile.avatarPath))
               }
               onAvatarRemove={() =>
                 mutate(() => repository.removeAvatar(profile.avatarPath))

@@ -7,29 +7,29 @@ import type {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { catalog } from "../data/demo/catalog.ts";
 import { themes } from "../data/themes.ts";
-import { canVote, completeTrack } from "../domain/contest.ts";
-import { dailyRanking } from "../domain/demoRanking.ts";
-import { rome } from "../domain/time.ts";
+import { canVote, completeTrack } from "../domain/contest/contest.ts";
+import { dailyRanking } from "../domain/demo/demoRanking.ts";
+import { rome } from "../domain/shared/time.ts";
 import {
   ensureRound,
   normalizeProfile,
   readProfile,
   STORAGE_KEY,
   writeProfile,
-} from "../services/demoProfileStorage.ts";
+} from "../services/demo/demoProfileStorage.ts";
 import { useDailyPlayer } from "../hooks/useDailyPlayer.ts";
 import { useRomeClock } from "../hooks/useRomeClock.ts";
-import Layout from "../components/Layout.tsx";
-import Dialog from "../components/Dialog.tsx";
-import Reveal from "../components/Reveal.tsx";
-import Onboarding from "../pages/Onboarding.tsx";
-import Daily from "../pages/Daily.tsx";
-import Rankings from "../pages/Rankings.tsx";
-import Profile from "../pages/Profile.tsx";
-import Artist from "../pages/Artist.tsx";
+import Layout from "../components/layout/Layout.tsx";
+import Dialog from "../components/dialogs/Dialog.tsx";
+import Reveal from "../components/contest/Reveal.tsx";
+import Onboarding from "../screens/auth/Onboarding.tsx";
+import Daily from "../screens/contest/Daily.tsx";
+import Rankings from "../screens/rankings/Rankings.tsx";
+import Profile from "../screens/account/Profile.tsx";
+import Artist from "../screens/artist/Artist.tsx";
 
 import { readRoute } from "../config/routes.ts";
-import { artistQuota } from "../domain/artistQuota.ts";
+import { artistQuota } from "../domain/artist/artistQuota.ts";
 
 export default function DemoApp() {
   const clock = useRomeClock();

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CloudRepository } from "../../src/services/cloudRepository.ts";
+import type { CloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import type {
   Dashboard,
   Profile,
@@ -15,10 +15,10 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { Account } from "../../src/app/CloudAccount.tsx";
-import Auth from "../../src/pages/Auth.tsx";
+import Auth from "../../src/screens/auth/Auth.tsx";
 import { getDataConfig } from "../../src/config/environment.ts";
-import { createCloudRepository } from "../../src/services/cloudRepository.ts";
-import { STORAGE_KEY } from "../../src/services/demoProfileStorage.ts";
+import { createCloudRepository } from "../../src/services/cloud/cloudRepository.ts";
+import { STORAGE_KEY } from "../../src/services/demo/demoProfileStorage.ts";
 
 const day = "2026-09-28";
 function fixture(): Dashboard {

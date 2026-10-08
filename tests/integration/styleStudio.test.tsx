@@ -1,12 +1,12 @@
 import { fireEvent, render, screen, act } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { StyleStudio } from "../../src/components/StyleStudio.tsx";
+import { StyleStudio } from "../../src/components/appearance/StyleStudio.tsx";
 import { useCustomStyle } from "../../src/hooks/useCustomStyle.ts";
 import {
   originalStyle,
   readCustomStyle,
   saveCustomStyle,
-} from "../../src/services/customStyle.ts";
+} from "../../src/services/appearance/customStyle.ts";
 function AppliedStyle() {
   useCustomStyle(true);
   return null;

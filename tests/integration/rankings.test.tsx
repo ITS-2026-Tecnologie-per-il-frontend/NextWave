@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import CloudRankings from "../../src/pages/CloudRankings.tsx";
-import type { CloudRepository } from "../../src/services/cloudRepository.ts";
+import CloudRankings from "../../src/screens/rankings/CloudRankings.tsx";
+import type { CloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import { getDataConfig } from "../../src/config/environment.ts";
 
 test("il calendario richiede la classifica scelta e torna all’ultima disponibile", async () => {

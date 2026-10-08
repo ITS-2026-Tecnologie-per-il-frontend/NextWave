@@ -7,7 +7,7 @@ import {
   createProfile,
   ensureRound,
   STORAGE_KEY,
-} from "../../src/services/demoProfileStorage.ts";
+} from "../../src/services/demo/demoProfileStorage.ts";
 
 const day = "2026-09-28";
 function mount({

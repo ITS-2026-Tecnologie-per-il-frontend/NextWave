@@ -1,8 +1,8 @@
 import type { Round, Notify, PlayerStatus } from "../types/models.ts";
 import { useEffect, useRef, useState } from "react";
-import { canPlay } from "../domain/contest.ts";
+import { canPlay } from "../domain/contest/contest.ts";
 
-import { fullyPlayed } from "../domain/playback.ts";
+import { fullyPlayed } from "../domain/audio/playback.ts";
 
 export function useDailyPlayer(
   round: Round,

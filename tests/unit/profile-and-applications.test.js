@@ -1,12 +1,16 @@
 import { test, expect } from "vitest";
 import { catalog } from "../../src/data/demo/catalog.ts";
-import { canPlay, completeTrack, canVote } from "../../src/domain/contest.ts";
-import { dailyRanking, rankRows } from "../../src/domain/demoRanking.ts";
+import {
+  canPlay,
+  completeTrack,
+  canVote,
+} from "../../src/domain/contest/contest.ts";
+import { dailyRanking, rankRows } from "../../src/domain/demo/demoRanking.ts";
 import {
   normalizeProfile,
   createProfile,
-} from "../../src/services/demoProfileStorage.ts";
-import { validateApplication } from "../../src/domain/applications.ts";
+} from "../../src/services/demo/demoProfileStorage.ts";
+import { validateApplication } from "../../src/domain/artist/applications.ts";
 const ids = catalog.slice(0, 5).map((track) => track.id);
 
 test("dati locali malformati non diventano un profilo tipizzato valido", () => {

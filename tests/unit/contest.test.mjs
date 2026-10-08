@@ -2,11 +2,11 @@ import { test } from "vitest";
 import assert from "node:assert/strict";
 import { catalog } from "../../src/data/demo/catalog.ts";
 import { genres } from "../../src/data/genres.ts";
-import { rome } from "../../src/domain/time.ts";
-import { selectTracks } from "../../src/domain/selection.ts";
-import { eligibility, canVote } from "../../src/domain/contest.ts";
-import { score } from "../../src/domain/ranking.ts";
-import { rankRows } from "../../src/domain/demoRanking.ts";
+import { rome } from "../../src/domain/shared/time.ts";
+import { selectTracks } from "../../src/domain/contest/selection.ts";
+import { eligibility, canVote } from "../../src/domain/contest/contest.ts";
+import { score } from "../../src/domain/contest/ranking.ts";
+import { rankRows } from "../../src/domain/demo/demoRanking.ts";
 test("reveal 21 Roma con ora legale e solare", () => {
   assert.equal(rome(new Date("2026-09-24T18:59:59Z")).revealed, false);
   assert.equal(rome(new Date("2026-09-24T19:00:00Z")).revealed, true);

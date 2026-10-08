@@ -2,7 +2,7 @@
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CloudRepository } from "../../src/services/cloudRepository.ts";
+import type { CloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import type {
   AdminDashboard,
   Player,
@@ -11,21 +11,21 @@ import type {
   Round,
   Route,
 } from "../../src/types/models.ts";
-import Layout from "../../src/components/Layout.tsx";
-import Daily from "../../src/pages/Daily.tsx";
-import Profile from "../../src/pages/Profile.tsx";
-import Artist from "../../src/pages/Artist.tsx";
-import Admin from "../../src/pages/Admin.tsx";
-import CloudRankings from "../../src/pages/CloudRankings.tsx";
-import Auth from "../../src/pages/Auth.tsx";
-import Onboarding from "../../src/pages/Onboarding.tsx";
-import Dialog from "../../src/components/Dialog.tsx";
-import Reveal from "../../src/components/Reveal.tsx";
-import AvatarCropDialog from "../../src/components/ui/AvatarCropDialog.tsx";
+import Layout from "../../src/components/layout/Layout.tsx";
+import Daily from "../../src/screens/contest/Daily.tsx";
+import Profile from "../../src/screens/account/Profile.tsx";
+import Artist from "../../src/screens/artist/Artist.tsx";
+import Admin from "../../src/screens/admin/Admin.tsx";
+import CloudRankings from "../../src/screens/rankings/CloudRankings.tsx";
+import Auth from "../../src/screens/auth/Auth.tsx";
+import Onboarding from "../../src/screens/auth/Onboarding.tsx";
+import Dialog from "../../src/components/dialogs/Dialog.tsx";
+import Reveal from "../../src/components/contest/Reveal.tsx";
+import AvatarCropDialog from "../../src/components/dialogs/AvatarCropDialog.tsx";
 import {
   originalStyle,
   saveNamedStyle,
-} from "../../src/services/customStyle.ts";
+} from "../../src/services/appearance/customStyle.ts";
 import "../../src/styles/index.css";
 
 const stress = new URLSearchParams(location.search).get("stress") !== "false";

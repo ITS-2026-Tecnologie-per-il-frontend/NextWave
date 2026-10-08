@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { getSupabase } from "../services/supabase.ts";
-import { createCloudRepository } from "../services/cloudRepository.ts";
+import { getSupabase } from "../services/cloud/supabase.ts";
+import { createCloudRepository } from "../services/cloud/cloudRepository.ts";
 import { useAuth } from "../hooks/useAuth.ts";
-import Auth from "../pages/Auth.tsx";
+import Auth from "../screens/auth/Auth.tsx";
 import { Account } from "./CloudAccount.tsx";
 
 export default function CloudApp() {
