@@ -6,3 +6,5 @@
 @import "./themes.css";
 @import "./playback-and-auth.css";
 @import "./admin.css";
+
+@import "./style-studio.css";

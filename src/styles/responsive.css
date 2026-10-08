@@ -55,8 +55,14 @@
 
 @media (max-width: 760px) {
   .brand-mobile-name {
-    display: inline;
-    color: var(--text);
+    display: inline-flex;
+    flex-shrink: 0;
+    white-space: nowrap;
+    color: #f5f5f7;
+    font:
+      700 23px/1 "Space Grotesk",
+      sans-serif;
+    letter-spacing: -1px;
   }
   .sidebar {
     top: auto;
@@ -449,5 +455,26 @@
   .auth-panel .brand-image {
     width: 100px;
     height: 72px;
+  }
+}
+
+@media (max-width: 760px) {
+  .mobilebrand .brand {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .brand picture {
+    flex-shrink: 0;
+  }
+  .mobilebrand .brand-image {
+    width: 46px;
+    height: 34px;
+  }
+  .topbar .brand-mobile-name {
+    font-size: 23px;
+  }
+  .topbar .brand-mobile-name > span {
+    font-size: inherit;
+    line-height: inherit;
   }
 }

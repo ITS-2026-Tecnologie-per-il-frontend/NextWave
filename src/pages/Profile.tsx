@@ -1,3 +1,6 @@
+import { StyleStudio } from "../components/StyleStudio.tsx";
+import { useCustomStyle } from "../hooks/useCustomStyle.ts";
+import { saveCustomStyle } from "../services/customStyle.ts";
 import { getErrorMessage } from "../domain/errors.ts";
 import { SpotifyLink } from "../components/ui/SpotifyLink.tsx";
 import type { FormEvent } from "react";
@@ -28,6 +31,8 @@ export default function Profile({
   onSignOut,
   busy = false,
 }: ProfileProps) {
+  const customStyle = useCustomStyle();
+  const [studioOpen, setStudioOpen] = useState(false);
   const [name, setName] = useState(profile.name);
   const [preferences, setPreferences] = useState(profile.prefs);
   const [error, setError] = useState("");
@@ -158,11 +163,14 @@ export default function Profile({
             </h3>
           </div>
           <span className="theme-current">
-            In uso: <strong>{selectedTheme.name}</strong>
+            In uso:{" "}
+            <strong>
+              {customStyle.active ? "Il tuo stile" : selectedTheme.name}
+            </strong>
           </span>
         </div>
         <p className="hint">
-          Cinque palette, cinque modi di sentire la musica.
+          Cinque palette, un’unica identità. Oppure crea la tua.
         </p>
         <div
           className="theme-catalog"
@@ -176,9 +184,19 @@ export default function Profile({
               disabled={busy}
               className="theme-choice"
               data-palette={theme.id}
-              aria-pressed={selectedTheme.id === theme.id}
+              aria-pressed={
+                !customStyle.active && selectedTheme.id === theme.id
+              }
               aria-label={`${theme.name}: ${theme.colors}`}
-              onClick={() => onUpdate({ theme: theme.id })}
+              onClick={async () => {
+                try {
+                  if (profile.theme !== theme.id)
+                    await onUpdate({ theme: theme.id });
+                  saveCustomStyle(customStyle.style, false);
+                } catch {
+                  notify("Non è stato possibile cambiare stile. Riprova.");
+                }
+              }}
             >
               <span className="theme-art" aria-hidden="true">
                 <span className="theme-number">0{index + 1}</span>
@@ -201,13 +219,27 @@ export default function Profile({
                 </span>
                 <span className="theme-colors">{theme.colors}</span>
                 <span className="theme-status">
-                  {selectedTheme.id === theme.id ? "✓ In uso" : "Scegli"}
+                  {!customStyle.active && selectedTheme.id === theme.id
+                    ? "✓ In uso"
+                    : "Scegli"}
                 </span>
               </span>
             </button>
           ))}
         </div>
+        <div className="studio-launch">
+          <div>
+            <small>FATTO DA TE</small>
+            <h3>La sesta atmosfera porta la tua firma.</h3>
+            <p>Colori, forme e font. Provali dal vivo prima di applicarli.</p>
+          </div>
+          <button className="btn" onClick={() => setStudioOpen(true)}>
+            {customStyle.active ? "Modifica il tuo stile" : "Crea il tuo stile"}{" "}
+            ↗
+          </button>
+        </div>
       </section>
+      {studioOpen && <StyleStudio onClose={() => setStudioOpen(false)} />}
       <div className="panel">
         <h3>I tuoi gusti, la tua selezione</h3>
         <p className="hint">I cambiamenti valgono dalla selezione di domani.</p>
