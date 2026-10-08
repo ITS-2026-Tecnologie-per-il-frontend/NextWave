@@ -15,7 +15,9 @@ export function SpotifyLink({
     >
       {track.isDemo
         ? "Link Spotify di esempio ↗"
-        : "Apri il brano su Spotify ↗"}
+        : /^https:\/\/open\.spotify\.com\//.test(track.spotifyUrl)
+          ? "Apri il brano su Spotify ↗"
+          : "Apri il brano ↗"}
     </a>
   );
 }

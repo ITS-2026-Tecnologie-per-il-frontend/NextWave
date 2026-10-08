@@ -282,3 +282,29 @@ test("touch navigation reaches the profile", async ({ page }, info) => {
     page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
   ).toBeVisible();
 });
+
+test("ranking date stays inside its panel and changes the selected day", async ({
+  page,
+}) => {
+  for (const width of [320, 360, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 });
+    await prepare(page, "rankings");
+    for (const period of ["Giornaliera", "Settimanale"]) {
+      await page.getByRole("button", { name: period, exact: true }).click();
+      const input = page.locator('.rankings-date-panel input[type="date"]');
+      await input.fill("2026-10-06");
+      await expect(input).toHaveValue("2026-10-06");
+      const field = await input.boundingBox();
+      const panel = await page.locator(".rankings-date-panel").boundingBox();
+      expect(field!.x).toBeGreaterThanOrEqual(panel!.x);
+      expect(field!.x + field!.width).toBeLessThanOrEqual(
+        panel!.x + panel!.width,
+      );
+      expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+      await page
+        .getByRole("button", { name: "Torna all’ultimo contest concluso" })
+        .click();
+      await expect(input).toHaveValue("2026-10-08");
+    }
+  }
+});
