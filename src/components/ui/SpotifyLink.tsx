@@ -23,7 +23,7 @@ export function SpotifyLink({
     >
       {spotify ? (
         <img
-          src="/images/brands/spotify-icon-white.svg"
+          src="/images/brands/spotify-icon-green.svg"
           alt=""
           width="24"
           height="24"

@@ -4,7 +4,7 @@ La barra laterale usa il riquadro account come unico collegamento al profilo; su
 
 Il contest permette di salvare ogni brano dopo averne completato l'ascolto. Il salvataggio è indipendente dal voto e può essere annullato. Dopo il reveal è disponibile anche senza completamento, come prima. Il contatore delle scoperte e la lista del profilo si aggiornano insieme. Prima del reveal, titolo, artista e link restano nascosti anche nella risposta del database relativa ai preferiti.
 
-I pulsanti esterni sono condivisi tra contest, classifiche, reveal e profilo. I collegamenti Spotify usano l'icona SVG ufficiale bianca su nero e la dicitura “Apri Spotify”. Gli altri siti usano un'icona generica. Fonte e condizioni del marchio: [Spotify](https://developer.spotify.com/documentation/design).
+I pulsanti esterni sono condivisi tra contest, classifiche, reveal e profilo. I collegamenti Spotify usano l'icona SVG ufficiale verde su nero e la dicitura “Apri Spotify”. Gli altri siti usano un'icona generica. Fonte e condizioni del marchio: [Spotify](https://developer.spotify.com/documentation/design).
 
 ## Attivazione
 

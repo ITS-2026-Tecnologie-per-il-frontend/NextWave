@@ -12,7 +12,7 @@ test("mostra il logo ufficiale soltanto per i collegamenti Spotify", () => {
     name: "Apri il brano su Spotify",
   });
   expect(spotify.querySelector("img")?.getAttribute("src")).toBe(
-    "/images/brands/spotify-icon-white.svg",
+    "/images/brands/spotify-icon-green.svg",
   );
   expect(spotify.getAttribute("rel")).toBe("noopener noreferrer");
   rerender(
