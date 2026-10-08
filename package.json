@@ -17,6 +17,7 @@
     "db:test": "node tests/database/test-database.mjs",
     "admin:test": "node tests/database/test-admin.mjs",
     "admin:links:test": "node tests/database/test-admin-links.mjs",
+    "admin:avatars:test": "node tests/database/test-admin-avatars.mjs",
     "artist:test": "node tests/database/test-artist.mjs",
     "contests:test": "node tests/database/test-real-contests.mjs",
     "selection:test": "node tests/database/test-small-contest.mjs",

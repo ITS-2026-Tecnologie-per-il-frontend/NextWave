@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState, useId, type CSSProperties } from "react";
 import {
   originalStyle,
-  readCustomStyle,
-  saveNamedStyle,
   styleVariables,
   type CustomStyle,
 } from "../../services/appearance/customStyle.ts";
 import { BrandLogo } from "../brand/BrandLogo.tsx";
 import { AppearanceFilters } from "./AppearanceFilters.tsx";
 import { Icon } from "../ui/Icon.tsx";
+import { useCustomStyle } from "../../hooks/useCustomStyle.ts";
 
 const gradients = [
   { name: "Aurora", start: "#322345", end: "#173d42" },
@@ -26,9 +25,8 @@ export function StyleStudio({
   initialName?: string;
   savedStyleId?: string;
 }) {
-  const [draft, setDraft] = useState(
-    () => initialStyle ?? readCustomStyle().style,
-  );
+  const appearance = useCustomStyle();
+  const [draft, setDraft] = useState(() => initialStyle ?? appearance.style);
   const [name, setName] = useState(initialName);
   const [saveCopy, setSaveCopy] = useState(false);
   const waveId = `preview-wave-${useId().replace(/[^a-z0-9_-]/gi, "")}`;
@@ -423,7 +421,7 @@ export function StyleStudio({
             className="btn"
             onClick={() => {
               try {
-                saveNamedStyle(
+                appearance.saveStyle(
                   name,
                   draft,
                   saveCopy ? undefined : savedStyleId,

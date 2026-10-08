@@ -1,14 +1,18 @@
-import { useState } from "react";
-import { getSupabase } from "../services/cloud/supabase.ts";
-import { createCloudRepository } from "../services/cloud/cloudRepository.ts";
-import { useAuth } from "../hooks/useAuth.ts";
+import { AuthProvider } from "../context/auth/AuthProvider.tsx";
+import { useAuthContext } from "../hooks/useAuthContext.ts";
 import Auth from "../screens/auth/Auth.tsx";
 import { Account } from "./CloudAccount.tsx";
 
 export default function CloudApp() {
-  const [client] = useState(getSupabase);
-  const [repository] = useState(() => createCloudRepository(client));
-  const { session, loading, error } = useAuth(client);
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
+  );
+}
+
+function AuthenticatedApp() {
+  const { client, repository, session, loading, error } = useAuthContext();
   if (loading)
     return (
       <main className="connection-page">

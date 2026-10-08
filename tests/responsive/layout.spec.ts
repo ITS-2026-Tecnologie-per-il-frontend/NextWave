@@ -1,5 +1,27 @@
 import { expect, test, type Page } from "@playwright/test";
 
+test("admin identities keep avatars and long names inside narrow cards", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto("/?screen=admin");
+  await expect(page).toHaveTitle("Next Wave — isolated layout fixtures");
+  const list = page.locator(".admin-accounts");
+  await expect(list.locator("li")).toHaveCount(2);
+  const image = list.locator("img");
+  await expect(image).toHaveAttribute("src", "/images/art.png");
+  await expect
+    .poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth))
+    .toBeGreaterThan(0);
+  for (const avatar of await list.locator(".avatar").all()) {
+    const box = await avatar.boundingBox();
+    expect(box!.width).toBe(48);
+    expect(box!.height).toBe(48);
+  }
+  await expect(list.locator("li").last().locator(".avatar")).toHaveText("A");
+  expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+});
+
 const screens = [
   "auth",
   "onboarding",
@@ -30,6 +52,7 @@ const sizes = [
 ];
 async function prepare(page: Page, screen: string, stress = true) {
   await page.goto(`/?screen=${screen}&stress=${stress}`);
+  await expect(page).toHaveTitle("Next Wave — isolated layout fixtures");
   await expect(page.locator("#app")).not.toBeEmpty();
   if (screen === "admin")
     await expect(

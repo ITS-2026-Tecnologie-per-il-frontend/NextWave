@@ -85,12 +85,12 @@ export function createCloudRepository(client: SupabaseClient) {
       const { data: auth } = await client.auth.getSession();
       const userId = auth.session?.user.id;
       if (!userId) throw new Error("Accedi nuovamente a NextWave.");
-      const path = `${userId}/profile.${extension}`;
+      const path = `${userId}/profile-${crypto.randomUUID()}.${extension}`;
       const uploaded = await client.storage
         .from(AVATAR_BUCKET)
         .upload(path, file, {
           contentType: file.type,
-          upsert: true,
+          upsert: false,
           cacheControl: "3600",
         });
       if (uploaded.error)
@@ -120,8 +120,41 @@ export function createCloudRepository(client: SupabaseClient) {
           );
       }
     },
-    adminDashboard: () =>
-      rpc<AdminDashboard>("admin_console", { p_action: "dashboard" }),
+    async adminDashboard(): Promise<AdminDashboard> {
+      const result = await rpc<AdminDashboard>("admin_console", {
+        p_action: "dashboard",
+      });
+      if (!result.access.owner) return { ...result, accounts: [] };
+      const paths = [
+        ...new Set(
+          result.accounts.flatMap((account) =>
+            account.avatarPath ? [account.avatarPath] : [],
+          ),
+        ),
+      ];
+      const urls = new Map<string, string>();
+      if (paths.length) {
+        // Il bucket resta privato: la policy concede al superadmin solo gli avatar correnti degli admin.
+        const signed = await client.storage
+          .from(AVATAR_BUCKET)
+          .createSignedUrls(paths, 3600);
+        if (!signed.error) {
+          for (const item of signed.data ?? []) {
+            if (item.path && item.signedUrl && !item.error)
+              urls.set(item.path, item.signedUrl);
+          }
+        }
+      }
+      return {
+        ...result,
+        accounts: result.accounts.map((account) => ({
+          ...account,
+          avatarUrl: account.avatarPath
+            ? (urls.get(account.avatarPath) ?? null)
+            : null,
+        })),
+      };
+    },
     adminAction: (
       action: "approve" | "reject" | "grant" | "revoke",
       data: Record<string, unknown>,

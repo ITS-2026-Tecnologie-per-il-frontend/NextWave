@@ -25,6 +25,7 @@ const sourceFolders = new Set([
   "assets",
   "components",
   "config",
+  "context",
   "data",
   "domain",
   "hooks",

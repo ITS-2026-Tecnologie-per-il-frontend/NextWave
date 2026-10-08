@@ -85,6 +85,8 @@ async function mountCloud(state = fixture()) {
       accounts: [
         {
           id: "account-1",
+          name: "Nome admin attuale",
+          avatarUrl: "https://example.com/current-avatar.png",
           email: "santonithomas9@gmail.com",
           owner: true,
           created: null,
@@ -314,7 +316,47 @@ describe("account cloud", () => {
     fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
     await screen.findByText("santonithomas9@gmail.com");
     expect(screen.getByText("Superadmin · protetto")).toBeTruthy();
+    expect(screen.getByText("Nome admin attuale")).toBeTruthy();
+    expect(
+      document
+        .querySelector(".admin-accounts .avatar img")
+        ?.getAttribute("src"),
+    ).toBe("https://example.com/current-avatar.png");
     expect(screen.queryByRole("button", { name: "Revoca accesso" })).toBeNull();
+  });
+  test("aggiorna nome e avatar correnti e ripiega sulle iniziali se la foto manca", async () => {
+    const state = fixture();
+    state.adminAccess = { allowed: true, owner: true };
+    const { repository } = await mountCloud(state);
+    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
+    await screen.findByText("Nome admin attuale");
+    repository.adminDashboard.mockResolvedValue({
+      access: { allowed: true, owner: true },
+      applications: [],
+      accounts: [
+        {
+          id: "account-1",
+          name: "Nome aggiornato",
+          avatarUrl: "https://example.com/new-avatar.png",
+          email: "santonithomas9@gmail.com",
+          owner: true,
+          created: null,
+        },
+      ],
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Aggiorna pannello ↻" }),
+    );
+    await screen.findByText("Nome aggiornato");
+    const image = document.querySelector(".admin-accounts .avatar img")!;
+    expect(image.getAttribute("src")).toBe(
+      "https://example.com/new-avatar.png",
+    );
+    fireEvent.error(image);
+    expect(document.querySelector(".admin-accounts .avatar")?.textContent).toBe(
+      "N",
+    );
+    expect(screen.getByText("santonithomas9@gmail.com")).toBeTruthy();
   });
   test("approva solo dopo checklist e conferma e autorizza un altro admin", async () => {
     const state = fixture();

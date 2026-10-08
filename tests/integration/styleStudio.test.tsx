@@ -1,3 +1,4 @@
+import { AppearanceProvider } from "../../src/context/appearance/AppearanceProvider.tsx";
 import { fireEvent, render, screen, act } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { StyleStudio } from "../../src/components/appearance/StyleStudio.tsx";
@@ -8,13 +9,15 @@ import {
   saveCustomStyle,
 } from "../../src/services/appearance/customStyle.ts";
 function AppliedStyle() {
-  useCustomStyle(true);
+  useCustomStyle();
   return null;
 }
 describe("editor di personalizzazione", () => {
   it("mostra controlli concreti, aggiorna solo anteprima e annulla senza salvare", () => {
     const onClose = vi.fn();
-    const { container } = render(<StyleStudio onClose={onClose} />);
+    const { container } = render(<StyleStudio onClose={onClose} />, {
+      wrapper: AppearanceProvider,
+    });
     expect(screen.queryByLabelText("Accento")).toBeNull();
     expect(screen.queryByLabelText("Secondario")).toBeNull();
     fireEvent.change(screen.getByLabelText("Sfondo: primo colore"), {
@@ -36,7 +39,9 @@ describe("editor di personalizzazione", () => {
     expect(readCustomStyle().style).toEqual(originalStyle);
   });
   it("confronta, ripristina l’anteprima quando si modifica e salva solo su Applica", () => {
-    const { container } = render(<StyleStudio onClose={vi.fn()} />);
+    const { container } = render(<StyleStudio onClose={vi.fn()} />, {
+      wrapper: AppearanceProvider,
+    });
     const preview = container.querySelector(".custom-preview") as HTMLElement;
     fireEvent.change(screen.getByLabelText("Pulsanti e selezioni"), {
       target: { value: "#ff0000" },
@@ -56,7 +61,11 @@ describe("editor di personalizzazione", () => {
     });
   });
   it("applica e rimuove i soli token custom senza toccare i colori base", () => {
-    const { unmount } = render(<AppliedStyle />);
+    const { unmount } = render(
+      <AppearanceProvider>
+        <AppliedStyle />
+      </AppearanceProvider>,
+    );
     act(() =>
       saveCustomStyle(
         { ...originalStyle, background: "#ffff00", backgroundEnd: "#88cc44" },
@@ -83,7 +92,9 @@ describe("editor di personalizzazione", () => {
   });
 
   it("mostra i controlli delle classifiche e del volume con pulsanti bianchi e neri", () => {
-    const { container } = render(<StyleStudio onClose={vi.fn()} />);
+    const { container } = render(<StyleStudio onClose={vi.fn()} />, {
+      wrapper: AppearanceProvider,
+    });
     const preview = container.querySelector(".custom-preview") as HTMLElement;
     for (const color of ["#ffffff", "#000000"]) {
       fireEvent.change(screen.getByLabelText("Pulsanti e selezioni"), {

@@ -16,6 +16,7 @@ TypeScript è configurato in modalità `strict`, senza disattivare i controlli c
 
 - Una pagina completa va in `screens/<funzione>/`; un elemento riutilizzabile in `components/<funzione>/`. I controlli generici restano in `components/ui/`.
 - Un hook esportato va in `hooks/`, in un file con lo stesso nome. I componenti chiamano gli hook, ma non esportano hook insieme al proprio rendering.
+- Context e provider condivisi vanno in `context/<responsabilità>/`; stato e bozze locali restano nei componenti. La gestione globale è descritta in [context-api.md](context-api.md).
 - Una funzione indipendente da React, rete e persistenza va in `domain/artist/`, `domain/audio/`, `domain/contest/`, `domain/demo/` o `domain/shared/` secondo la responsabilità.
 - L'accesso al database va in `services/cloud/`; gli stili personali in `services/appearance/`; la persistenza della demo in `services/demo/`.
 - Le variabili di ambiente si validano in `config/environment.ts`; i percorsi delle pagine sono in `config/routes.ts`.

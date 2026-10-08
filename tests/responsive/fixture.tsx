@@ -1,3 +1,4 @@
+import { PlaybackContext } from "../../src/context/playback/PlaybackContext.ts";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { routeForPath } from "../../src/config/routes.ts";
 // Real components with isolated in-memory data. Never imported by the product entry point.
@@ -121,11 +122,20 @@ const adminData: AdminDashboard = {
   accounts: [
     {
       id: "owner",
+      name: longText,
+      avatarPath: "owner/profile.png",
+      avatarUrl: "/images/art.png",
       email: `${"nome".repeat(45)}@example.com`,
       owner: true,
       created: null,
     },
-    { id: "other", email: "admin@example.com", owner: false, created: null },
+    {
+      id: "other",
+      name: "Admin senza immagine",
+      email: "admin@example.com",
+      owner: false,
+      created: null,
+    },
   ],
 };
 const repository = {
@@ -205,79 +215,85 @@ function Fixture() {
   const activeRound =
     screen === "empty" ? { ...round, ids: [], listened: [] } : round;
   return (
-    <Layout
-      profile={{
-        ...profile,
-        accountType:
-          params.get("account") === "listener" ? "listener" : "artist",
-      }}
-      route={route}
-      navigate={setRoute}
-      player={player}
-      revealed={revealed}
-      round={activeRound}
-      cloud
-      admin={params.get("admin") !== "false"}
+    <PlaybackContext.Provider
+      value={{ player, round: activeRound, revealed, cloud: true }}
     >
-      {route === "profile" ? (
-        <Profile
-          profile={profile}
-          tracks={rows}
-          onUpdate={() => {}}
-          onSave={() => {}}
-          notify={() => {}}
-          cloud
-          onSignOut={() => {}}
-          onAvatarUpload={async () => {}}
-          onAvatarRemove={async () => {}}
-        />
-      ) : route === "artist" ? (
-        <Artist applications={[application]} onSubmit={() => {}} cloud admin />
-      ) : route === "admin" ? (
-        <Admin repository={repository} onAccessLost={() => {}} />
-      ) : route === "ranks" ? (
-        <CloudRankings repository={repository} />
-      ) : (
-        <Daily
-          round={activeRound}
-          clock={{ day, seconds: 12 * 3600, revealed }}
-          revealed={revealed}
-          preview={false}
-          player={player}
-          saved={[]}
-          tracks={rows}
-          cloud
-          onVote={() => {}}
-          onSave={() => {}}
-          onReveal={() => {}}
-          onRanks={() => setRoute("ranks")}
-        />
-      )}
-      {screen === "reveal" && (
-        <Dialog reveal onClose={() => {}}>
-          <Reveal
-            round={round}
-            rows={rows}
-            preview={false}
-            onClose={() => {}}
-            onRanks={() => {}}
+      <Layout
+        profile={{
+          ...profile,
+          accountType:
+            params.get("account") === "listener" ? "listener" : "artist",
+        }}
+        route={route}
+        navigate={setRoute}
+        cloud
+        admin={params.get("admin") !== "false"}
+      >
+        {route === "profile" ? (
+          <Profile
+            profile={profile}
+            tracks={rows}
+            onUpdate={() => {}}
+            onSave={() => {}}
+            notify={() => {}}
+            cloud
+            onSignOut={() => {}}
+            onAvatarUpload={async () => {}}
+            onAvatarRemove={async () => {}}
           />
-        </Dialog>
-      )}
-      {screen === "vote" && (
-        <Dialog onClose={() => {}}>
-          <h2>Confermi il tuo voto?</h2>
-          <p>La tua scelta dà spazio a una nuova voce.</p>
-          <div className="actions">
-            <button className="btn">Conferma voto</button>
-            <button className="btn secondary">Annulla</button>
-          </div>
-        </Dialog>
-      )}
-      <div id="toast" style={{ display: "block" }} role="status">
-        Preferenze salvate per domani.
-      </div>
-    </Layout>
+        ) : route === "artist" ? (
+          <Artist
+            applications={[application]}
+            onSubmit={() => {}}
+            cloud
+            admin
+          />
+        ) : route === "admin" ? (
+          <Admin repository={repository} onAccessLost={() => {}} />
+        ) : route === "ranks" ? (
+          <CloudRankings repository={repository} />
+        ) : (
+          <Daily
+            round={activeRound}
+            clock={{ day, seconds: 12 * 3600, revealed }}
+            revealed={revealed}
+            preview={false}
+            player={player}
+            saved={[]}
+            tracks={rows}
+            cloud
+            onVote={() => {}}
+            onSave={() => {}}
+            onReveal={() => {}}
+            onRanks={() => setRoute("ranks")}
+          />
+        )}
+        {screen === "reveal" && (
+          <Dialog reveal onClose={() => {}}>
+            <Reveal
+              round={round}
+              rows={rows}
+              preview={false}
+              onClose={() => {}}
+              onRanks={() => {}}
+            />
+          </Dialog>
+        )}
+        {screen === "vote" && (
+          <Dialog onClose={() => {}}>
+            <h2>Confermi il tuo voto?</h2>
+            <p>La tua scelta dà spazio a una nuova voce.</p>
+            <div className="actions">
+              <button className="btn">Conferma voto</button>
+              <button className="btn secondary">Annulla</button>
+            </div>
+          </Dialog>
+        )}
+        <div id="toast" style={{ display: "block" }} role="status">
+          Preferenze salvate per domani.
+        </div>
+      </Layout>
+    </PlaybackContext.Provider>
   );
 }
 createRoot(document.getElementById("app")!).render(

@@ -4,6 +4,7 @@ import type { AdminApplication, AdminDashboard } from "../../types/models.ts";
 import { getErrorMessage } from "../../domain/shared/errors.ts";
 import { rome } from "../../domain/shared/time.ts";
 import { Heading } from "../../components/ui/Heading.tsx";
+import { Avatar } from "../../components/ui/Avatar.tsx";
 
 function contestDate(offset: number) {
   const date = new Date(`${rome().day}T12:00:00Z`);
@@ -497,12 +498,24 @@ export default function Admin({
                 <ul className="admin-accounts">
                   {data.accounts.map((account) => (
                     <li key={account.id}>
-                      <div>
-                        <strong>{account.email}</strong>
-                        <br />
-                        <span className="hint">
-                          {account.owner ? "Superadmin · protetto" : "Admin"}
-                        </span>
+                      <div className="admin-account-identity">
+                        <Avatar
+                          name={account.name?.trim() || account.email}
+                          imageUrl={account.avatarUrl}
+                          positionX={account.avatarPositionX}
+                          positionY={account.avatarPositionY}
+                        />
+                        <div className="admin-account-copy">
+                          <strong>
+                            {account.name?.trim() || "Nome non impostato"}
+                          </strong>
+                          <span className="admin-account-email">
+                            {account.email}
+                          </span>
+                          <span className="hint">
+                            {account.owner ? "Superadmin · protetto" : "Admin"}
+                          </span>
+                        </div>
                       </div>
                       {!account.owner &&
                         (revokeId === account.id ? (

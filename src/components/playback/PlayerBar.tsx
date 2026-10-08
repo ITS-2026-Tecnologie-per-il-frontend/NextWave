@@ -1,25 +1,14 @@
 import type { CSSProperties } from "react";
-import type { Player, Round } from "../../types/models.ts";
+import { usePlayback } from "../../hooks/usePlayback.ts";
 import { Icon } from "../ui/Icon.tsx";
-
-interface PlayerBarProps {
-  player: Player;
-  round: Round;
-  revealed: boolean;
-  cloud?: boolean;
-}
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
   return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 }
 
-export default function PlayerBar({
-  player,
-  round,
-  revealed,
-  cloud = false,
-}: PlayerBarProps) {
+export default function PlayerBar() {
+  const { player, round, revealed, cloud } = usePlayback();
   const trackIndex = player.active ? round.ids.indexOf(player.active) : -1;
   return (
     <section className="player" aria-label="Player musicale">

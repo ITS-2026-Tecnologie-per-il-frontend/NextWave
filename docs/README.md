@@ -15,6 +15,7 @@ src/
     playback/            player
     ui/                  controlli generici
   config/                ambiente, audio, percorsi
+  context/               autenticazione, account, player, aspetto
   data/                  generi, preset e catalogo demo
   domain/
     artist/              candidature e quota
@@ -71,6 +72,7 @@ docs/
 - [Organizzazione e convenzioni](development/organizzazione.md)
 - [Architettura](development/architecture.md)
 - [Navigazione con React Router](development/react-router.md)
+- [Dati condivisi con Context API](development/context-api.md)
 - [Database e Supabase](database/supabase.md)
 - [Audio e pubblicazione](deployment/audio-storage.md)
 - [Contest reali](features/real-contests.md)
@@ -78,6 +80,6 @@ docs/
 - [Seconda revisione responsive](development/responsive-refresh.md)
 - [Prossimi passi](planning/prossimi-passi.md)
 
-I file di configurazione richiesti da Vite, TypeScript, npm, Vercel e gli ambienti locali restano nella radice. I nomi dei comandi npm e i percorsi del database non cambiano. Non sono create cartelle vuote per funzionalità assenti: `context/` e `i18n/` andranno aggiunte quando esisteranno provider condivisi o traduzioni da organizzare.
+I file di configurazione richiesti da Vite, TypeScript, npm, Vercel e gli ambienti locali restano nella radice. I nomi dei comandi npm e i percorsi del database non cambiano. Non sono create cartelle vuote per funzionalità assenti: `i18n/` andrà aggiunta quando esisteranno traduzioni da organizzare.
 
 `npm run audit:structure` verifica import e CSS, collocazione dei moduli, riferimenti della documentazione e risorse pubbliche. `npm run check` e `npm run build` verificano l'intero frontend; `npm run db:test` verifica anche l'avvio delle prove PostgreSQL dalla nuova cartella.

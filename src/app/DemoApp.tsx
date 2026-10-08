@@ -1,3 +1,4 @@
+import { PlaybackContext } from "../context/playback/PlaybackContext.ts";
 import type {
   Profile as UserProfile,
   ProfileChanges,
@@ -182,7 +183,17 @@ export default function DemoApp() {
     setDialog({ type: "success" });
   }
   return (
-    <>
+    <PlaybackContext.Provider
+      value={{
+        player: {
+          ...player,
+          track: catalog.find((track) => track.id === player.active),
+        },
+        round,
+        revealed,
+        cloud: false,
+      }}
+    >
       <audio ref={player.audioRef} preload="metadata" />
       {!profile.onboard ? (
         <Onboarding profile={profile} onFinish={patchProfile} />
@@ -190,17 +201,7 @@ export default function DemoApp() {
         <AccountRoutes
           isArtist={profile.accountType === "artist"}
           layout={
-            <Layout
-              profile={profile}
-              route={route}
-              navigate={navigate}
-              player={{
-                ...player,
-                track: catalog.find((track) => track.id === player.active),
-              }}
-              round={round}
-              revealed={revealed}
-            >
+            <Layout profile={profile} route={route} navigate={navigate}>
               <Outlet />
             </Layout>
           }
@@ -314,6 +315,6 @@ export default function DemoApp() {
       >
         {toast}
       </div>
-    </>
+    </PlaybackContext.Provider>
   );
 }

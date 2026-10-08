@@ -22,6 +22,8 @@ Apri http://127.0.0.1:4173 e accedi con un account reale. Una configurazione man
 
 La navigazione usa React Router 6 con URL di pagina, cronologia del browser e layout condiviso. Configurazione e compatibilità dei vecchi link: [guida React Router](docs/development/react-router.md).
 
+Autenticazione, dati dell'account, player e aspetto condivisi usano [React Context](docs/development/context-api.md). Nome e avatar correnti nella gestione admin richiedono la [migrazione descritta nella guida del pannello](docs/features/admin-console.md).
+
 ## Database e pubblicazione
 
 Il database Supabase gestisce profili, preferenze, candidature, selezioni, ascolti completati, voti, scoperte salvate e reveal. RLS e funzioni server proteggono i dati per account, la chiusura del voto e l’ordine degli ascolti. Le classifiche cloud usano soltanto eventi e voti registrati, senza punteggi fittizi.
@@ -67,6 +69,7 @@ Mappa completa e indice delle guide in [docs/README.md](docs/README.md).
 - `src/app/DemoApp.tsx`: flussi locali precedenti, separati dagli account reali.
 - `src/app/CloudApp.tsx`: accesso all'app; `CloudAccount.tsx`: coordinamento dell'account.
 - `src/hooks/`: hook React per autenticazione, player e orologio.
+- `src/context/`: provider e dati condivisi per autenticazione, account, player e aspetto.
 - `src/config/`: validazione dell'ambiente e percorsi delle pagine.
 - `src/screens/`: schermate complete, raggruppate per auth, account, contest, classifiche, artisti e admin.
 - `src/components/`: elementi riutilizzabili, raggruppati per layout, player, contest, finestre, personalizzazione, brand e UI.

@@ -109,6 +109,16 @@ if (linksIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo balanced-genre-selection.sql.\nbegin;\n${sql[linksIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${linksVersion}','admin_application_links') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const identityVersion = "20261008000300";
+const identityIndex = files.findIndex((file) =>
+  file.startsWith(identityVersion),
+);
+if (identityIndex >= 0) {
+  await writeFile(
+    "supabase/updates/admin-profile-identity.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo admin-application-links.sql.\nbegin;\n${sql[identityIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${identityVersion}','admin_profile_identity') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

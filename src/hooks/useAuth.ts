@@ -31,7 +31,7 @@ export function useAuth(client: SupabaseClient) {
           });
       })
       .catch((error) => {
-        if (alive)
+        if (alive && !receivedEvent)
           setState({
             session: null,
             loading: false,

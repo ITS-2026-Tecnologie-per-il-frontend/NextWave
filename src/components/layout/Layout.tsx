@@ -1,3 +1,4 @@
+import { AppearanceProvider } from "../../context/appearance/AppearanceProvider.tsx";
 import { NavLink } from "react-router-dom";
 import { routePaths } from "../../config/routes.ts";
 import { useCustomStyle } from "../../hooks/useCustomStyle.ts";
@@ -5,15 +6,12 @@ import { defaultTheme } from "../../data/themes.ts";
 import { AppearanceFilters } from "../appearance/AppearanceFilters.tsx";
 import { BrandLogo } from "../brand/BrandLogo.tsx";
 import type { ReactNode } from "react";
-import type { Profile, Route, Player, Round } from "../../types/models.ts";
+import type { Profile, Route } from "../../types/models.ts";
 interface LayoutProps {
   profile: Profile;
   route: Route;
   navigate: (route: Route) => void;
   children: ReactNode;
-  player: Player;
-  revealed: boolean;
-  round: Round;
   cloud?: boolean;
   admin?: boolean;
 }
@@ -34,18 +32,23 @@ const mobileLabels: Record<Route, string> = {
   profile: "Profilo",
   admin: "Admin",
 };
-export default function Layout({
+export default function Layout(props: LayoutProps) {
+  return (
+    <AppearanceProvider fallback={defaultTheme(props.profile.theme).style}>
+      <LayoutContent {...props} />
+    </AppearanceProvider>
+  );
+}
+
+function LayoutContent({
   profile,
   route,
   navigate,
   children,
-  player,
-  revealed,
-  round,
   cloud = false,
   admin = false,
 }: LayoutProps) {
-  const appearance = useCustomStyle(true, defaultTheme(profile.theme).style);
+  const appearance = useCustomStyle();
   return (
     <>
       <AppearanceFilters style={appearance.style} id="nextwave-wave" />
@@ -153,12 +156,7 @@ export default function Layout({
           · Orario Europe/Rome
         </p>
       </main>
-      <PlayerBar
-        player={player}
-        round={round}
-        revealed={revealed}
-        cloud={cloud}
-      />
+      <PlayerBar />
     </>
   );
 }

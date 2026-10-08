@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { defaultTheme, themes } from "../../data/themes.ts";
 import { useCustomStyle } from "../../hooks/useCustomStyle.ts";
 import {
-  saveCustomStyle,
   type CustomStyle,
   type SavedStyle,
 } from "../../services/appearance/customStyle.ts";
@@ -87,7 +86,7 @@ function StyleLibrary({
 
 export function AppearancePanel({ theme }: { theme: string }) {
   const fallback = defaultTheme(theme);
-  const current = useCustomStyle(false, fallback.style);
+  const current = useCustomStyle();
   const [editor, setEditor] = useState<EditingStyle | null>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [error, setError] = useState("");
@@ -173,7 +172,7 @@ export function AppearancePanel({ theme }: { theme: string }) {
               aria-label={`${item.name}: ${item.color}`}
               onClick={() => {
                 try {
-                  saveCustomStyle(item.style, true, { presetId: item.id });
+                  current.applyStyle(item.style, true, { presetId: item.id });
                   setError("");
                 } catch {
                   setError("Il browser non consente di salvare lo stile.");
@@ -245,7 +244,7 @@ export function AppearancePanel({ theme }: { theme: string }) {
           }}
           onApply={(item) => {
             try {
-              saveCustomStyle(item.style, true, { savedStyleId: item.id });
+              current.applyStyle(item.style, true, { savedStyleId: item.id });
               setLibraryOpen(false);
               setError("");
             } catch {
