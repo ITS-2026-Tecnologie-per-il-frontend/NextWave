@@ -13,7 +13,8 @@ for (const file of files.filter(
   (file) =>
     !file.startsWith("20261006000600") &&
     !file.startsWith("20261007000100") &&
-    !file.startsWith("20261007000200"),
+    !file.startsWith("20261007000200") &&
+    !file.startsWith("20261008000100"),
 ))
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));
 await db.exec(await readFile("supabase/seeds/demo.sql", "utf8"));

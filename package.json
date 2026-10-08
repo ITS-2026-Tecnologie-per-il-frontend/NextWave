@@ -18,6 +18,7 @@
     "contests:test": "node scripts/test-real-contests.mjs",
     "selection:test": "node scripts/test-small-contest.mjs",
     "queue:test": "node scripts/test-genre-queue.mjs",
+    "balance:test": "node scripts/test-balanced-selection.mjs",
     "db:check": "node --env-file=.env.local scripts/check-supabase.mjs",
     "audio:admin": "node --env-file=.env.local --env-file-if-exists=.env.audio.local scripts/audio-admin.mjs",
     "audio:upload-demo": "npm run audio:admin -- upload-demo",

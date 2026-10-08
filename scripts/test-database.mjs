@@ -14,13 +14,25 @@ const files = (await readdir("supabase/migrations"))
       file.endsWith(".sql") &&
       !file.startsWith("20261006000600") &&
       !file.startsWith("20261007000100") &&
-      !file.startsWith("20261007000200"),
+      !file.startsWith("20261007000200") &&
+      !file.startsWith("20261008000100"),
   )
   .sort();
+let legacyDashboard;
 for (const file of files) {
   await db.exec(await readFile(`supabase/migrations/${file}`, "utf8"));
+  if (file.startsWith("20261006000500")) {
+    // Later profile migrations replace this with the real-only dashboard.
+    // Keep this historical demo regression on its matching API definition.
+    legacyDashboard = (
+      await db.query(
+        "select pg_get_functiondef('public.get_dashboard()'::regprocedure) value",
+      )
+    ).rows[0].value;
+  }
   console.log(`OK migration ${file}`);
 }
+await db.exec(legacyDashboard);
 const demo = await readFile("supabase/seeds/demo.sql", "utf8");
 await db.exec(demo);
 await db.exec(demo);
