@@ -229,6 +229,11 @@ export default function DemoApp() {
               onUpdate={patchProfile}
               onSave={saveTrack}
               notify={notify}
+              tracks={catalog.map((track) =>
+                !clock.revealed && round.ids.includes(track.id)
+                  ? { ...track, title: null, artist: null, spotifyUrl: null }
+                  : track,
+              )}
             />
           }
           artist={

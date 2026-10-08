@@ -720,7 +720,9 @@ dialog.revealmodal,
   }
   .track > .hint,
   .track > .vote,
+  .track > .track-save,
   .track > .textbtn,
+  .track > .music-link,
   .track > .empty-track-footer {
     grid-column: 1 / -1;
     margin: 8px 0 0;

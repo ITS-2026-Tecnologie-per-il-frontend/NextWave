@@ -134,7 +134,7 @@ describe("account cloud", () => {
     expect(screen.getByText("Tipo di profilo")).toBeTruthy();
     expect(
       screen
-        .getByRole("link", { name: "Il tuo profilo" })
+        .getByRole("link", { name: "Apri il tuo profilo" })
         .getAttribute("aria-current"),
     ).toBe("page");
     view.unmount();
@@ -146,7 +146,7 @@ describe("account cloud", () => {
     await mountCloud();
     await waitFor(() => expect(location.pathname).toBe("/daily"));
     const previousLength = history.length;
-    fireEvent.click(screen.getByRole("link", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
     expect(location.pathname).toBe("/profile");
     expect(history.length).toBe(previousLength + 1);
     await act(async () => history.back());
@@ -162,7 +162,7 @@ describe("account cloud", () => {
       fireEvent.click(screen.getByRole("button", { name: "Ascolta brano 1" })),
     );
     await waitFor(() => expect(audio.paused).toBe(false));
-    fireEvent.click(screen.getByRole("link", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
     expect(getAudio()).toBe(audio);
     expect(audio.paused).toBe(false);
     expect(audio.getAttribute("src")).toBe("/audio/0.wav");
@@ -246,7 +246,7 @@ describe("account cloud", () => {
   test("la sezione artisti si attiva dal profilo e sparisce tornando ascoltatore", async () => {
     const { repository } = await mountCloud();
     expect(screen.queryByRole("link", { name: "Per gli artisti" })).toBeNull();
-    fireEvent.click(screen.getByRole("link", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
     fireEvent.click(screen.getByRole("button", { name: "Artista" }));
     await screen.findByRole("link", { name: "Per gli artisti" });
     expect(repository.setAccountType).toHaveBeenCalledWith("artist");
@@ -257,7 +257,7 @@ describe("account cloud", () => {
       screen.getByRole("button", { name: "Candida la traccia del mese" }),
     );
     expect(screen.getByLabelText("Nome artista")).toBeTruthy();
-    fireEvent.click(screen.getByRole("link", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
     fireEvent.click(screen.getByRole("button", { name: "Ascoltatore" }));
     await waitFor(() =>
       expect(
@@ -516,7 +516,7 @@ describe("account cloud", () => {
       new Error("Salvataggio non disponibile."),
     );
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", {
+      screen.getByRole<HTMLAnchorElement>("link", {
         name: "Apri il tuo profilo",
       }),
     );

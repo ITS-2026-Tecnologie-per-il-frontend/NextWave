@@ -252,24 +252,6 @@ small,
   margin-top: auto;
 }
 
-.minicard {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px;
-  font-size: 14px;
-  margin-bottom: 22px;
-  background: linear-gradient(
-    145deg,
-    color-mix(in srgb, var(--panel) 94%, var(--purple)),
-    var(--panel)
-  );
-}
-
-.minicard p {
-  font-size: 13px;
-  margin: 8px 0 12px;
-}
-
 .avatar {
   background: var(--purple);
   color: var(--ink);
@@ -297,6 +279,8 @@ small,
 }
 
 .account-card {
+  color: var(--text);
+  text-decoration: none;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -379,8 +363,8 @@ small,
 .account-open {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   flex: 0 0 auto;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1247,4 +1231,103 @@ small,
 .brand .brand-mobile-name > span {
   color: #b6ff13;
   font-size: inherit;
+}
+
+.account-open svg {
+  width: 20px;
+  height: 20px;
+}
+.account-card:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 4px;
+}
+.track-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1px solid var(--control-line);
+  border-radius: 7px;
+  font-size: 14px;
+}
+.track-save svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.track-save.chosen {
+  color: var(--lime);
+  border-color: var(--lime);
+  background: var(--accent-soft);
+}
+.track-save.chosen svg {
+  fill: currentColor;
+}
+
+.music-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--control-line);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.music-link-spotify {
+  color: #fff;
+  background: #000;
+  border-color: #666;
+}
+.music-link-external {
+  color: var(--text);
+  background: var(--surface);
+}
+.music-link img,
+.music-link > svg {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+.music-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.music-link .music-link-arrow {
+  font-size: 17px;
+  flex: 0 0 auto;
+}
+.music-link:hover {
+  border-color: var(--text);
+  box-shadow: 0 2px 8px #0002;
+}
+.music-link:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+.rankrow .music-link {
+  display: flex;
+  width: fit-content;
+  margin-top: 10px;
+}
+.track > .music-link {
+  width: 100%;
+  margin-top: 4px;
+}
+.savedlist .music-link {
+  display: flex;
+  width: fit-content;
+  margin-top: 8px;
 }

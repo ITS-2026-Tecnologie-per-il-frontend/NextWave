@@ -23,7 +23,6 @@ const navigation: [Route, string][] = [
   ["daily", "Daily wave"],
   ["ranks", "Classifiche"],
   ["artist", "Per gli artisti"],
-  ["profile", "Il tuo profilo"],
 ];
 const mobileLabels: Record<Route, string> = {
   daily: "Daily",
@@ -79,30 +78,12 @@ function LayoutContent({
             ))}
         </nav>
         <div className="sidefoot">
-          <div className="minicard">
-            <span className="lime">La tua musica merita ascolto.</span>
-            <p>Meno di 10.000 ascoltatori? Questo è il tuo spazio.</p>
-            <button
-              className="textbtn"
-              onClick={() =>
-                navigate(
-                  profile.accountType === "artist" ? "artist" : "profile",
-                )
-              }
-            >
-              {profile.accountType === "artist"
-                ? "Candida un brano ↗"
-                : "Attiva il profilo artista ↗"}
-            </button>
-          </div>
-          <div className="account-card">
-            <Avatar
-              name={profile.name}
-              imageUrl={profile.avatarUrl}
-              button
-              label="Apri il tuo profilo"
-              onClick={() => navigate("profile")}
-            />
+          <NavLink
+            to={routePaths.profile}
+            className="account-card"
+            aria-label="Apri il tuo profilo"
+          >
+            <Avatar name={profile.name} imageUrl={profile.avatarUrl} />
             <div className="account-copy">
               <strong>{profile.name || "Ascoltatore"}</strong>
               <span className="account-meta">
@@ -110,15 +91,10 @@ function LayoutContent({
                 {profile.accountType === "artist" ? "Artista" : "Ascoltatore"}
               </span>
             </div>
-            <button
-              className="account-open"
-              type="button"
-              aria-label="Apri le impostazioni del profilo"
-              onClick={() => navigate("profile")}
-            >
-              <span aria-hidden="true">↗</span>
-            </button>
-          </div>
+            <span className="account-open" aria-hidden="true">
+              <Icon name="chevron-right" />
+            </span>
+          </NavLink>
         </div>
       </aside>
       <main className={`main main-${route}`}>

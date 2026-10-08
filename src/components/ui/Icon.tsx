@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 const paths: Record<string, ReactNode> = {
+  "chevron-right": <path d="m9 5 7 7-7 7" />,
+  bookmark: <path d="M6 3h12v18l-6-4-6 4V3z" />,
   admin: <path d="M12 3 3 7v5c0 5 9 9 9 9s9-4 9-9V7l-9-4zM8 12l3 3 5-6" />,
   daily: (
     <>

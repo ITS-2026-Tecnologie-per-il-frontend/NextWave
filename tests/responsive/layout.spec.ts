@@ -312,10 +312,7 @@ test("touch navigation reaches the profile", async ({ page }, info) => {
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await prepare(page, "daily");
-  await page
-    .getByRole("navigation")
-    .getByRole("link", { name: "Il tuo profilo" })
-    .tap();
+  await page.getByRole("button", { name: "Apri profilo", exact: true }).tap();
   await expect(
     page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
   ).toBeVisible();
@@ -353,9 +350,9 @@ test("solid mobile dock fits listener, artist and admin navigation", async ({
   for (const width of [320, 390, 768]) {
     await page.setViewportSize({ width, height: 844 });
     for (const [account, admin, count] of [
-      ["listener", false, 3],
-      ["artist", false, 4],
-      ["artist", true, 5],
+      ["listener", false, 2],
+      ["artist", false, 3],
+      ["artist", true, 4],
     ] as const) {
       await page.goto(`/?screen=daily&account=${account}&admin=${admin}`);
       const nav = page.getByRole("navigation", {
@@ -380,13 +377,15 @@ test("solid mobile dock fits listener, artist and admin navigation", async ({
         expect(box!.width).toBeGreaterThanOrEqual(44);
         expect(box!.height).toBeGreaterThanOrEqual(44);
       }
-      await nav.getByRole("link", { name: "Il tuo profilo" }).click();
+      await page
+        .getByRole("button", { name: "Apri profilo", exact: true })
+        .click();
       await expect(
         page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
       ).toBeVisible();
       await expect(
         nav.getByRole("link", { name: "Il tuo profilo" }),
-      ).toHaveAttribute("aria-current", "page");
+      ).toHaveCount(0);
       expect(await overflow(page)).toEqual({ page: false, offenders: [] });
     }
   }
@@ -411,7 +410,7 @@ test("all presets keep a solid dock and the safe area clear", async ({
     ).toBe("none");
     expect(
       await nav
-        .locator("button:not(.active)")
+        .locator("a:not(.active)")
         .first()
         .evaluate((element) => getComputedStyle(element).backgroundColor),
     ).toBe("rgba(0, 0, 0, 0)");

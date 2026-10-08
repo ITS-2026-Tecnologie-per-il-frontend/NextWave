@@ -193,7 +193,7 @@ describe("flussi React", () => {
       }),
     );
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", {
+      screen.getByRole<HTMLAnchorElement>("link", {
         name: "Apri il tuo profilo",
       }),
     );
@@ -265,7 +265,7 @@ describe("flussi React", () => {
   test("i generi modificati non cambiano la selezione del giorno", () => {
     const { initial } = mount();
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", {
+      screen.getByRole<HTMLAnchorElement>("link", {
         name: "Apri il tuo profilo",
       }),
     );
@@ -280,4 +280,28 @@ describe("flussi React", () => {
     expect(stored().prefs).toContain("Jazz");
     expect(stored().rounds[day].ids).toEqual(initial.rounds[day].ids);
   });
+});
+
+test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel profilo", async () => {
+  const { audio, initial } = mount();
+  expect(
+    screen.getByRole<HTMLButtonElement>("button", { name: "Salva brano 1" })
+      .disabled,
+  ).toBe(true);
+  await play();
+  finish(audio);
+  fireEvent.click(screen.getByRole("button", { name: "Salva brano 1" }));
+  expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
+  expect(
+    screen
+      .getByRole("button", { name: "Rimuovi dai salvati brano 1" })
+      .getAttribute("aria-pressed"),
+  ).toBe("true");
+  expect(screen.queryByRole("link", { name: "Il tuo profilo" })).toBeNull();
+  expect(screen.queryByText("La tua musica merita ascolto.")).toBeNull();
+  fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
+  expect(screen.getByText("Brano salvato")).toBeTruthy();
+  expect(screen.queryByRole("link", { name: /Apri il brano/ })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Rimuovi dai salvati" }));
+  expect(stored().saved).toEqual([]);
 });

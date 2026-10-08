@@ -98,7 +98,7 @@ if (!dashboard.clock.revealed) {
   );
   await assert.rejects(
     db.query("select public.toggle_favorite($1)", [slot]),
-    /Attendi il reveal/,
+    /Completa l’ascolto/,
   );
 }
 await assert.rejects(

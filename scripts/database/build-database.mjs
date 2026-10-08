@@ -129,6 +129,16 @@ if (superadminsIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo admin-profile-identity.sql.\nbegin;\n${sql[superadminsIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${superadminsVersion}','multiple_superadmins') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const favoritesVersion = "20261008000500";
+const favoritesIndex = files.findIndex((file) =>
+  file.startsWith(favoritesVersion),
+);
+if (favoritesIndex >= 0) {
+  await writeFile(
+    "supabase/updates/contest-favorites.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo multiple-superadmins.sql.\nbegin;\n${sql[favoritesIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${favoritesVersion}','contest_favorites') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

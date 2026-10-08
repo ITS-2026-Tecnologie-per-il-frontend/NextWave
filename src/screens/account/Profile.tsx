@@ -353,9 +353,10 @@ export default function Profile({
             if (!track) return null;
             return (
               <div key={id} className="panel">
-                <b>{track.title}</b>
+                <b>{track.title || "Brano salvato"}</b>
                 <p className="hint">
-                  {track.artist} · {track.genre}
+                  {track.artist || "Identità disponibile dopo il reveal"} ·{" "}
+                  {track.genre}
                 </p>
                 <button className="textbtn" onClick={() => onSave(id)}>
                   Rimuovi dai salvati
@@ -365,7 +366,7 @@ export default function Profile({
             );
           })
         ) : (
-          <p>Le scoperte che salvi dopo il reveal appariranno qui.</p>
+          <p>Salva i brani che ti colpiscono: li ritroverai qui.</p>
         )}
       </div>
       <h2>Il tuo diario di ascolto</h2>
