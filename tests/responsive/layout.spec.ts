@@ -1,5 +1,27 @@
 import { expect, test, type Page } from "@playwright/test";
 
+test("admin identities keep avatars and long names inside narrow cards", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto("/?screen=admin");
+  await expect(page).toHaveTitle("Next Wave — isolated layout fixtures");
+  const list = page.locator(".admin-accounts");
+  await expect(list.locator("li")).toHaveCount(2);
+  const image = list.locator("img");
+  await expect(image).toHaveAttribute("src", "/images/art.png");
+  await expect
+    .poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth))
+    .toBeGreaterThan(0);
+  for (const avatar of await list.locator(".avatar").all()) {
+    const box = await avatar.boundingBox();
+    expect(box!.width).toBe(48);
+    expect(box!.height).toBe(48);
+  }
+  await expect(list.locator("li").last().locator(".avatar")).toHaveText("A");
+  expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+});
+
 const screens = [
   "auth",
   "onboarding",
@@ -13,6 +35,8 @@ const screens = [
   "reveal",
   "vote",
   "crop",
+  "studio",
+  "library",
 ];
 const sizes = [
   { width: 320, height: 568 },
@@ -28,6 +52,7 @@ const sizes = [
 ];
 async function prepare(page: Page, screen: string, stress = true) {
   await page.goto(`/?screen=${screen}&stress=${stress}`);
+  await expect(page).toHaveTitle("Next Wave — isolated layout fixtures");
   await expect(page.locator("#app")).not.toBeEmpty();
   if (screen === "admin")
     await expect(
@@ -47,6 +72,12 @@ async function prepare(page: Page, screen: string, stress = true) {
     await page
       .getByRole("button", { name: "Candida un brano", exact: true })
       .click();
+  if (screen === "studio")
+    await page
+      .getByRole("button", { name: /(?:Crea|Modifica) il tuo stile/ })
+      .click();
+  if (screen === "library")
+    await page.getByRole("button", { name: /^I tuoi stili/ }).click();
   if (screen === "onboarding")
     await page.getByRole("button", { name: /Entra in Next Wave/ }).click();
   if (screen === "crop")
@@ -68,7 +99,11 @@ async function overflow(page: Page) {
           !rect.width ||
           !rect.height ||
           getComputedStyle(element).position === "absolute" ||
-          element.closest(".queue-calendar, .crop-stage, .theme-art, .sr-only")
+          element.closest(
+            ".queue-calendar, .crop-stage, .theme-art, .sr-only",
+          ) ||
+          (element.closest(".theme-catalog") &&
+            !element.matches(".theme-catalog"))
         )
           return false;
         return rect.right > viewport + 1 || rect.left < -1;
@@ -124,7 +159,7 @@ test("mobile keeps rewind usable, navigation readable and footer above fixed con
   const target = await rewind.boundingBox();
   expect(target!.width).toBeGreaterThanOrEqual(44);
   expect(target!.height).toBeGreaterThanOrEqual(44);
-  for (const button of await page.locator(".nav button").all()) {
+  for (const button of await page.locator(".nav a").all()) {
     const box = await button.boundingBox();
     expect(box!.width).toBeGreaterThanOrEqual(44);
     expect(box!.height).toBeGreaterThanOrEqual(44);
@@ -216,6 +251,7 @@ test("enlarged text reflows on mobile and tablet", async ({ page }) => {
 });
 
 test("visual review samples", async ({ page }, info) => {
+  test.setTimeout(120000);
   test.skip(
     info.project.name !== "chromium",
     "One set of reference images is sufficient.",
@@ -231,7 +267,9 @@ test("visual review samples", async ({ page }, info) => {
       const path = info.outputPath(`${screen}-${size.width}.png`);
       await page.screenshot({
         path,
-        fullPage: !["crop", "vote", "reveal"].includes(screen),
+        fullPage: !["crop", "vote", "reveal", "studio", "library"].includes(
+          screen,
+        ),
       });
       await info.attach(`${screen}-${size.width}`, {
         path,
@@ -274,10 +312,7 @@ test("touch navigation reaches the profile", async ({ page }, info) => {
   );
   await page.setViewportSize({ width: 390, height: 844 });
   await prepare(page, "daily");
-  await page
-    .getByRole("navigation")
-    .getByRole("button", { name: "Il tuo profilo" })
-    .tap();
+  await page.getByRole("button", { name: "Apri profilo", exact: true }).tap();
   await expect(
     page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
   ).toBeVisible();
@@ -306,5 +341,121 @@ test("ranking date stays inside its panel and changes the selected day", async (
         .click();
       await expect(input).toHaveValue("2026-10-08");
     }
+  }
+});
+
+test("solid mobile dock fits listener, artist and admin navigation", async ({
+  page,
+}) => {
+  for (const width of [320, 390, 768]) {
+    await page.setViewportSize({ width, height: 844 });
+    for (const [account, admin, count] of [
+      ["listener", false, 2],
+      ["artist", false, 3],
+      ["artist", true, 4],
+    ] as const) {
+      await page.goto(`/?screen=daily&account=${account}&admin=${admin}`);
+      const nav = page.getByRole("navigation", {
+        name: "Navigazione principale",
+      });
+      await expect(nav.getByRole("link")).toHaveCount(count);
+      const appearance = await nav.evaluate((element) => ({
+        background: getComputedStyle(element).backgroundColor,
+        image: getComputedStyle(element).backgroundImage,
+        blur: getComputedStyle(element).backdropFilter,
+      }));
+      expect(appearance.image).toBe("none");
+      expect(appearance.blur).toBe("none");
+      expect(
+        await page
+          .locator(".player")
+          .evaluate((element) => getComputedStyle(element).backdropFilter),
+      ).toBe("none");
+      expect(appearance.background).not.toBe("rgba(0, 0, 0, 0)");
+      for (const button of await nav.getByRole("link").all()) {
+        const box = await button.boundingBox();
+        expect(box!.width).toBeGreaterThanOrEqual(44);
+        expect(box!.height).toBeGreaterThanOrEqual(44);
+      }
+      await page
+        .getByRole("button", { name: "Apri profilo", exact: true })
+        .click();
+      await expect(
+        page.getByRole("heading", { name: "Il tuo spazio.", exact: true }),
+      ).toBeVisible();
+      await expect(
+        nav.getByRole("link", { name: "Il tuo profilo" }),
+      ).toHaveCount(0);
+      expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+    }
+  }
+});
+
+test("all presets keep a solid dock and the safe area clear", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto("/?screen=profile");
+  const choices = page.locator(".theme-choice");
+  await expect(choices).toHaveCount(10);
+  for (const choice of await choices.all()) {
+    await choice.click();
+    await expect(choice).toHaveAttribute("aria-pressed", "true");
+    expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+    const nav = page.locator(".sidebar .nav");
+    expect(
+      await nav.evaluate(
+        (element) => getComputedStyle(element).backgroundImage,
+      ),
+    ).toBe("none");
+    expect(
+      await nav
+        .locator("a:not(.active)")
+        .first()
+        .evaluate((element) => getComputedStyle(element).backgroundColor),
+    ).toBe("rgba(0, 0, 0, 0)");
+  }
+  await page.evaluate(() =>
+    document.documentElement.style.setProperty("--safe-bottom", "34px"),
+  );
+  const player = await page.locator(".player").boundingBox();
+  const nav = await page.locator(".sidebar .nav").boundingBox();
+  expect(player!.y + player!.height).toBeLessThanOrEqual(nav!.y);
+  expect(nav!.y + nav!.height).toBeLessThanOrEqual(844 - 34);
+  await page.locator(".footerline").scrollIntoViewIfNeeded();
+  const footer = await page.locator(".footerline").boundingBox();
+  expect(footer!.y + footer!.height).toBeLessThanOrEqual(player!.y);
+});
+
+test("player controls and progress stay centered with accessible volume and favorites", async ({
+  page,
+}, info) => {
+  for (const width of [320, 390, 768, 961, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await prepare(page, "daily");
+    const bar = page.getByRole("region", { name: "Player musicale" });
+    const play = bar.getByRole("button", { name: "Riproduci", exact: true });
+    const volume = bar.getByRole("slider", { name: "Volume" });
+    const mute = bar.getByRole("button", { name: "Disattiva audio" });
+    await expect(volume).toBeVisible();
+    await expect(mute).toBeVisible();
+    await expect(
+      bar.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
+    ).toBeVisible();
+    const bounds = await bar.boundingBox();
+    const button = await play.boundingBox();
+    expect(
+      Math.abs(button!.x + button!.width / 2 - bounds!.x - bounds!.width / 2),
+    ).toBeLessThan(2);
+    expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+    for (const target of [play, mute, bar.locator(".player-save")]) {
+      const box = await target.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
+    if (info.project.name === "chromium" && [390, 1440].includes(width))
+      await bar.screenshot({
+        path: info.outputPath("player-" + width + ".png"),
+      });
   }
 });

@@ -1,5 +1,6 @@
+import { BrowserRouter } from "react-router-dom";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CloudRepository } from "../../src/services/cloudRepository.ts";
+import type { CloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import type {
   Dashboard,
   Profile,
@@ -15,10 +16,10 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { Account } from "../../src/app/CloudAccount.tsx";
-import Auth from "../../src/pages/Auth.tsx";
+import Auth from "../../src/screens/auth/Auth.tsx";
 import { getDataConfig } from "../../src/config/environment.ts";
-import { createCloudRepository } from "../../src/services/cloudRepository.ts";
-import { STORAGE_KEY } from "../../src/services/demoProfileStorage.ts";
+import { createCloudRepository } from "../../src/services/cloud/cloudRepository.ts";
+import { STORAGE_KEY } from "../../src/services/demo/demoProfileStorage.ts";
 
 const day = "2026-09-28";
 function fixture(): Dashboard {
@@ -50,6 +51,7 @@ function fixture(): Dashboard {
   };
 }
 async function mountCloud(state = fixture()) {
+  const initialPath = location.pathname;
   const repository = {
     dashboard: vi.fn(async () => structuredClone(state)),
     beginListening: vi.fn(async () => ({
@@ -84,6 +86,8 @@ async function mountCloud(state = fixture()) {
       accounts: [
         {
           id: "account-1",
+          name: "Nome admin attuale",
+          avatarUrl: "https://example.com/current-avatar.png",
           email: "santonithomas9@gmail.com",
           owner: true,
           created: null,
@@ -96,14 +100,22 @@ async function mountCloud(state = fixture()) {
     removeAvatar: vi.fn(async () => {}),
   };
   const client = { auth: { signOut: vi.fn(async () => ({ error: null })) } };
-  render(
+  const view = render(
     <Account
       client={client as unknown as SupabaseClient}
       repository={repository}
     />,
+    { wrapper: BrowserRouter },
   );
-  await screen.findByText("La tua selezione");
-  return { repository, state, client, audio: getAudio() };
+  await screen.findByRole("navigation", { name: "Navigazione principale" });
+  if (
+    initialPath === "/" ||
+    initialPath === "/daily" ||
+    (initialPath === "/admin" && !state.adminAccess?.allowed)
+  ) {
+    await screen.findByText("La tua selezione");
+  }
+  return { repository, state, client, audio: getAudio(), ...view };
 }
 function finish(audio: HTMLAudioElement, start = 0) {
   Object.defineProperty(audio, "ended", { configurable: true, value: true });
@@ -178,7 +190,7 @@ describe("account cloud", () => {
       },
     ];
     await mountCloud(state);
-    fireEvent.click(screen.getByRole("button", { name: "Per gli artisti" }));
+    fireEvent.click(screen.getByRole("link", { name: "Per gli artisti" }));
     await screen.findByRole("button", { name: "Candida un brano" });
     expect(
       screen.queryByText("La tua traccia del mese è stata inviata."),
@@ -186,39 +198,35 @@ describe("account cloud", () => {
   });
   test("la sezione artisti si attiva dal profilo e sparisce tornando ascoltatore", async () => {
     const { repository } = await mountCloud();
-    expect(
-      screen.queryByRole("button", { name: "Per gli artisti" }),
-    ).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Il tuo profilo" }));
+    expect(screen.queryByRole("link", { name: "Per gli artisti" })).toBeNull();
+    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
     fireEvent.click(screen.getByRole("button", { name: "Artista" }));
-    await screen.findByRole("button", { name: "Per gli artisti" });
+    await screen.findByRole("link", { name: "Per gli artisti" });
     expect(repository.setAccountType).toHaveBeenCalledWith("artist");
-    fireEvent.click(screen.getByRole("button", { name: "Per gli artisti" }));
+    fireEvent.click(screen.getByRole("link", { name: "Per gli artisti" }));
     await screen.findByText("Non hai ancora inviato candidature.");
     expect(screen.queryByLabelText("Nome artista")).toBeNull();
     fireEvent.click(
       screen.getByRole("button", { name: "Candida la traccia del mese" }),
     );
     expect(screen.getByLabelText("Nome artista")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Il tuo profilo" }));
+    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
     fireEvent.click(screen.getByRole("button", { name: "Ascoltatore" }));
     await waitFor(() =>
       expect(
-        screen.queryByRole("button", { name: "Per gli artisti" }),
+        screen.queryByRole("link", { name: "Per gli artisti" }),
       ).toBeNull(),
     );
   });
   test("un ascoltatore che apre artist direttamente viene riportato al profilo", async () => {
     await mountCloud();
     await act(async () => {
-      location.hash = "artist";
-      window.dispatchEvent(new Event("hashchange"));
+      history.pushState(null, "", "/artist");
+      window.dispatchEvent(new PopStateEvent("popstate"));
     });
     await screen.findByText("Tipo di profilo");
     expect(screen.queryByLabelText("Nome artista")).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: "Per gli artisti" }),
-    ).toBeNull();
+    expect(screen.queryByRole("link", { name: "Per gli artisti" })).toBeNull();
   });
   test("la candidatura del mese resta in primo piano e blocca un nuovo caricamento", async () => {
     const state = fixture();
@@ -237,7 +245,7 @@ describe("account cloud", () => {
       },
     ];
     await mountCloud(state);
-    fireEvent.click(screen.getByRole("button", { name: "Per gli artisti" }));
+    fireEvent.click(screen.getByRole("link", { name: "Per gli artisti" }));
     await screen.findByText("La mia traccia");
     expect(
       screen.getByText("La tua traccia del mese è stata inviata."),
@@ -248,19 +256,25 @@ describe("account cloud", () => {
     expect(screen.queryByLabelText("Nome artista")).toBeNull();
   });
   test("nasconde il pannello agli utenti ordinari anche con URL admin", async () => {
-    location.hash = "admin";
+    history.replaceState(null, "", "/admin");
     const { repository } = await mountCloud();
-    expect(screen.queryByRole("button", { name: "Pannello admin" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Pannello admin" })).toBeNull();
     expect(repository.adminDashboard).not.toHaveBeenCalled();
-    await waitFor(() => expect(location.hash).toBe("#daily"));
+    await waitFor(() => expect(location.pathname).toBe("/daily"));
   });
   test("mostra il pannello e protegge il superadmin dalla revoca", async () => {
     const state = fixture();
     state.adminAccess = { allowed: true, owner: true };
     await mountCloud(state);
-    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
     await screen.findByText("santonithomas9@gmail.com");
     expect(screen.getByText("Superadmin · protetto")).toBeTruthy();
+    expect(screen.getByText("Nome admin attuale")).toBeTruthy();
+    expect(
+      document
+        .querySelector(".admin-accounts .avatar img")
+        ?.getAttribute("src"),
+    ).toBe("https://example.com/current-avatar.png");
     expect(screen.queryByRole("button", { name: "Revoca accesso" })).toBeNull();
   });
   test("elimina una candidatura senza audio solo dopo motivo e conferma", async () => {
@@ -353,7 +367,7 @@ describe("account cloud", () => {
         },
       ],
     });
-    fireEvent.click(screen.getByRole("button", { name: "Pannello admin" }));
+    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
     await screen.findByText("Song");
     const approve = screen.getByRole<HTMLButtonElement>("button", {
       name: "Approva e programma",
@@ -486,7 +500,7 @@ describe("account cloud", () => {
       new Error("Salvataggio non disponibile."),
     );
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", {
+      screen.getByRole<HTMLAnchorElement>("link", {
         name: "Apri il tuo profilo",
       }),
     );
@@ -538,6 +552,7 @@ describe("account cloud", () => {
         client={{ auth: {} } as unknown as SupabaseClient}
         repository={{ dashboard: async () => state } as CloudRepository}
       />,
+      { wrapper: BrowserRouter },
     );
     await screen.findByText("Stiamo preparando la tua selezione.");
     expect(
@@ -615,4 +630,19 @@ describe("autenticazione e configurazione", () => {
     } as unknown as SupabaseClient);
     await expect(repository.dashboard()).rejects.toThrow("SQL Editor");
   });
+});
+
+test("player cloud: volume massimo e mute con ripristino", async () => {
+  const { audio } = await mountCloud();
+  const volume = screen.getByRole<HTMLInputElement>("slider", {
+    name: "Volume",
+  });
+  expect(volume.value).toBe("1");
+  expect(audio.volume).toBe(1);
+  fireEvent.click(screen.getByRole("button", { name: "Disattiva audio" }));
+  expect(audio.volume).toBe(0);
+  expect(audio.muted).toBe(true);
+  fireEvent.click(screen.getByRole("button", { name: "Riattiva audio" }));
+  expect(audio.volume).toBe(1);
+  expect(audio.muted).toBe(false);
 });

@@ -4,5 +4,28 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm ci",
-  "functions": { "api/audio.ts": { "maxDuration": 60 } }
+  "functions": { "api/audio.ts": { "maxDuration": 60 } },
+  "rewrites": [
+    {
+      "source": "/:path((?!api(?:/|$)|assets(?:/|$)|brand(?:/|$)|images(?:/|$)|.*\\.[^/]+$).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/art.png",
+      "destination": "/images/art.png",
+      "permanent": true
+    },
+    {
+      "source": "/nextwave_connome.svg",
+      "destination": "/brand/legacy/nextwave_connome.svg",
+      "permanent": true
+    },
+    {
+      "source": "/nextwave_senzanome.svg",
+      "destination": "/brand/legacy/nextwave_senzanome.svg",
+      "permanent": true
+    }
+  ]
 }

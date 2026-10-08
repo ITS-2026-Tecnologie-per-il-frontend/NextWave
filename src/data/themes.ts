@@ -2,7 +2,7 @@ import {
   mix,
   originalStyle,
   type CustomStyle,
-} from "../services/customStyle.ts";
+} from "../services/appearance/customStyle.ts";
 
 const palettes = [
   ["rap", "Rap", "#FF8A3D", "Calore urbano, riflessi arancio"],

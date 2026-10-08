@@ -4,7 +4,7 @@ import { cleanup } from "@testing-library/react";
 afterEach(() => {
   cleanup();
   localStorage.clear();
-  location.hash = "";
+  history.replaceState(null, "", "/");
   vi.useRealTimers();
 });
 Object.defineProperty(HTMLDialogElement.prototype, "showModal", {

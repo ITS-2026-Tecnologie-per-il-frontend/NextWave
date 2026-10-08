@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface AvatarProps {
   name: string;
   imageUrl?: string | null;
@@ -17,15 +19,18 @@ export function Avatar({
   positionX = 50,
   positionY = 50,
 }: AvatarProps) {
-  const content = imageUrl ? (
-    <img
-      src={imageUrl}
-      alt=""
-      style={{ objectPosition: `${positionX}% ${positionY}%` }}
-    />
-  ) : (
-    (name || "Tu")[0].toUpperCase()
-  );
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const content =
+    imageUrl && failedUrl !== imageUrl ? (
+      <img
+        src={imageUrl}
+        alt=""
+        onError={() => setFailedUrl(imageUrl)}
+        style={{ objectPosition: `${positionX}% ${positionY}%` }}
+      />
+    ) : (
+      (name || "Tu")[0].toUpperCase()
+    );
   if (button) {
     return (
       <button className="avatar" aria-label={label} onClick={onClick}>

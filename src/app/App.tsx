@@ -1,4 +1,4 @@
-import { getErrorMessage } from "../domain/errors.ts";
+import { getErrorMessage } from "../domain/shared/errors.ts";
 import { lazy, Suspense } from "react";
 import { getDataConfig } from "../config/environment.ts";
 const CloudApp = lazy(() => import("./CloudApp.tsx"));

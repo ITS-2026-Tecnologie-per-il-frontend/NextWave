@@ -1,27 +1,26 @@
-import { getErrorMessage } from "../domain/errors.ts";
+import { getErrorMessage } from "../domain/shared/errors.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CloudRepository } from "../services/cloudRepository.ts";
-import type {
-  Dashboard,
-  CloudDialog,
-  ProfileChanges,
-  Route,
-} from "../types/models.ts";
+import type { CloudRepository } from "../services/cloud/cloudRepository.ts";
+import type { CloudDialog, Route } from "../types/models.ts";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { canVote } from "../domain/contest.ts";
-import { rome } from "../domain/time.ts";
+import { canVote } from "../domain/contest/contest.ts";
+import { useAccount } from "../hooks/useAccount.ts";
+import { AccountProvider } from "../context/account/AccountProvider.tsx";
+import { PlaybackContext } from "../context/playback/PlaybackContext.ts";
 import { useCloudPlayer } from "../hooks/useCloudPlayer.ts";
-import CloudRankings from "../pages/CloudRankings.tsx";
-import Layout from "../components/Layout.tsx";
-import Dialog from "../components/Dialog.tsx";
-import Reveal from "../components/Reveal.tsx";
-import Onboarding from "../pages/Onboarding.tsx";
-import Daily from "../pages/Daily.tsx";
-import Profile from "../pages/Profile.tsx";
-import Artist from "../pages/Artist.tsx";
-import Admin from "../pages/Admin.tsx";
+import CloudRankings from "../screens/rankings/CloudRankings.tsx";
+import Layout from "../components/layout/Layout.tsx";
+import Dialog from "../components/dialogs/Dialog.tsx";
+import Reveal from "../components/contest/Reveal.tsx";
+import Onboarding from "../screens/auth/Onboarding.tsx";
+import Daily from "../screens/contest/Daily.tsx";
+import Profile from "../screens/account/Profile.tsx";
+import Artist from "../screens/artist/Artist.tsx";
+import Admin from "../screens/admin/Admin.tsx";
 
-import { readRoute } from "../config/routes.ts";
+import { routePaths, routeForPath } from "../config/routes.ts";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AccountRoutes } from "./routing/AccountRoutes.tsx";
 
 export function Account({
   client,
@@ -30,100 +29,63 @@ export function Account({
   client: SupabaseClient;
   repository: CloudRepository;
 }) {
-  const [data, setData] = useState<Dashboard | null>(null);
-  const [error, setError] = useState("");
-  const [toast, setToast] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [route, setRoute] = useState(() => readRoute(location.hash, true));
+  return (
+    <AccountProvider client={client} repository={repository}>
+      <AccountScreen />
+    </AccountProvider>
+  );
+}
+
+function AccountScreen() {
+  const {
+    data,
+    error,
+    busy,
+    toast,
+    serverNow,
+    clock,
+    repository,
+    refresh,
+    mutate,
+    patchProfile,
+    signOut,
+    notify,
+  } = useAccount();
+  const location = useLocation();
+  const go = useNavigate();
+  const route = routeForPath(location.pathname);
   const [dialog, setDialog] = useState<CloudDialog | null>(null);
-  const [now, setNow] = useState(Date.now());
-  const offsetRef = useRef(0);
   const alive = useRef(true);
-  const requestRef = useRef(0);
-  const dataRef = useRef<Dashboard | null>(null);
-  const mutationRef = useRef(false);
-  const revealPending = useRef(false);
-  const notify = useCallback((message: string) => setToast(message), []);
-  const refresh = useCallback(async () => {
-    const request = ++requestRef.current;
-    const result = await repository.dashboard();
-    if (!alive.current || request !== requestRef.current) return;
-    if (!dataRef.current) {
-      dayRef.current = result.clock.day;
-      revealRef.current = result.clock.revealed;
-    }
-    offsetRef.current = Date.parse(result.serverTime) - Date.now();
-    dataRef.current = result;
-    setData(result);
-    setNow(Date.now());
-    setError("");
-    return result;
-  }, [repository]);
   useEffect(() => {
     alive.current = true;
-    refresh().catch((error) => {
-      if (alive.current) setError(getErrorMessage(error));
-    });
-    const poll = setInterval(() => {
-      refresh().catch((error) => {
-        if (alive.current) setError(getErrorMessage(error));
-      });
-    }, 30000);
-    const focus = () => {
-      refresh().catch((error) => {
-        if (alive.current) setError(getErrorMessage(error));
-      });
-    };
-    window.addEventListener("focus", focus);
     return () => {
       alive.current = false;
-      requestRef.current++;
-      clearInterval(poll);
-      window.removeEventListener("focus", focus);
-    };
-  }, [refresh]);
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    const changed = () => {
-      setRoute(readRoute(location.hash, true));
-      setDialog(null);
-    };
-    window.addEventListener("hashchange", changed);
-    return () => {
-      clearInterval(timer);
-      window.removeEventListener("hashchange", changed);
     };
   }, []);
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(""), 5000);
-    return () => clearTimeout(timer);
-  }, [toast]);
-  const clock = rome(new Date(now + offsetRef.current));
+  const revealPending = useRef(false);
+  const pagePath =
+    location.pathname === "/" ? routePaths.daily : location.pathname;
+  useEffect(() => setDialog(null), [pagePath]);
   const dayRef = useRef(clock.day);
   const revealRef = useRef(clock.revealed);
+  const loaded = useRef(false);
   useEffect(() => {
+    if (!data) return;
+    if (!loaded.current) {
+      loaded.current = true;
+      dayRef.current = clock.day;
+      revealRef.current = clock.revealed;
+      return;
+    }
     if (dayRef.current !== clock.day || revealRef.current !== clock.revealed) {
       dayRef.current = clock.day;
       revealRef.current = clock.revealed;
       setDialog(null);
       refresh().catch((error) => notify(getErrorMessage(error)));
     }
-  }, [clock.day, clock.revealed, refresh, notify]);
+  }, [data, clock.day, clock.revealed, refresh, notify]);
   const profile = data?.profile;
   const canAdmin = data?.adminAccess?.allowed === true;
-  useEffect(() => {
-    if (profile && route === "artist" && profile.accountType !== "artist") {
-      setRoute("profile");
-      location.hash = "profile";
-    }
-  }, [profile, route]);
-  useEffect(() => {
-    if (data && route === "admin" && !canAdmin) {
-      setRoute("daily");
-      location.hash = "daily";
-    }
-  }, [data, route, canAdmin]);
   const round = profile?.rounds[clock.day] || {
     day: clock.day,
     ids: [],
@@ -165,41 +127,13 @@ export function Account({
     if (day && !profile.seenReveals.includes(day)) void showReveal(day);
   }, [profile, clock.day, clock.revealed, dialog, showReveal]);
 
-  async function mutate(action: () => Promise<unknown>, message?: string) {
-    if (mutationRef.current)
-      throw new Error("Attendi il salvataggio in corso.");
-    mutationRef.current = true;
-    setBusy(true);
-    try {
-      await action();
-      await refresh();
-      if (message) notify(message);
-    } finally {
-      mutationRef.current = false;
-      if (alive.current) setBusy(false);
-    }
-  }
-  function patchProfile(values: ProfileChanges) {
-    const currentProfile = dataRef.current?.profile;
-    if (!currentProfile)
-      return Promise.reject(new Error("Profilo non ancora disponibile."));
-    if (values.accountType)
-      return mutate(() => repository.setAccountType(values.accountType!));
-    return mutate(() =>
-      repository.saveProfile({ ...currentProfile, ...values }),
-    );
-  }
   function handled(promise: Promise<unknown>) {
     promise.catch((error) => notify(getErrorMessage(error)));
   }
-  function navigate(next: Route) {
-    setRoute(next);
+  function navigate(next: Route, replace = false) {
     setDialog(null);
-    location.hash = next;
-  }
-  async function signOut() {
-    const { error } = await client.auth.signOut();
-    if (error) notify(getErrorMessage(error));
+    if (location.pathname !== routePaths[next])
+      go(routePaths[next], { replace });
   }
   async function confirmVote() {
     if (dialog?.type !== "vote") return;
@@ -218,7 +152,9 @@ export function Account({
 
   if (!data || !profile)
     return (
-      <>
+      <PlaybackContext.Provider
+        value={{ player, round, revealed: clock.revealed, cloud: true }}
+      >
         <audio ref={player.audioRef} />
         <main className="connection-page">
           <section className="panel">
@@ -237,12 +173,22 @@ export function Account({
             )}
           </section>
         </main>
-      </>
+      </PlaybackContext.Provider>
     );
   const tracks = data.tracks;
   const currentTrack = tracks.find((track) => track.id === player.active);
   return (
-    <>
+    <PlaybackContext.Provider
+      value={{
+        player: { ...player, track: currentTrack },
+        round,
+        revealed: clock.revealed,
+        cloud: true,
+        saved: Boolean(currentTrack?.saved),
+        saving: busy,
+        onSave: (id) => handled(mutate(() => repository.favorite(id))),
+      }}
+    >
       <audio ref={player.audioRef} preload="metadata" />
       {!profile.onboard || profile.prefs.length > 5 ? (
         <Onboarding
@@ -252,22 +198,27 @@ export function Account({
           onFinish={(values) => handled(patchProfile(values))}
         />
       ) : (
-        <Layout
-          cloud
-          admin={canAdmin}
-          profile={profile}
-          route={route}
-          navigate={navigate}
-          player={{ ...player, track: currentTrack }}
-          round={round}
-          revealed={clock.revealed}
-        >
-          {error && (
-            <p className="error connection-error" role="alert">
-              {error} I progressi non confermati dal server non vengono salvati.
-            </p>
-          )}
-          {route === "daily" && (
+        <AccountRoutes
+          isArtist={profile.accountType === "artist"}
+          canAdmin={canAdmin}
+          layout={
+            <Layout
+              cloud
+              admin={canAdmin}
+              profile={profile}
+              route={route}
+              navigate={navigate}
+            >
+              {error && (
+                <p className="error connection-error" role="alert">
+                  {error} I progressi non confermati dal server non vengono
+                  salvati.
+                </p>
+              )}
+              <Outlet />
+            </Layout>
+          }
+          daily={
             <Daily
               cloud
               tracks={tracks}
@@ -287,8 +238,8 @@ export function Account({
               onRanks={() => navigate("ranks")}
               onProfile={() => navigate("profile")}
             />
-          )}
-          {route === "profile" && (
+          }
+          profile={
             <Profile
               cloud
               busy={busy}
@@ -314,12 +265,12 @@ export function Account({
               notify={notify}
               onSignOut={signOut}
             />
-          )}
-          {route === "artist" && profile.accountType === "artist" && (
+          }
+          artist={
             <Artist
               cloud
               admin={canAdmin}
-              now={new Date(now + offsetRef.current)}
+              now={new Date(serverNow)}
               applications={profile.applications}
               onRemove={(id) =>
                 mutate(
@@ -334,18 +285,18 @@ export function Account({
                 )
               }
             />
-          )}
-          {route === "ranks" && <CloudRankings repository={repository} />}
-          {route === "admin" && canAdmin && (
+          }
+          ranks={<CloudRankings repository={repository} />}
+          admin={
             <Admin
               repository={repository}
               onAccessLost={() => {
                 void refresh();
-                navigate("daily");
+                navigate("daily", true);
               }}
             />
-          )}
-        </Layout>
+          }
+        />
       )}
       {dialog && (
         <Dialog
@@ -392,6 +343,6 @@ export function Account({
       >
         {toast}
       </div>
-    </>
+    </PlaybackContext.Provider>
   );
 }

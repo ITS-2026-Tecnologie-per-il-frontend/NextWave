@@ -7,7 +7,7 @@ import {
   styleVariables,
   readStyleLibrary,
   saveNamedStyle,
-} from "../../src/services/customStyle.ts";
+} from "../../src/services/appearance/customStyle.ts";
 import { themes } from "../../src/data/themes.ts";
 
 const storageKey = "nextwave-custom-style-v1";

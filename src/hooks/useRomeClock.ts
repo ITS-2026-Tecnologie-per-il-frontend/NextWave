@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { rome } from "../domain/time.ts";
+import { rome } from "../domain/shared/time.ts";
 export function useRomeClock() {
   const [clock, setClock] = useState(rome);
   useEffect(() => {

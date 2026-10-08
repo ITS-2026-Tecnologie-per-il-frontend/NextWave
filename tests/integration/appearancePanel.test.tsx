@@ -1,14 +1,17 @@
+import { AppearanceProvider } from "../../src/context/appearance/AppearanceProvider.tsx";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { AppearancePanel } from "../../src/components/AppearancePanel.tsx";
+import { AppearancePanel } from "../../src/components/appearance/AppearancePanel.tsx";
 import {
   readCustomStyle,
   readStyleLibrary,
-} from "../../src/services/customStyle.ts";
+} from "../../src/services/appearance/customStyle.ts";
 
 describe("catalogo e raccolta stili", () => {
   it("parte da un preset, salva, ricarica la raccolta e modifica senza duplicare", () => {
-    const view = render(<AppearancePanel theme="pulse" />);
+    const view = render(<AppearancePanel theme="pulse" />, {
+      wrapper: AppearanceProvider,
+    });
     const choices = within(
       screen.getByRole("group", { name: "Scegli lo stile di NextWave" }),
     );
@@ -39,7 +42,7 @@ describe("catalogo e raccolta stili", () => {
     });
     fireEvent.click(choices.getByRole("button", { name: "Pop: #FF5FA2" }));
     view.unmount();
-    render(<AppearancePanel theme="pulse" />);
+    render(<AppearancePanel theme="pulse" />, { wrapper: AppearanceProvider });
     fireEvent.click(screen.getByRole("button", { name: /I tuoi stili/ }));
     expect(screen.getByRole("dialog", { name: "I tuoi stili" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Applica" }));
@@ -61,7 +64,7 @@ describe("catalogo e raccolta stili", () => {
   });
 
   it("il carosello si naviga anche con la tastiera", () => {
-    render(<AppearancePanel theme="pulse" />);
+    render(<AppearancePanel theme="pulse" />, { wrapper: AppearanceProvider });
     const rap = screen.getByRole("button", { name: "Rap: #FF8A3D" });
     rap.focus();
     fireEvent.keyDown(rap, { key: "ArrowRight" });

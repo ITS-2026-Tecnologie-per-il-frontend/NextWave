@@ -129,6 +129,11 @@ export interface AdminDashboard {
   accounts: {
     id: string;
     email: string;
+    name?: string | null;
+    avatarPath?: string | null;
+    avatarUrl?: string | null;
+    avatarPositionX?: number;
+    avatarPositionY?: number;
     owner: boolean;
     created: string | null;
   }[];

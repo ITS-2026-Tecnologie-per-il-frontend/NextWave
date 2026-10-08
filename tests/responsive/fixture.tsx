@@ -1,8 +1,11 @@
+import { PlaybackContext } from "../../src/context/playback/PlaybackContext.ts";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { routeForPath } from "../../src/config/routes.ts";
 // Real components with isolated in-memory data. Never imported by the product entry point.
 import { createRoot } from "react-dom/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { CloudRepository } from "../../src/services/cloudRepository.ts";
+import type { CloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import type {
   AdminDashboard,
   Player,
@@ -11,20 +14,33 @@ import type {
   Round,
   Route,
 } from "../../src/types/models.ts";
-import Layout from "../../src/components/Layout.tsx";
-import Daily from "../../src/pages/Daily.tsx";
-import Profile from "../../src/pages/Profile.tsx";
-import Artist from "../../src/pages/Artist.tsx";
-import Admin from "../../src/pages/Admin.tsx";
-import CloudRankings from "../../src/pages/CloudRankings.tsx";
-import Auth from "../../src/pages/Auth.tsx";
-import Onboarding from "../../src/pages/Onboarding.tsx";
-import Dialog from "../../src/components/Dialog.tsx";
-import Reveal from "../../src/components/Reveal.tsx";
-import AvatarCropDialog from "../../src/components/ui/AvatarCropDialog.tsx";
+import Layout from "../../src/components/layout/Layout.tsx";
+import Daily from "../../src/screens/contest/Daily.tsx";
+import Profile from "../../src/screens/account/Profile.tsx";
+import Artist from "../../src/screens/artist/Artist.tsx";
+import Admin from "../../src/screens/admin/Admin.tsx";
+import CloudRankings from "../../src/screens/rankings/CloudRankings.tsx";
+import Auth from "../../src/screens/auth/Auth.tsx";
+import Onboarding from "../../src/screens/auth/Onboarding.tsx";
+import Dialog from "../../src/components/dialogs/Dialog.tsx";
+import Reveal from "../../src/components/contest/Reveal.tsx";
+import AvatarCropDialog from "../../src/components/dialogs/AvatarCropDialog.tsx";
+import {
+  originalStyle,
+  saveNamedStyle,
+} from "../../src/services/appearance/customStyle.ts";
 import "../../src/styles/index.css";
 
 const stress = new URLSearchParams(location.search).get("stress") !== "false";
+if (new URLSearchParams(location.search).get("screen") === "library") {
+  for (let index = 0; index < 4; index++)
+    saveNamedStyle(
+      stress
+        ? "IlMioStilePersonaleConNomeLungo" + index
+        : "Atmosfera " + (index + 1),
+      originalStyle,
+    );
+}
 const longText = stress
   ? "UnaTracciaConUnTitoloMoltoLungoSenzaSpazi".repeat(3)
   : "Nuove prospettive";
@@ -108,11 +124,20 @@ const adminData: AdminDashboard = {
   accounts: [
     {
       id: "owner",
+      name: longText,
+      avatarPath: "owner/profile.png",
+      avatarUrl: "/images/art.png",
       email: `${"nome".repeat(45)}@example.com`,
       owner: true,
       created: null,
     },
-    { id: "other", email: "admin@example.com", owner: false, created: null },
+    {
+      id: "other",
+      name: "Admin senza immagine",
+      email: "admin@example.com",
+      owner: false,
+      created: null,
+    },
   ],
 };
 const repository = {
@@ -162,15 +187,22 @@ function CropFixture() {
 }
 
 function Fixture() {
+  const routerLocation = useLocation();
   const params = new URLSearchParams(location.search);
   const screen = params.get("screen") || "daily";
   const [route, setRoute] = useState<Route>(
     screen === "rankings"
       ? "ranks"
-      : ["artist", "admin", "profile"].includes(screen)
-        ? (screen as Route)
-        : "daily",
+      : ["studio", "library"].includes(screen)
+        ? "profile"
+        : ["artist", "admin", "profile"].includes(screen)
+          ? (screen as Route)
+          : "daily",
   );
+  useEffect(() => {
+    if (routerLocation.pathname !== "/")
+      setRoute(routeForPath(routerLocation.pathname));
+  }, [routerLocation.pathname]);
   if (screen === "auth") return <Auth client={client} />;
   if (screen === "onboarding")
     return (
@@ -185,75 +217,96 @@ function Fixture() {
   const activeRound =
     screen === "empty" ? { ...round, ids: [], listened: [] } : round;
   return (
-    <Layout
-      profile={profile}
-      route={route}
-      navigate={setRoute}
-      player={player}
-      revealed={revealed}
-      round={activeRound}
-      cloud
-      admin
+    <PlaybackContext.Provider
+      value={{
+        player,
+        round: activeRound,
+        revealed,
+        cloud: true,
+        saved: true,
+        onSave: () => {},
+      }}
     >
-      {route === "profile" ? (
-        <Profile
-          profile={profile}
-          tracks={rows}
-          onUpdate={() => {}}
-          onSave={() => {}}
-          notify={() => {}}
-          cloud
-          onSignOut={() => {}}
-          onAvatarUpload={async () => {}}
-          onAvatarRemove={async () => {}}
-        />
-      ) : route === "artist" ? (
-        <Artist applications={[application]} onSubmit={() => {}} cloud admin />
-      ) : route === "admin" ? (
-        <Admin repository={repository} onAccessLost={() => {}} />
-      ) : route === "ranks" ? (
-        <CloudRankings repository={repository} />
-      ) : (
-        <Daily
-          round={activeRound}
-          clock={{ day, seconds: 12 * 3600, revealed }}
-          revealed={revealed}
-          preview={false}
-          player={player}
-          saved={[]}
-          tracks={rows}
-          cloud
-          onVote={() => {}}
-          onSave={() => {}}
-          onReveal={() => {}}
-          onRanks={() => setRoute("ranks")}
-        />
-      )}
-      {screen === "reveal" && (
-        <Dialog reveal onClose={() => {}}>
-          <Reveal
-            round={round}
-            rows={rows}
-            preview={false}
-            onClose={() => {}}
-            onRanks={() => {}}
+      <Layout
+        profile={{
+          ...profile,
+          accountType:
+            params.get("account") === "listener" ? "listener" : "artist",
+        }}
+        route={route}
+        navigate={setRoute}
+        cloud
+        admin={params.get("admin") !== "false"}
+      >
+        {route === "profile" ? (
+          <Profile
+            profile={profile}
+            tracks={rows}
+            onUpdate={() => {}}
+            onSave={() => {}}
+            notify={() => {}}
+            cloud
+            onSignOut={() => {}}
+            onAvatarUpload={async () => {}}
+            onAvatarRemove={async () => {}}
           />
-        </Dialog>
-      )}
-      {screen === "vote" && (
-        <Dialog onClose={() => {}}>
-          <h2>Confermi il tuo voto?</h2>
-          <p>La tua scelta dà spazio a una nuova voce.</p>
-          <div className="actions">
-            <button className="btn">Conferma voto</button>
-            <button className="btn secondary">Annulla</button>
-          </div>
-        </Dialog>
-      )}
-      <div id="toast" style={{ display: "block" }} role="status">
-        Preferenze salvate per domani.
-      </div>
-    </Layout>
+        ) : route === "artist" ? (
+          <Artist
+            applications={[application]}
+            onSubmit={() => {}}
+            cloud
+            admin
+          />
+        ) : route === "admin" ? (
+          <Admin repository={repository} onAccessLost={() => {}} />
+        ) : route === "ranks" ? (
+          <CloudRankings repository={repository} />
+        ) : (
+          <Daily
+            round={activeRound}
+            clock={{ day, seconds: 12 * 3600, revealed }}
+            revealed={revealed}
+            preview={false}
+            player={player}
+            saved={[]}
+            tracks={rows}
+            cloud
+            onVote={() => {}}
+            onSave={() => {}}
+            onReveal={() => {}}
+            onRanks={() => setRoute("ranks")}
+          />
+        )}
+        {screen === "reveal" && (
+          <Dialog reveal onClose={() => {}}>
+            <Reveal
+              round={round}
+              rows={rows}
+              preview={false}
+              onClose={() => {}}
+              onRanks={() => {}}
+            />
+          </Dialog>
+        )}
+        {screen === "vote" && (
+          <Dialog onClose={() => {}}>
+            <h2>Confermi il tuo voto?</h2>
+            <p>La tua scelta dà spazio a una nuova voce.</p>
+            <div className="actions">
+              <button className="btn">Conferma voto</button>
+              <button className="btn secondary">Annulla</button>
+            </div>
+          </Dialog>
+        )}
+        <div id="toast" style={{ display: "block" }} role="status">
+          Preferenze salvate per domani.
+        </div>
+      </Layout>
+    </PlaybackContext.Provider>
   );
 }
-createRoot(document.getElementById("app")!).render(<Fixture />);
+createRoot(document.getElementById("app")!).render(
+  <MemoryRouter>
+    <Fixture />
+  </MemoryRouter>,
+);

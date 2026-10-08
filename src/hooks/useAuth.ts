@@ -1,4 +1,4 @@
-import { getErrorMessage } from "../domain/errors.ts";
+import { getErrorMessage } from "../domain/shared/errors.ts";
 import type { SupabaseClient, Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 export function useAuth(client: SupabaseClient) {
@@ -31,7 +31,7 @@ export function useAuth(client: SupabaseClient) {
           });
       })
       .catch((error) => {
-        if (alive)
+        if (alive && !receivedEvent)
           setState({
             session: null,
             loading: false,

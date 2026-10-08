@@ -1,3 +1,4 @@
+import { BrowserRouter } from "react-router-dom";
 import type { Profile } from "../../src/types/models.ts";
 import { getAudio } from "../helpers/dom.ts";
 import { describe, test, expect, vi } from "vitest";
@@ -7,7 +8,7 @@ import {
   createProfile,
   ensureRound,
   STORAGE_KEY,
-} from "../../src/services/demoProfileStorage.ts";
+} from "../../src/services/demo/demoProfileStorage.ts";
 
 const day = "2026-09-28";
 function mount({
@@ -24,7 +25,7 @@ function mount({
       day,
     );
   localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-  const view = render(<App />);
+  const view = render(<App />, { wrapper: BrowserRouter });
   const audio = getAudio();
   return { ...view, audio, initial };
 }
@@ -124,7 +125,7 @@ describe("ascolti giornalieri", () => {
     await play();
     finish(first.audio);
     first.unmount();
-    render(<App />);
+    render(<App />, { wrapper: BrowserRouter });
     expect(
       screen.getByRole<HTMLButtonElement>("button", { name: "Ascolta brano 2" })
         .disabled,
@@ -167,6 +168,18 @@ describe("ascolti giornalieri", () => {
 });
 
 describe("flussi React", () => {
+  test("completare l’onboarding conserva la pagina richiesta direttamente", () => {
+    history.replaceState(null, "", "/profile");
+    mount({ onboard: false });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Entra in Next Wave →" }),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Scopri i tuoi 5 brani →" }),
+    );
+    expect(location.pathname).toBe("/profile");
+    expect(screen.getByText("Tipo di profilo")).toBeTruthy();
+  });
   test("onboarding, navigazione e palette restano disponibili", () => {
     mount({ onboard: false });
     fireEvent.click(
@@ -180,7 +193,7 @@ describe("flussi React", () => {
       }),
     );
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", {
+      screen.getByRole<HTMLAnchorElement>("link", {
         name: "Apri il tuo profilo",
       }),
     );
@@ -252,7 +265,7 @@ describe("flussi React", () => {
   test("i generi modificati non cambiano la selezione del giorno", () => {
     const { initial } = mount();
     fireEvent.click(
-      screen.getByRole<HTMLButtonElement>("button", {
+      screen.getByRole<HTMLAnchorElement>("link", {
         name: "Apri il tuo profilo",
       }),
     );
@@ -267,4 +280,65 @@ describe("flussi React", () => {
     expect(stored().prefs).toContain("Jazz");
     expect(stored().rounds[day].ids).toEqual(initial.rounds[day].ids);
   });
+});
+
+test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel profilo", async () => {
+  const { audio, initial } = mount();
+  expect(
+    screen.getByRole<HTMLButtonElement>("button", { name: "Salva brano 1" })
+      .disabled,
+  ).toBe(true);
+  await play();
+  finish(audio);
+  fireEvent.click(screen.getByRole("button", { name: "Salva brano 1" }));
+  expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
+  expect(
+    screen
+      .getByRole("button", { name: "Rimuovi dai salvati brano 1" })
+      .getAttribute("aria-pressed"),
+  ).toBe("true");
+  expect(screen.queryByRole("link", { name: "Il tuo profilo" })).toBeNull();
+  expect(screen.queryByText("La tua musica merita ascolto.")).toBeNull();
+  fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
+  expect(screen.getByText("Brano salvato")).toBeTruthy();
+  expect(screen.queryByRole("link", { name: /Apri il brano/ })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Rimuovi dai salvati" }));
+  expect(stored().saved).toEqual([]);
+});
+
+test("player: volume massimo, mute con ripristino e preferiti condivisi con il contest", async () => {
+  const { audio, initial } = mount();
+  const volume = screen.getByRole<HTMLInputElement>("slider", {
+    name: "Volume",
+  });
+  expect(volume.value).toBe("1");
+  expect(audio.volume).toBe(1);
+  fireEvent.change(volume, { target: { value: "0.4" } });
+  expect(audio.volume).toBe(0.4);
+  fireEvent.click(screen.getByRole("button", { name: "Disattiva audio" }));
+  expect(audio.volume).toBe(0);
+  expect(audio.muted).toBe(true);
+  expect(volume.value).toBe("0");
+  fireEvent.click(screen.getByRole("button", { name: "Riattiva audio" }));
+  expect(audio.volume).toBe(0.4);
+  expect(audio.muted).toBe(false);
+  expect(volume.value).toBe("0.4");
+  const save = screen.getByRole<HTMLButtonElement>("button", {
+    name: "Salva il brano nei preferiti",
+  });
+  expect(save.disabled).toBe(true);
+  await play();
+  expect(save.disabled).toBe(true);
+  finish(audio);
+  fireEvent.click(save);
+  expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
+  expect(
+    screen
+      .getByRole("button", { name: "Rimuovi dai salvati brano 1" })
+      .getAttribute("aria-pressed"),
+  ).toBe("true");
+  fireEvent.click(
+    screen.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
+  );
+  expect(stored().saved).toEqual([]);
 });

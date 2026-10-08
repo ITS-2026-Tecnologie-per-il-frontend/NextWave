@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { artistQuota } from "../../src/domain/artistQuota.ts";
+import { artistQuota } from "../../src/domain/artist/artistQuota.ts";
 
 test("la quota usa il mese italiano e conta anche le candidature rifiutate", () => {
   const applications = [

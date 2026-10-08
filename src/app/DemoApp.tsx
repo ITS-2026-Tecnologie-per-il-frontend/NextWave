@@ -1,3 +1,4 @@
+import { PlaybackContext } from "../context/playback/PlaybackContext.ts";
 import type {
   Profile as UserProfile,
   ProfileChanges,
@@ -7,29 +8,31 @@ import type {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { catalog } from "../data/demo/catalog.ts";
 import { themes } from "../data/themes.ts";
-import { canVote, completeTrack } from "../domain/contest.ts";
-import { dailyRanking } from "../domain/demoRanking.ts";
-import { rome } from "../domain/time.ts";
+import { canVote, completeTrack } from "../domain/contest/contest.ts";
+import { dailyRanking } from "../domain/demo/demoRanking.ts";
+import { rome } from "../domain/shared/time.ts";
 import {
   ensureRound,
   normalizeProfile,
   readProfile,
   STORAGE_KEY,
   writeProfile,
-} from "../services/demoProfileStorage.ts";
+} from "../services/demo/demoProfileStorage.ts";
 import { useDailyPlayer } from "../hooks/useDailyPlayer.ts";
 import { useRomeClock } from "../hooks/useRomeClock.ts";
-import Layout from "../components/Layout.tsx";
-import Dialog from "../components/Dialog.tsx";
-import Reveal from "../components/Reveal.tsx";
-import Onboarding from "../pages/Onboarding.tsx";
-import Daily from "../pages/Daily.tsx";
-import Rankings from "../pages/Rankings.tsx";
-import Profile from "../pages/Profile.tsx";
-import Artist from "../pages/Artist.tsx";
+import Layout from "../components/layout/Layout.tsx";
+import Dialog from "../components/dialogs/Dialog.tsx";
+import Reveal from "../components/contest/Reveal.tsx";
+import Onboarding from "../screens/auth/Onboarding.tsx";
+import Daily from "../screens/contest/Daily.tsx";
+import Rankings from "../screens/rankings/Rankings.tsx";
+import Profile from "../screens/account/Profile.tsx";
+import Artist from "../screens/artist/Artist.tsx";
 
-import { readRoute } from "../config/routes.ts";
-import { artistQuota } from "../domain/artistQuota.ts";
+import { routePaths, routeForPath } from "../config/routes.ts";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AccountRoutes } from "./routing/AccountRoutes.tsx";
+import { artistQuota } from "../domain/artist/artistQuota.ts";
 
 export default function DemoApp() {
   const clock = useRomeClock();
@@ -37,13 +40,9 @@ export default function DemoApp() {
     ensureRound(readProfile(), rome().day),
   );
   const profileRef = useRef(profile);
-  const [route, setRoute] = useState(readRoute);
-  useEffect(() => {
-    if (route === "artist" && profile.accountType !== "artist") {
-      setRoute("profile");
-      location.hash = "profile";
-    }
-  }, [route, profile.accountType]);
+  const location = useLocation();
+  const go = useNavigate();
+  const route = routeForPath(location.pathname);
   const [dialog, setDialog] = useState<DemoDialog | null>(null);
   const [preview, setPreview] = useState(false);
   const [toast, setToast] = useState("");
@@ -95,10 +94,6 @@ export default function DemoApp() {
       themes.find((theme) => theme.id === profile.theme)?.id || "pulse";
   }, [profile.theme]);
   useEffect(() => {
-    const hashChanged = () => {
-      setRoute(readRoute());
-      setDialog(null);
-    };
     const storageChanged = (event: StorageEvent) => {
       if (event.key !== STORAGE_KEY) return;
       try {
@@ -112,13 +107,14 @@ export default function DemoApp() {
         notify("Impossibile leggere i dati aggiornati nell’altra scheda.");
       }
     };
-    window.addEventListener("hashchange", hashChanged);
     window.addEventListener("storage", storageChanged);
     return () => {
-      window.removeEventListener("hashchange", hashChanged);
       window.removeEventListener("storage", storageChanged);
     };
   }, [notify]);
+  const pagePath =
+    location.pathname === "/" ? routePaths.daily : location.pathname;
+  useEffect(() => setDialog(null), [pagePath]);
   useEffect(() => {
     if (!profile.onboard || preview || dialog) return;
     const day = Object.keys(profile.rounds)
@@ -135,8 +131,7 @@ export default function DemoApp() {
 
   function navigate(next: Route) {
     setDialog(null);
-    setRoute(next);
-    location.hash = next;
+    if (location.pathname !== routePaths[next]) go(routePaths[next]);
   }
   function patchProfile(values: ProfileChanges) {
     update((current) => ({ ...current, ...values }));
@@ -188,23 +183,31 @@ export default function DemoApp() {
     setDialog({ type: "success" });
   }
   return (
-    <>
+    <PlaybackContext.Provider
+      value={{
+        player: {
+          ...player,
+          track: catalog.find((track) => track.id === player.active),
+        },
+        round,
+        revealed,
+        cloud: false,
+        saved: Boolean(player.active && profile.saved.includes(player.active)),
+        onSave: saveTrack,
+      }}
+    >
       <audio ref={player.audioRef} preload="metadata" />
       {!profile.onboard ? (
         <Onboarding profile={profile} onFinish={patchProfile} />
       ) : (
-        <Layout
-          profile={profile}
-          route={route}
-          navigate={navigate}
-          player={{
-            ...player,
-            track: catalog.find((track) => track.id === player.active),
-          }}
-          round={round}
-          revealed={revealed}
-        >
-          {route === "daily" && (
+        <AccountRoutes
+          isArtist={profile.accountType === "artist"}
+          layout={
+            <Layout profile={profile} route={route} navigate={navigate}>
+              <Outlet />
+            </Layout>
+          }
+          daily={
             <Daily
               round={round}
               clock={clock}
@@ -220,20 +223,23 @@ export default function DemoApp() {
               onPreview={togglePreview}
               onRanks={() => navigate("ranks")}
             />
-          )}
-          {route === "ranks" && (
-            <Rankings clock={clock} rounds={profile.rounds} />
-          )}
-          {route === "profile" && (
+          }
+          ranks={<Rankings clock={clock} rounds={profile.rounds} />}
+          profile={
             <Profile
               profile={profile}
               clock={clock}
               onUpdate={patchProfile}
               onSave={saveTrack}
               notify={notify}
+              tracks={catalog.map((track) =>
+                !clock.revealed && round.ids.includes(track.id)
+                  ? { ...track, title: null, artist: null, spotifyUrl: null }
+                  : track,
+              )}
             />
-          )}
-          {route === "artist" && profile.accountType === "artist" && (
+          }
+          artist={
             <Artist
               applications={profile.applications}
               onRemove={(id) =>
@@ -272,8 +278,8 @@ export default function DemoApp() {
                 );
               }}
             />
-          )}
-        </Layout>
+          }
+        />
       )}
       {dialog && (
         <Dialog
@@ -334,6 +340,6 @@ export default function DemoApp() {
       >
         {toast}
       </div>
-    </>
+    </PlaybackContext.Provider>
   );
 }

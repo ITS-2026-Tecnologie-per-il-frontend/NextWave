@@ -1,9 +1,9 @@
-import { getErrorMessage } from "../domain/errors.ts";
-import type { CloudRepository } from "../services/cloudRepository.ts";
+import { getErrorMessage } from "../domain/shared/errors.ts";
+import type { CloudRepository } from "../services/cloud/cloudRepository.ts";
 import type { Round, Notify, PlayerStatus } from "../types/models.ts";
 import { useEffect, useRef, useState } from "react";
-import { canPlay } from "../domain/contest.ts";
-import { fullyPlayed } from "../domain/playback.ts";
+import { canPlay } from "../domain/contest/contest.ts";
+import { fullyPlayed } from "../domain/audio/playback.ts";
 
 export function useCloudPlayer(
   round: Round,
@@ -29,7 +29,7 @@ export function useCloudPlayer(
     playing: false,
     time: 0,
     duration: 0,
-    volume: 0.65,
+    volume: 1,
     loading: false,
   });
 
@@ -69,7 +69,7 @@ export function useCloudPlayer(
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = 0.65;
+    audio.volume = 1;
     const update = () =>
       setStatus((previous) => ({
         ...previous,
@@ -209,7 +209,10 @@ export function useCloudPlayer(
     }
   }
   function setVolume(volume: number) {
-    if (audioRef.current) audioRef.current.volume = volume;
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+      audioRef.current.muted = volume === 0;
+    }
     setStatus((previous) => ({ ...previous, volume }));
   }
   function rewind(seconds = 10) {
