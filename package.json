@@ -16,6 +16,7 @@
     "db:bundle": "tsx scripts/build-database.mjs",
     "db:test": "node scripts/test-database.mjs",
     "admin:test": "node scripts/test-admin.mjs",
+    "admin:links:test": "node scripts/test-admin-links.mjs",
     "artist:test": "node scripts/test-artist.mjs",
     "contests:test": "node scripts/test-real-contests.mjs",
     "selection:test": "node scripts/test-small-contest.mjs",

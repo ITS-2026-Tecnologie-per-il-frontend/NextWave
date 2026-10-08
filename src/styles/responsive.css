@@ -191,6 +191,36 @@ input[type="file"] {
   overflow: hidden;
 }
 
+.rankings-date-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.rankings-date-panel label {
+  min-width: 0;
+}
+
+.rankings-date-panel input[type="date"] {
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+  min-inline-size: 0;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-height: 46px;
+}
+
+.rankings-date-panel input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+
+.rankings-date-panel input::-webkit-datetime-edit {
+  min-width: 0;
+  padding: 0;
+}
+
 .profile-name-panel {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }

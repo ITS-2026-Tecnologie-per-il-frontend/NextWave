@@ -53,7 +53,7 @@ export default function CloudRankings({
           </button>
         ))}
       </div>
-      <div className="panel">
+      <div className="panel rankings-date-panel">
         <label>
           {period === "day"
             ? "Giorno della classifica"
