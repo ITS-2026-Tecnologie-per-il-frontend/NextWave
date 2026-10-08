@@ -3,7 +3,7 @@ export function Brand({ onHome }: { onHome?: () => void }) {
     <>
       <picture>
         <source
-          media="(max-width: 760px)"
+          media="(max-width: 960px)"
           srcSet="/brand/nextwave-symbol.svg"
         />
         <img

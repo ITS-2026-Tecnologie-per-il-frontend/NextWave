@@ -380,7 +380,12 @@ export default function Admin({
               {!calendar.size ? (
                 <p>Nessun brano programmato.</p>
               ) : (
-                <div className="queue-calendar">
+                <div
+                  className="queue-calendar"
+                  role="region"
+                  aria-label="Calendario dei contest: scorri per vedere tutte le colonne"
+                  tabIndex={0}
+                >
                   <table>
                     <thead>
                       <tr>

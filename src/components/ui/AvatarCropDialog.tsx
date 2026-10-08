@@ -17,8 +17,31 @@ export default function AvatarCropDialog({
   const [zoom, setZoom] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [saving, setSaving] = useState(false);
-  const [drag, setDrag] = useState<{ x: number; y: number; offset: typeof offset } | null>(null);
+  const [drag, setDrag] = useState<{
+    x: number;
+    y: number;
+    offset: typeof offset;
+  } | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stageSize, setStageSize] = useState(360);
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new ResizeObserver(() => setStageSize(stage.clientWidth));
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
+  function clampOffset(next: typeof offset, nextZoom = zoom) {
+    const limitX = Math.max(0, (dimensions.width * nextZoom - 360) / 2);
+    const limitY = Math.max(0, (dimensions.height * nextZoom - 360) / 2);
+    return {
+      x: Math.max(-limitX, Math.min(limitX, next.x)),
+      y: Math.max(-limitY, Math.min(limitY, next.y)),
+    };
+  }
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -31,7 +54,13 @@ export default function AvatarCropDialog({
 
   function move(event: React.PointerEvent<HTMLDivElement>) {
     if (!drag) return;
-    setOffset({ x: drag.offset.x + event.clientX - drag.x, y: drag.offset.y + event.clientY - drag.y });
+    const ratio = 360 / (stageRef.current?.clientWidth || 360);
+    setOffset(
+      clampOffset({
+        x: drag.offset.x + (event.clientX - drag.x) * ratio,
+        y: drag.offset.y + (event.clientY - drag.y) * ratio,
+      }),
+    );
   }
 
   async function confirm() {
@@ -64,18 +93,32 @@ export default function AvatarCropDialog({
   }
 
   return (
-    <Dialog onClose={onCancel} className="avatar-crop-dialog" ariaLabel="Ritaglia immagine profilo">
+    <Dialog
+      onClose={onCancel}
+      className="avatar-crop-dialog"
+      ariaLabel="Ritaglia immagine profilo"
+    >
       <div className="crop-header">
         <div>
           <span className="eyebrow lime">NUOVA IMMAGINE</span>
-          <h2>Ritaglia il tuo profilo<span className="lime">.</span></h2>
+          <h2>
+            Ritaglia il tuo profilo<span className="lime">.</span>
+          </h2>
         </div>
-        <button className="dialog-close" type="button" onClick={onCancel} aria-label="Chiudi">
+        <button
+          className="dialog-close"
+          type="button"
+          onClick={onCancel}
+          aria-label="Chiudi"
+        >
           ×
         </button>
       </div>
-      <p className="hint">Trascina l’immagine e usa lo zoom per scegliere l’inquadratura.</p>
+      <p className="hint">
+        Trascina l’immagine e usa lo zoom per scegliere l’inquadratura.
+      </p>
       <div
+        ref={stageRef}
         className="crop-stage"
         onPointerDown={(event) => {
           setDrag({ x: event.clientX, y: event.clientY, offset });
@@ -93,16 +136,23 @@ export default function AvatarCropDialog({
             className="crop-image"
             onLoad={(event) => {
               const image = event.currentTarget;
-              const scale = Math.max(360 / image.naturalWidth, 360 / image.naturalHeight);
+              const scale = Math.max(
+                360 / image.naturalWidth,
+                360 / image.naturalHeight,
+              );
               setDimensions({
                 width: image.naturalWidth * scale,
                 height: image.naturalHeight * scale,
               });
             }}
             style={{
-              width: dimensions.width || undefined,
-              height: dimensions.height || undefined,
-              transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+              width: dimensions.width
+                ? (dimensions.width * stageSize) / 360
+                : undefined,
+              height: dimensions.height
+                ? (dimensions.height * stageSize) / 360
+                : undefined,
+              transform: `translate(-50%, -50%) translate(${(offset.x * stageSize) / 360}px, ${(offset.y * stageSize) / 360}px) scale(${zoom})`,
             }}
           />
         )}
@@ -117,15 +167,29 @@ export default function AvatarCropDialog({
           step="0.01"
           value={zoom}
           aria-label="Zoom immagine"
-          onChange={(event) => setZoom(Number(event.target.value))}
+          onChange={(event) => {
+            const nextZoom = Number(event.target.value);
+            setZoom(nextZoom);
+            setOffset(clampOffset(offset, nextZoom));
+          }}
         />
         <span aria-hidden="true">+</span>
       </div>
       <div className="crop-actions">
-        <button className="btn secondary" type="button" disabled={saving} onClick={onCancel}>
+        <button
+          className="btn secondary"
+          type="button"
+          disabled={saving}
+          onClick={onCancel}
+        >
           Annulla
         </button>
-        <button className="btn" type="button" disabled={saving} onClick={() => void confirm()}>
+        <button
+          className="btn"
+          type="button"
+          disabled={saving}
+          onClick={() => void confirm()}
+        >
           {saving ? "Salvataggio…" : "Usa questa immagine"}
         </button>
       </div>
