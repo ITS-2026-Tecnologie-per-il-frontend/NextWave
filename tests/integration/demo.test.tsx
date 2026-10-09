@@ -322,7 +322,7 @@ test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel
   expect(stored().saved).toEqual([]);
 });
 
-test("player: volume massimo, mute con ripristino e unico pulsante preferiti nel contest", async () => {
+test("player: volume massimo, mute con ripristino e preferiti sincronizzati con le card", async () => {
   const { audio, initial } = mount();
   const volume = screen.getByRole<HTMLInputElement>("slider", {
     name: "Volume",
@@ -350,13 +350,23 @@ test("player: volume massimo, mute con ripristino e unico pulsante preferiti nel
   expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
   expect(
     screen
+      .getByRole("button", { name: "Rimuovi dai preferiti: brano 1" })
+      .getAttribute("aria-pressed"),
+  ).toBe("true");
+  expect(
+    screen
       .getByRole("button", { name: "Rimuovi il brano dai preferiti" })
       .getAttribute("aria-pressed"),
   ).toBe("true");
   fireEvent.click(
-    screen.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
+    screen.getByRole("button", { name: "Rimuovi dai preferiti: brano 1" }),
   );
   expect(stored().saved).toEqual([]);
+  expect(
+    screen
+      .getByRole("button", { name: "Salva il brano nei preferiti" })
+      .getAttribute("aria-pressed"),
+  ).toBe("false");
 });
 
 test("cambiare gusti conserva il brano attivo e il suo completamento", async () => {

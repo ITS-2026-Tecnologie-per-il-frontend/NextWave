@@ -252,7 +252,10 @@ function Fixture() {
           />
         ) : route === "artist" ? (
           <Artist
-            applications={[application]}
+            applications={[
+              application,
+              { ...application, id: "application-2" },
+            ]}
             onSubmit={() => {}}
             cloud
             admin
@@ -263,6 +266,7 @@ function Fixture() {
           <CloudRankings repository={repository} />
         ) : (
           <Daily
+            onSave={() => {}}
             round={activeRound}
             clock={{ day, seconds: 12 * 3600, revealed }}
             revealed={revealed}

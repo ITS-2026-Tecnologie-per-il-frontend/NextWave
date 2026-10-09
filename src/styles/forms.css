@@ -157,6 +157,21 @@ input[type="checkbox"] {
   gap: 16px;
   flex-wrap: wrap;
 }
+.artist-application {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.panel.artist-application {
+  padding: 20px;
+}
+.main-artist .formwrap {
+  display: grid;
+  gap: 20px;
+}
+.artist-application p {
+  margin: 0;
+}
 
 .artist-application h3 {
   margin: 0;

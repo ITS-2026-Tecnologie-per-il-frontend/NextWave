@@ -220,6 +220,8 @@ export default function DemoApp() {
           }
           daily={
             <Daily
+              saved={profile.saved}
+              onSave={saveTrack}
               round={round}
               clock={clock}
               revealed={revealed}

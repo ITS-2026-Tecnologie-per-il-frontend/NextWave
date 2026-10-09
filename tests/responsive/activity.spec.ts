@@ -6,8 +6,28 @@ for (const width of [390, 1440]) {
     await expect(
       page.getByRole("button", { name: /Salva nei preferiti: brano 1/ }),
     ).toBeVisible();
+    for (const button of await page
+      .locator(".track > .favorite-toggle")
+      .all()) {
+      const bounds = await button.boundingBox();
+      const card = await button.locator("..").boundingBox();
+      expect(bounds!.x).toBeGreaterThanOrEqual(card!.x);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(
+        card!.x + card!.width,
+      );
+    }
     await page.screenshot({
       path: `test-results/activity-daily-${width}.png`,
+      fullPage: true,
+    });
+    await page.goto("/?screen=artist&stress=false");
+    const cards = page.locator(".artist-application");
+    await expect(cards).toHaveCount(2);
+    const first = await cards.nth(0).boundingBox();
+    const second = await cards.nth(1).boundingBox();
+    expect(second!.y - first!.y - first!.height).toBeGreaterThanOrEqual(16);
+    await page.screenshot({
+      path: `test-results/artist-spacing-${width}.png`,
       fullPage: true,
     });
     await page.goto("/?screen=profile&stress=false");
@@ -25,6 +45,16 @@ for (const width of [390, 1440]) {
     await page.keyboard.press("Escape");
     await expect(dialog).toHaveCount(0);
     await page.goto("/?screen=admin&stress=false");
+    const refresh = await page
+      .getByRole("button", { name: "Aggiorna pannello ↻" })
+      .boundingBox();
+    const calendar = await page
+      .locator(".admin-content > section")
+      .first()
+      .boundingBox();
+    expect(calendar!.y - refresh!.y - refresh!.height).toBeGreaterThanOrEqual(
+      16,
+    );
     await expect(
       page.getByRole("group", { name: "Filtra candidature" }),
     ).toBeVisible();

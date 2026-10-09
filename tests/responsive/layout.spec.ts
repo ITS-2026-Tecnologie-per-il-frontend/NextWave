@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { themes } from "../../src/data/themes.ts";
 
 test("admin identities keep avatars and long names inside narrow cards", async ({
   page,
@@ -397,7 +398,7 @@ test("all presets keep a solid dock and the safe area clear", async ({
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto("/?screen=profile");
   const choices = page.locator(".theme-choice");
-  await expect(choices).toHaveCount(10);
+  await expect(choices).toHaveCount(themes.length);
   for (const choice of await choices.all()) {
     await choice.click();
     await expect(choice).toHaveAttribute("aria-pressed", "true");
@@ -437,18 +438,35 @@ test("player controls and progress stay centered with accessible volume and favo
     const play = bar.getByRole("button", { name: "Riproduci", exact: true });
     const volume = bar.getByRole("slider", { name: "Volume" });
     const mute = bar.getByRole("button", { name: "Disattiva audio" });
-    await expect(volume).toBeVisible();
-    await expect(mute).toBeVisible();
+    if (width <= 600) {
+      await expect(volume).toBeHidden();
+      await expect(mute).toBeHidden();
+    } else {
+      await expect(volume).toBeVisible();
+      await expect(mute).toBeVisible();
+    }
     await expect(
       bar.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
     ).toBeVisible();
     const bounds = await bar.boundingBox();
     const button = await play.boundingBox();
-    expect(
-      Math.abs(button!.x + button!.width / 2 - bounds!.x - bounds!.width / 2),
-    ).toBeLessThan(2);
+    if (width <= 600) {
+      expect(bounds!.height).toBe(72);
+      const heart = await bar.locator(".player-save").boundingBox();
+      expect(heart!.x + heart!.width).toBeLessThanOrEqual(button!.x);
+      const nav = await page.locator(".sidebar .nav").boundingBox();
+      expect(nav!.y - bounds!.y - bounds!.height).toBeLessThanOrEqual(10);
+    } else {
+      expect(
+        Math.abs(button!.x + button!.width / 2 - bounds!.x - bounds!.width / 2),
+      ).toBeLessThan(2);
+    }
     expect(await overflow(page)).toEqual({ page: false, offenders: [] });
-    for (const target of [play, mute, bar.locator(".player-save")]) {
+    for (const target of [
+      play,
+      ...(width > 600 ? [mute] : []),
+      bar.locator(".player-save"),
+    ]) {
       const box = await target.boundingBox();
       expect(box!.width).toBeGreaterThanOrEqual(44);
       expect(box!.height).toBeGreaterThanOrEqual(44);

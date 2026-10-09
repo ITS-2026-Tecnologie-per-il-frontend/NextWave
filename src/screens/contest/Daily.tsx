@@ -12,6 +12,9 @@ interface DailyProps {
   onProfile?: () => void;
   tracks?: Track[];
   cloud?: boolean;
+  saved?: string[];
+  saving?: boolean;
+  onSave?: (id: string) => void;
 }
 import { catalog } from "../../data/demo/catalog.ts";
 import { canPlay, canVote } from "../../domain/contest/contest.ts";
@@ -31,6 +34,9 @@ export default function Daily({
   onProfile,
   tracks = catalog,
   cloud = false,
+  saved = [],
+  saving = false,
+  onSave,
 }: DailyProps) {
   const empty = cloud && round.ids.length === 0;
   const showReveal = revealed && !empty;
@@ -145,6 +151,7 @@ export default function Daily({
             const heard = round.listened.includes(id);
             const locked = !canPlay(round, id);
             const playing = player.active === id && player.playing;
+            const favorite = saved.includes(id);
             return (
               <article
                 key={id}
@@ -187,6 +194,26 @@ export default function Daily({
                   <p className="hint">
                     Completa prima il brano {String(index).padStart(2, "0")}.
                   </p>
+                )}
+                {onSave && (
+                  <button
+                    type="button"
+                    className={`favorite-toggle ${favorite ? "selected" : ""}`}
+                    disabled={saving || (!revealed && !heard)}
+                    aria-label={`${favorite ? "Rimuovi dai" : "Salva nei"} preferiti: brano ${index + 1}`}
+                    aria-pressed={favorite}
+                    title={
+                      revealed || heard
+                        ? favorite
+                          ? "Rimuovi dai preferiti"
+                          : "Salva nei preferiti"
+                        : "Completa l’ascolto per salvare"
+                    }
+                    onClick={() => onSave(id)}
+                  >
+                    <Icon name="heart" />
+                    {favorite ? "Nei preferiti" : "Salva brano"}
+                  </button>
                 )}
                 {revealed ? (
                   <SpotifyLink track={track} />

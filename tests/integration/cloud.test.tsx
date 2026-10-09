@@ -71,7 +71,10 @@ async function mountCloud(state = fixture()) {
     vote: vi.fn(async (id: string) => {
       state.profile.rounds[day].vote = id;
     }),
-    favorite: vi.fn(async () => {}),
+    favorite: vi.fn(async (id: string) => {
+      const track = state.tracks.find((track) => track.id === id);
+      if (track) track.saved = !track.saved;
+    }),
     removeApplication: vi.fn(async () => {}),
     rankings: vi.fn(async () => ({ reference: day, rows: [] })),
     reveal: vi.fn(async () => []),
@@ -143,12 +146,32 @@ describe("account cloud", () => {
       expect(repository.favorite).toHaveBeenCalledWith("slot1"),
     );
     expect(
-      screen.getAllByRole("button", { name: "Salva il brano nei preferiti" }),
+      await screen.findAllByRole("button", {
+        name: "Rimuovi il brano dai preferiti",
+      }),
     ).toHaveLength(1);
     expect(
-      screen.queryByRole("button", { name: /Salva nei preferiti: brano/ }),
-    ).toBeNull();
-    expect(screen.queryByText("Account Test — brano 1")).toBeNull();
+      screen
+        .getByRole("button", { name: "Rimuovi dai preferiti: brano 1" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByText("Nei preferiti")).toBeTruthy();
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", {
+        name: "Salva nei preferiti: brano 2",
+      }).disabled,
+    ).toBe(true);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Rimuovi dai preferiti: brano 1" }),
+    );
+    await waitFor(() => expect(repository.favorite).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Salva il brano nei preferiti" })
+          .getAttribute("aria-pressed"),
+      ).toBe("false"),
+    );
   });
 
   test("due brani reali sono visibili e il voto si sblocca dopo entrambi", async () => {
