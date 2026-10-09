@@ -1,4 +1,5 @@
 import { getErrorMessage } from "../../domain/shared/errors.ts";
+import { getAuthRedirectUrl } from "../../config/environment.ts";
 import type { FormEvent } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useState } from "react";
@@ -23,7 +24,7 @@ export default function Auth({ client }: { client: SupabaseClient }) {
       const result = signup
         ? await client.auth.signUp({
             ...credentials,
-            options: { emailRedirectTo: location.origin },
+            options: { emailRedirectTo: getAuthRedirectUrl() },
           })
         : await client.auth.signInWithPassword(credentials);
       if (result.error) throw result.error;

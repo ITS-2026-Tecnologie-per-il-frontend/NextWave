@@ -17,7 +17,10 @@ import {
 } from "@testing-library/react";
 import { Account } from "../../src/app/CloudAccount.tsx";
 import Auth from "../../src/screens/auth/Auth.tsx";
-import { getDataConfig } from "../../src/config/environment.ts";
+import {
+  getAuthRedirectUrl,
+  getDataConfig,
+} from "../../src/config/environment.ts";
 import { createCloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import { STORAGE_KEY } from "../../src/services/demo/demoProfileStorage.ts";
 
@@ -629,6 +632,28 @@ describe("autenticazione e configurazione", () => {
     expect(screen.getByRole("status").textContent).toContain(
       "Controlla la tua email",
     );
+    expect(client.auth.signUp).toHaveBeenCalledWith({
+      email: "test@example.com",
+      password: "test-only-password",
+      options: { emailRedirectTo: "https://next-wave-iota.vercel.app/" },
+    });
+  });
+  test("la conferma usa il sito pubblico e rifiuta configurazioni locali", () => {
+    expect(getAuthRedirectUrl({})).toBe("https://next-wave-iota.vercel.app/");
+    expect(
+      getAuthRedirectUrl({ VITE_SITE_URL: "https://nextwave.example" }),
+    ).toBe("https://nextwave.example/");
+    for (const value of [
+      "http://localhost:5173",
+      "https://localhost",
+      "https://127.0.0.1",
+      "https://[::1]",
+      "https://nextwave.example/?redirect=localhost",
+    ]) {
+      expect(() => getAuthRedirectUrl({ VITE_SITE_URL: value })).toThrow(
+        "dominio pubblico HTTPS",
+      );
+    }
   });
   test("chiavi segrete o service_role sono rifiutate prima di creare il client", () => {
     const env = {

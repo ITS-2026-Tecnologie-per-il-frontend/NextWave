@@ -1,6 +1,44 @@
 import { expect, test, type Page } from "@playwright/test";
 import { themes } from "../../src/data/themes.ts";
 
+test("theme previews remain readable and scroll horizontally on phones", async ({
+  page,
+}, info) => {
+  for (const width of [320, 390, 600, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/?screen=profile&stress=false");
+    const catalog = page.getByRole("group", {
+      name: "Scegli lo stile di NextWave",
+    });
+    const choices = catalog.locator(".theme-choice");
+    await expect(choices).toHaveCount(themes.length);
+    const catalogBox = await catalog.boundingBox();
+    for (const choice of await choices.all()) {
+      const box = await choice.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(210);
+      expect(box!.width).toBeLessThanOrEqual(catalogBox!.width);
+    }
+    expect(
+      await catalog.evaluate(
+        (element) => element.scrollWidth > element.clientWidth,
+      ),
+    ).toBe(true);
+    await page.getByRole("button", { name: "Stili successivi" }).click();
+    await expect
+      .poll(() => catalog.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(0);
+    const rock = catalog.getByRole("button", { name: "Rock: #FF5252" });
+    await rock.click();
+    await expect(rock).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".theme-current")).toContainText("Rock");
+    expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+    if (info.project.name === "chromium" && width === 390)
+      await page
+        .locator(".theme-panel")
+        .screenshot({ path: info.outputPath("mobile-themes.png") });
+  }
+});
+
 test("admin identities keep avatars and long names inside narrow cards", async ({
   page,
 }) => {

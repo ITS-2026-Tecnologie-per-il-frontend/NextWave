@@ -113,14 +113,17 @@ In **Vercel → Project → Settings → Environment Variables**, impostare per 
 | Variabile                     | Valore                                                      |
 | ----------------------------- | ----------------------------------------------------------- |
 | VITE_DATA_MODE                | supabase                                                    |
+| VITE_SITE_URL                 | https://next-wave-iota.vercel.app/                          |
 | VITE_SUPABASE_URL             | URL del progetto Supabase già configurato in `.env.local`   |
 | VITE_SUPABASE_PUBLISHABLE_KEY | Chiave pubblica publishable già configurata in `.env.local` |
 
 La chiave pubblica viene inclusa nel browser: è previsto dal modello Supabase, e i dati sono protetti da ACL/RLS. Non impostare service_role o password con prefisso `VITE_`. Le variabili Vite sono lette durante la build: eseguire un **nuovo deploy** dopo averle impostate.
 
-In **Supabase → Authentication → URL Configuration**, usare come Site URL l’URL HTTPS della produzione Vercel. Aggiungere gli URL esatti ammessi per i redirect, incluso `http://127.0.0.1:4173` per lo sviluppo. Tenere attiva la conferma email; la schermata di registrazione invita a confermare prima del login. Le preview Vercel vanno aggiunte soltanto se usate per provare l’autenticazione.
+In **Supabase → Authentication → URL Configuration**, impostare **Site URL** a `https://next-wave-iota.vercel.app/` e aggiungere lo stesso indirizzo esatto in **Redirect URLs**. Salvare entrambe le impostazioni. Il frontend usa `VITE_SITE_URL`, con questo dominio come valore predefinito, per `emailRedirectTo`: le email riportano al sito pubblico anche quando la registrazione parte dal server locale o da una preview.
 
-La configurazione Vercel e i redirect Auth sul dashboard restano operazioni dell’utente: non sono stati modificati da questa sessione.
+In **Authentication → Email Templates → Confirm signup**, il link di conferma deve usare `{{ .ConfirmationURL }}`, che verifica il token prima del redirect; evitare link costruiti manualmente verso localhost. Tenere attiva la conferma email. Se l'indirizzo richiesto non è autorizzato, Supabase può ripiegare sul Site URL: cambiare solo il frontend non corregge un Site URL rimasto su localhost. Le email già inviate possono contenere ancora il vecchio indirizzo; il collaudo finale va eseguito con una nuova email di conferma.
+
+Il 9 ottobre 2026 il pannello del progetto NextWave è stato aggiornato e verificato: Site URL `https://next-wave-iota.vercel.app/`, redirect autorizzati con e senza slash finale. Il template predefinito Confirm sign up usa correttamente `{{ .ConfirmationURL }}`. La modifica Auth è già attiva su Supabase; le modifiche frontend richiedono ancora il normale deploy Vercel.
 
 ## Primo collaudo reale
 

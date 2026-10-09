@@ -1,8 +1,32 @@
 interface DataEnvironment {
+  VITE_SITE_URL?: string;
   VITE_DATA_MODE?: string;
   VITE_SUPABASE_URL?: string;
   VITE_SUPABASE_PUBLISHABLE_KEY?: string;
   PROD?: boolean;
+}
+export function getAuthRedirectUrl(
+  env: DataEnvironment = import.meta.env,
+): string {
+  const url = new URL(
+    env.VITE_SITE_URL?.trim() || "https://next-wave-iota.vercel.app/",
+  );
+  if (
+    url.protocol !== "https:" ||
+    url.hostname === "localhost" ||
+    url.hostname.endsWith(".localhost") ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname === "[::1]" ||
+    url.username ||
+    url.password ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash
+  )
+    throw new Error(
+      "VITE_SITE_URL deve essere il dominio pubblico HTTPS del sito.",
+    );
+  return `${url.origin}/`;
 }
 type DataConfig =
   { mode: "demo" } | { mode: "supabase"; url: string; key: string };

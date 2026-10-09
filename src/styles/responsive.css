@@ -887,7 +887,7 @@ dialog.revealmodal,
     grid-template-columns: minmax(0, 1fr);
   }
   .theme-catalog {
-    grid-auto-columns: minmax(0, min(240px, 88%));
+    grid-auto-columns: min(260px, calc(100vw - 88px));
   }
   .studio-controls {
     grid-template-columns: minmax(0, 1fr);
