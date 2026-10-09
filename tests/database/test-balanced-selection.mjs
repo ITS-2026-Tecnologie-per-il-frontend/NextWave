@@ -19,6 +19,7 @@ async function freezeClock() {
   for (const signature of [
     "vp_private.ensure_daily_selection(uuid)",
     "public.get_dashboard()",
+    "public.save_profile(text,text,text[],boolean)",
   ]) {
     const definition = (
       await db.query("select pg_get_functiondef($1::regprocedure) value", [
@@ -61,8 +62,9 @@ async function user(preferences, onboarded = true) {
   const id = `11111111-1111-1111-1111-${String(++sequence).padStart(12, "0")}`;
   await db.query("insert into auth.users(id) values($1)", [id]);
   await login(id);
-  await db.query("select public.save_profile('Test','pulse',$1,true)", [
+  await db.query("select public.save_profile('Test','pulse',$1,$2)", [
     preferences,
+    onboarded,
   ]);
   await db.exec("reset role");
   if (!onboarded)
@@ -184,13 +186,13 @@ const unready = await user(["Jazz"], false);
 await dashboard(unready);
 assert.equal((await assigned(unready, "2026-10-18")).length, 0);
 
-// A profile change or migration reapplication cannot replace already assigned slots.
-const before = await assigned(sparse, "2026-10-18");
+// Le nuove preferenze aggiornano gli slot non iniziati; riapplicare la migrazione non li cambia.
 await login(sparse);
 await db.query("select public.save_profile('Test','pulse',ARRAY['Jazz'],true)");
 await db.exec("reset role");
 await dashboard(sparse);
-assert.deepEqual(await assigned(sparse, "2026-10-18"), before);
+const before = await assigned(sparse, "2026-10-18");
+assert.deepEqual(distribution(before, ["Jazz"]), [5]);
 await db.exec(`create schema supabase_migrations;
 create table supabase_migrations.schema_migrations(version text primary key,name text);`);
 await db.exec(

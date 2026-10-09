@@ -1,3 +1,4 @@
+import { catalog } from "../../src/data/demo/catalog.ts";
 import { BrowserRouter } from "react-router-dom";
 import type { Profile } from "../../src/types/models.ts";
 import { getAudio } from "../helpers/dom.ts";
@@ -262,7 +263,7 @@ describe("flussi React", () => {
     expect(screen.getByText(/CONTEST CONCLUSO/)).toBeTruthy();
     expect(stored().seenReveals).toEqual([day]);
   });
-  test("i generi modificati non cambiano la selezione del giorno", () => {
+  test("i generi aggiunti aggiornano i brani non ancora ascoltati", () => {
     const { initial } = mount();
     fireEvent.click(
       screen.getByRole<HTMLAnchorElement>("link", {
@@ -278,23 +279,31 @@ describe("flussi React", () => {
       }),
     );
     expect(stored().prefs).toContain("Jazz");
-    expect(stored().rounds[day].ids).toEqual(initial.rounds[day].ids);
+    expect(
+      stored().rounds[day].ids.some(
+        (id) => catalog.find((track) => track.id === id)?.genre === "Jazz",
+      ),
+    ).toBe(true);
+    expect(stored().rounds[day].ids).not.toEqual(initial.rounds[day].ids);
   });
 });
 
 test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel profilo", async () => {
   const { audio, initial } = mount();
   expect(
-    screen.getByRole<HTMLButtonElement>("button", { name: "Salva brano 1" })
-      .disabled,
+    screen.getByRole<HTMLButtonElement>("button", {
+      name: "Salva il brano nei preferiti",
+    }).disabled,
   ).toBe(true);
   await play();
   finish(audio);
-  fireEvent.click(screen.getByRole("button", { name: "Salva brano 1" }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "Salva il brano nei preferiti" }),
+  );
   expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
   expect(
     screen
-      .getByRole("button", { name: "Rimuovi dai salvati brano 1" })
+      .getByRole("button", { name: "Rimuovi il brano dai preferiti" })
       .getAttribute("aria-pressed"),
   ).toBe("true");
   expect(screen.queryByRole("link", { name: "Il tuo profilo" })).toBeNull();
@@ -306,7 +315,7 @@ test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel
   expect(stored().saved).toEqual([]);
 });
 
-test("player: volume massimo, mute con ripristino e preferiti condivisi con il contest", async () => {
+test("player: volume massimo, mute con ripristino e unico pulsante preferiti nel contest", async () => {
   const { audio, initial } = mount();
   const volume = screen.getByRole<HTMLInputElement>("slider", {
     name: "Volume",
@@ -334,11 +343,26 @@ test("player: volume massimo, mute con ripristino e preferiti condivisi con il c
   expect(stored().saved).toEqual([initial.rounds[day].ids[0]]);
   expect(
     screen
-      .getByRole("button", { name: "Rimuovi dai salvati brano 1" })
+      .getByRole("button", { name: "Rimuovi il brano dai preferiti" })
       .getAttribute("aria-pressed"),
   ).toBe("true");
   fireEvent.click(
     screen.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
   );
   expect(stored().saved).toEqual([]);
+});
+
+test("cambiare gusti conserva il brano attivo e il suo completamento", async () => {
+  const { audio, initial } = mount();
+  const active = initial.rounds[day].ids[0];
+  await play();
+  const source = audio.getAttribute("src");
+  fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
+  fireEvent.click(screen.getByRole("button", { name: "Jazz" }));
+  fireEvent.click(screen.getByRole("button", { name: "Salva preferenze" }));
+  expect(stored().rounds[day].ids[0]).toBe(active);
+  expect(audio.getAttribute("src")).toBe(source);
+  expect(stored().rounds[day].ids).toHaveLength(5);
+  finish(audio);
+  expect(stored().rounds[day].listened).toContain(active);
 });

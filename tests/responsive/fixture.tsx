@@ -266,11 +266,9 @@ function Fixture() {
             revealed={revealed}
             preview={false}
             player={player}
-            saved={[]}
             tracks={rows}
             cloud
             onVote={() => {}}
-            onSave={() => {}}
             onReveal={() => {}}
             onRanks={() => setRoute("ranks")}
           />

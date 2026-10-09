@@ -122,7 +122,7 @@ export default function Profile({
         prefs: preferences,
       });
       setError("");
-      notify("Preferenze salvate per domani.");
+      notify("Preferenze salvate.");
     } catch (error) {
       setError(getErrorMessage(error));
     }
@@ -330,7 +330,10 @@ export default function Profile({
       <AppearancePanel theme={profile.theme} />
       <div className="panel">
         <h3>I tuoi gusti, la tua selezione</h3>
-        <p className="hint">I cambiamenti valgono dalla selezione di domani.</p>
+        <p className="hint">
+          Prima del voto e delle 21, aggiorniamo i brani non ancora iniziati.
+          Gli ascolti già avviati restano nella selezione.
+        </p>
         <form onSubmit={submit}>
           <GenrePicker
             genres={genres}

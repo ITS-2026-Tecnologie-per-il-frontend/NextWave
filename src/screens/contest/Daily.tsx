@@ -5,9 +5,7 @@ interface DailyProps {
   revealed: boolean;
   preview: boolean;
   player: Player;
-  saved: string[];
   onVote: (id: string) => void;
-  onSave: (id: string) => void;
   onReveal: () => void;
   onPreview?: () => void;
   onRanks: () => void;
@@ -26,9 +24,7 @@ export default function Daily({
   revealed,
   preview,
   player,
-  saved,
   onVote,
-  onSave,
   onReveal,
   onPreview,
   onRanks,
@@ -146,7 +142,6 @@ export default function Daily({
           round.ids.map((id, index) => {
             const track = tracks.find((item) => item.id === id);
             if (!track) return null;
-            const isSaved = cloud ? Boolean(track.saved) : saved.includes(id);
             const heard = round.listened.includes(id);
             const locked = !canPlay(round, id);
             const playing = player.active === id && player.playing;
@@ -193,22 +188,6 @@ export default function Daily({
                     Completa prima il brano {String(index).padStart(2, "0")}.
                   </p>
                 )}
-                <button
-                  type="button"
-                  className={`track-save ${isSaved ? "chosen" : ""}`}
-                  aria-pressed={isSaved}
-                  aria-label={`${isSaved ? "Rimuovi dai salvati" : "Salva"} brano ${index + 1}`}
-                  disabled={!revealed && !heard}
-                  title={
-                    !revealed && !heard
-                      ? "Completa l’ascolto per salvare"
-                      : undefined
-                  }
-                  onClick={() => onSave(id)}
-                >
-                  <Icon name="bookmark" />
-                  {isSaved ? "Salvato" : "Salva scoperta"}
-                </button>
                 {revealed ? (
                   <SpotifyLink track={track} />
                 ) : (

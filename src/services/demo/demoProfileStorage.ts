@@ -126,3 +126,25 @@ export function ensureRound(profile: Profile, day: string): Profile {
 export function writeProfile(profile: Profile) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
 }
+
+export function refreshRound(
+  profile: Profile,
+  day: string,
+  active: string | null,
+): Profile {
+  const round = profile.rounds[day];
+  if (!round || round.vote) return profile;
+  const preserved = round.ids.filter(
+    (id) => round.listened.includes(id) || id === active,
+  );
+  const ids = selectTracks(
+    catalog,
+    profile.prefs,
+    day + profile.uid,
+    preserved,
+  );
+  return {
+    ...profile,
+    rounds: { ...profile.rounds, [day]: { ...round, ids } },
+  };
+}

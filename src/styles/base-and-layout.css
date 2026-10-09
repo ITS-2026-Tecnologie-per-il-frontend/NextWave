@@ -1240,33 +1240,6 @@ small,
   outline: 2px solid var(--lime);
   outline-offset: 4px;
 }
-.track-save {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 44px;
-  margin-bottom: 8px;
-  padding: 8px;
-  border: 1px solid var(--control-line);
-  border-radius: 7px;
-  font-size: 14px;
-}
-.track-save svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-.track-save.chosen {
-  color: var(--lime);
-  border-color: var(--lime);
-  background: var(--accent-soft);
-}
-.track-save.chosen svg {
-  fill: currentColor;
-}
-
 .music-link {
   display: inline-flex;
   align-items: center;

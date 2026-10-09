@@ -13,6 +13,7 @@ import { dailyRanking } from "../domain/demo/demoRanking.ts";
 import { rome } from "../domain/shared/time.ts";
 import {
   ensureRound,
+  refreshRound,
   normalizeProfile,
   readProfile,
   STORAGE_KEY,
@@ -134,7 +135,17 @@ export default function DemoApp() {
     if (location.pathname !== routePaths[next]) go(routePaths[next]);
   }
   function patchProfile(values: ProfileChanges) {
-    update((current) => ({ ...current, ...values }));
+    update((current) => {
+      const next = { ...current, ...values };
+      const changed =
+        values.prefs &&
+        [...current.prefs].sort().join("|") !==
+          [...values.prefs].sort().join("|");
+      const now = rome();
+      return changed && !now.revealed
+        ? refreshRound(next, now.day, player.active)
+        : next;
+    });
   }
   function saveTrack(id: string) {
     update((current) => ({
@@ -214,11 +225,9 @@ export default function DemoApp() {
               revealed={revealed}
               preview={preview}
               player={player}
-              saved={profile.saved}
               onVote={(id) => {
                 if (canVote(round, revealed)) setDialog({ type: "vote", id });
               }}
-              onSave={saveTrack}
               onReveal={() => openReveal()}
               onPreview={togglePreview}
               onRanks={() => navigate("ranks")}

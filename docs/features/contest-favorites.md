@@ -14,6 +14,6 @@ Verifiche: `npm run favorites:test`, `npm test`, `npm run build`.
 
 ## Player musicale
 
-Su desktop titolo e genere stanno a sinistra, rewind, play e preferiti sono centrati sopra l’avanzamento, e il volume sta a destra. Su mobile titolo e volume occupano la prima riga, i tre comandi sono centrati nella seconda. Il pulsante preferiti condivide lo stato delle schede del contest e segue gli stessi requisiti di ascolto/reveal.
+Su desktop titolo e genere stanno a sinistra, rewind, play e preferiti sono centrati sopra l’avanzamento, e il volume sta a destra. Su mobile titolo e volume occupano la prima riga, i tre comandi sono centrati nella seconda. Il cuoricino nel player è l’unico pulsante di salvataggio nel contest e segue gli stessi requisiti di ascolto/reveal.
 
 Il volume iniziale è al 100%. Il clic sull’icona silenzia il media element e porta il cursore a zero; un secondo clic ripristina l’ultimo volume non nullo. Il volume del dispositivo resta sotto il controllo dell’utente.

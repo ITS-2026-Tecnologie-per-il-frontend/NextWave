@@ -227,12 +227,10 @@ function AccountScreen() {
               revealed={clock.revealed}
               preview={false}
               player={player}
-              saved={profile.saved}
               onVote={(id) => {
                 if (!busy && canVote(round, clock.revealed))
                   setDialog({ type: "vote", id });
               }}
-              onSave={(id) => handled(mutate(() => repository.favorite(id)))}
               onReveal={() => void showReveal(clock.day)}
               onRanks={() => navigate("ranks")}
               onProfile={() => navigate("profile")}

@@ -17,7 +17,9 @@ const files = (await readdir("supabase/migrations"))
       !file.startsWith("20261007000200") &&
       !file.startsWith("20261008000100") &&
       // Le nuove RPC real-only sono collaudate da admin:links:test.
-      !file.startsWith("20261008000200"),
+      !file.startsWith("20261008000200") &&
+      // Il refresh live è real-only ed è verificato da preferences:test.
+      !file.startsWith("20261009000100"),
   )
   .sort();
 let legacyDashboard;

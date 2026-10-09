@@ -139,6 +139,16 @@ if (favoritesIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo multiple-superadmins.sql.\nbegin;\n${sql[favoritesIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${favoritesVersion}','contest_favorites') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
+const preferencesVersion = "20261009000100";
+const preferencesIndex = files.findIndex((file) =>
+  file.startsWith(preferencesVersion),
+);
+if (preferencesIndex >= 0) {
+  await writeFile(
+    "supabase/updates/live-genre-preferences.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo contest-favorites.sql.\nbegin;\n${sql[preferencesIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${preferencesVersion}','live_genre_preferences') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
 console.log(
   `Generati supabase/generated/setup.sql, setup-demo.sql e seed demo: ${files.length} migrazioni, ${catalog.length} brani.`,
 );

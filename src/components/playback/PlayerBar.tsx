@@ -110,7 +110,7 @@ export default function PlayerBar() {
               if (player.active) onSave?.(player.active);
             }}
           >
-            <Icon name="bookmark" />
+            <Icon name="heart" />
           </button>
         </div>
         <div className="player-progress-wrap">
