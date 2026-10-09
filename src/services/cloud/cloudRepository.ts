@@ -156,7 +156,7 @@ export function createCloudRepository(client: SupabaseClient) {
       };
     },
     adminAction: (
-      action: "approve" | "reject" | "grant" | "revoke",
+      action: "approve" | "reject" | "remove" | "grant" | "revoke",
       data: Record<string, unknown>,
     ) => rpc("admin_console", { p_action: action, p_data: data }),
     adminPreview: (applicationId: string) =>
@@ -183,6 +183,7 @@ export function createCloudRepository(client: SupabaseClient) {
     vote: (id: string) => rpc("cast_vote", { p_selection: id }),
     favorite: (id: string, isTrack = false) =>
       rpc("toggle_favorite", { p_id: id, p_is_track: isTrack }),
+    removeApplication: (id: string) => rpc("remove_application", { p_id: id }),
     rankings: (period: RankingPeriod, day?: string) =>
       rpc<RankingsResult>("get_rankings", {
         p_period: period,

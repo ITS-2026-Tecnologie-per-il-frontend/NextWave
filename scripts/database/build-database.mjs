@@ -23,6 +23,9 @@ await writeFile("supabase/seeds/demo.sql", demo);
 const files = (await readdir("supabase/migrations"))
   .filter((file) => file.endsWith(".sql"))
   .sort();
+const versions = files.map((file) => file.split("_")[0]);
+if (new Set(versions).size !== versions.length)
+  throw new Error("Versioni delle migrazioni duplicate.");
 const sql = await Promise.all(
   files.map((file) => readFile(`supabase/migrations/${file}`, "utf8")),
 );
@@ -137,6 +140,22 @@ if (favoritesIndex >= 0) {
   await writeFile(
     "supabase/updates/contest-favorites.sql",
     `-- UNA VOLTA sul progetto esistente, dopo multiple-superadmins.sql.\nbegin;\n${sql[favoritesIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${favoritesVersion}','contest_favorites') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const historyVersion = "20261009000200";
+const historyIndex = files.findIndex((file) => file.startsWith(historyVersion));
+if (historyIndex >= 0) {
+  await writeFile(
+    "supabase/updates/favorites-and-application-history.sql",
+    `-- UNA VOLTA, dopo live-genre-preferences.sql.\nbegin;\n${sql[historyIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${historyVersion}','favorites_and_application_history') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const removalVersion = "20261009000300";
+const removalIndex = files.findIndex((file) => file.startsWith(removalVersion));
+if (removalIndex >= 0) {
+  await writeFile(
+    "supabase/updates/admin-remove-applications.sql",
+    `-- UNA VOLTA, dopo favorites-and-application-history.sql.\nbegin;\n${sql[removalIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${removalVersion}','admin_remove_applications') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
 const preferencesVersion = "20261009000100";

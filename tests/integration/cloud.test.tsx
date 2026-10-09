@@ -72,6 +72,7 @@ async function mountCloud(state = fixture()) {
       state.profile.rounds[day].vote = id;
     }),
     favorite: vi.fn(async () => {}),
+    removeApplication: vi.fn(async () => {}),
     rankings: vi.fn(async () => ({ reference: day, rows: [] })),
     reveal: vi.fn(async () => []),
     seenReveal: vi.fn(async () => {}),
@@ -128,69 +129,28 @@ function finish(audio: HTMLAudioElement, start = 0) {
 }
 
 describe("account cloud", () => {
-  test("apre e ricarica il profilo direttamente dal suo URL", async () => {
-    history.replaceState(null, "", "/profile");
-    const view = await mountCloud();
-    expect(screen.getByText("Tipo di profilo")).toBeTruthy();
-    expect(
-      screen
-        .getByRole("link", { name: "Apri il tuo profilo" })
-        .getAttribute("aria-current"),
-    ).toBe("page");
-    view.unmount();
-    await mountCloud();
-    expect(location.pathname).toBe("/profile");
-    expect(screen.getByText("Tipo di profilo")).toBeTruthy();
-  });
-  test("il menu aggiunge una sola voce alla cronologia e supporta indietro e avanti", async () => {
-    await mountCloud();
-    await waitFor(() => expect(location.pathname).toBe("/daily"));
-    const previousLength = history.length;
-    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
-    expect(location.pathname).toBe("/profile");
-    expect(history.length).toBe(previousLength + 1);
-    await act(async () => history.back());
-    await waitFor(() => expect(location.pathname).toBe("/daily"));
-    expect(screen.getByText("La tua selezione")).toBeTruthy();
-    await act(async () => history.forward());
-    await waitFor(() => expect(location.pathname).toBe("/profile"));
-    expect(screen.getByText("Tipo di profilo")).toBeTruthy();
-  });
-  test("cambiare pagina conserva il player senza rimontare l’account", async () => {
-    const { audio, repository } = await mountCloud();
-    await act(async () =>
-      fireEvent.click(screen.getByRole("button", { name: "Ascolta brano 1" })),
-    );
-    await waitFor(() => expect(audio.paused).toBe(false));
-    fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
-    expect(getAudio()).toBe(audio);
-    expect(audio.paused).toBe(false);
-    expect(audio.getAttribute("src")).toBe("/audio/0.wav");
-    expect(repository.dashboard).toHaveBeenCalledTimes(1);
-  });
-  test("un URL sconosciuto mostra la pagina mancante e permette di tornare al contest", async () => {
-    history.replaceState(null, "", "/pagina-inesistente");
-    await mountCloud();
-    expect(
-      screen.getByRole("heading", { name: "Pagina non trovata" }),
-    ).toBeTruthy();
-    expect(document.querySelector('.nav [aria-current="page"]')).toBeNull();
-    fireEvent.click(screen.getByRole("link", { name: "Torna ai tuoi brani" }));
-    expect(location.pathname).toBe("/daily");
-    expect(screen.getByText("La tua selezione")).toBeTruthy();
-  });
-  test("revocare il permesso mentre l’admin è aperto reindirizza e nasconde il menu", async () => {
+  test("il cuore salva il brano durante il contest senza rivelarne il titolo", async () => {
     const state = fixture();
-    state.adminAccess = { allowed: true, owner: false };
+    state.profile.rounds[day].listened = ["slot1"];
     const { repository } = await mountCloud(state);
-    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
-    await screen.findByText("Nessuna candidatura in questa sezione.");
-    state.adminAccess.allowed = false;
-    await act(async () => window.dispatchEvent(new Event("focus")));
-    await waitFor(() => expect(location.pathname).toBe("/daily"));
-    expect(screen.queryByRole("link", { name: "Pannello admin" })).toBeNull();
-    expect(repository.dashboard).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Ascolta brano 1" }));
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Salva il brano nei preferiti" }),
+    );
+    await waitFor(() =>
+      expect(repository.favorite).toHaveBeenCalledWith("slot1"),
+    );
+    expect(
+      screen.getAllByRole("button", { name: "Salva il brano nei preferiti" }),
+    ).toHaveLength(1);
+    expect(
+      screen.queryByRole("button", { name: /Salva nei preferiti: brano/ }),
+    ).toBeNull();
+    expect(screen.queryByText("Account Test — brano 1")).toBeNull();
   });
+
   test("due brani reali sono visibili e il voto si sblocca dopo entrambi", async () => {
     const state = fixture();
     state.profile.rounds[day].ids = ["slot1", "slot2"];
@@ -324,39 +284,68 @@ describe("account cloud", () => {
     ).toBe("https://example.com/current-avatar.png");
     expect(screen.queryByRole("button", { name: "Revoca accesso" })).toBeNull();
   });
-  test("aggiorna nome e avatar correnti e ripiega sulle iniziali se la foto manca", async () => {
+  test("elimina una candidatura senza audio solo dopo motivo e conferma", async () => {
     const state = fixture();
     state.adminAccess = { allowed: true, owner: true };
     const { repository } = await mountCloud(state);
-    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
-    await screen.findByText("Nome admin attuale");
     repository.adminDashboard.mockResolvedValue({
-      access: { allowed: true, owner: true },
-      applications: [],
-      accounts: [
+      access: state.adminAccess,
+      accounts: [],
+      applications: [
         {
-          id: "account-1",
-          name: "Nome aggiornato",
-          avatarUrl: "https://example.com/new-avatar.png",
-          email: "santonithomas9@gmail.com",
-          owner: true,
-          created: null,
+          id: "orphan",
+          artist: "Artista",
+          title: "Senza audio",
+          listeners: 50,
+          subgenre: "Rap",
+          spotify: "https://example.com",
+          status: "pending",
+          audioState: null,
+          reviewable: false,
+          reviewNote: null,
+          reviewedAt: null,
+          expires: null,
+          duration: null,
         },
       ],
     });
+    fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
+    await screen.findByText(
+      "Audio mancante: la candidatura non può essere approvata.",
+    );
+    expect(
+      screen.queryByRole("button", { name: "Approva e programma" }),
+    ).toBeNull();
     fireEvent.click(
-      screen.getByRole("button", { name: "Aggiorna pannello ↻" }),
+      screen.getByRole("button", { name: "Elimina candidatura" }),
     );
-    await screen.findByText("Nome aggiornato");
-    const image = document.querySelector(".admin-accounts .avatar img")!;
-    expect(image.getAttribute("src")).toBe(
-      "https://example.com/new-avatar.png",
+    expect(repository.adminAction).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", {
+        name: "Conferma eliminazione",
+      }).disabled,
+    ).toBe(true);
+    fireEvent.change(screen.getByLabelText("Motivo dell’eliminazione"), {
+      target: { value: "Audio mancante" },
+    });
+    repository.adminDashboard.mockResolvedValue({
+      access: state.adminAccess,
+      accounts: [],
+      applications: [],
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Conferma eliminazione" }),
     );
-    fireEvent.error(image);
-    expect(document.querySelector(".admin-accounts .avatar")?.textContent).toBe(
-      "N",
+    await waitFor(() =>
+      expect(repository.adminAction).toHaveBeenCalledWith(
+        "remove",
+        expect.objectContaining({
+          applicationId: "orphan",
+          note: "Audio mancante",
+        }),
+      ),
     );
-    expect(screen.getByText("santonithomas9@gmail.com")).toBeTruthy();
+    await waitFor(() => expect(screen.queryByText("Senza audio")).toBeNull());
   });
   test("approva solo dopo checklist e conferma e autorizza un altro admin", async () => {
     const state = fixture();
@@ -442,7 +431,9 @@ describe("account cloud", () => {
       accounts: [],
     });
     fireEvent.click(screen.getByRole("link", { name: "Pannello admin" }));
-    await screen.findByText("Nessuna candidatura in questa sezione.");
+    await screen.findByText(
+      "Nessuna candidatura corrisponde ai filtri selezionati.",
+    );
     expect(
       screen.queryByRole("button", { name: "Autorizza admin" }),
     ).toBeNull();

@@ -28,6 +28,9 @@ export interface Track {
   lang?: string;
   isDemo?: boolean;
   saved?: boolean;
+  revealed?: boolean;
+  day?: string;
+  slot?: number;
   spotifyUrl?: string | null;
 }
 
@@ -71,6 +74,7 @@ export interface Application {
   audioState?: string | null;
   audioDeletedAt?: string | null;
   contestDay?: string | null;
+  removedAt?: string | null;
 }
 
 export interface Profile {

@@ -126,7 +126,7 @@ export function AppearancePanel({ theme }: { theme: string }) {
           </span>
         </div>
         <div className="theme-carousel-heading">
-          <p>Dieci generi, dieci atmosfere. Scorri e trova la tua.</p>
+          <p>NextWave e dieci atmosfere musicali. Scorri e trova la tua.</p>
           <div className="theme-carousel-arrows">
             <button aria-label="Stili precedenti" onClick={() => scroll(-1)}>
               ←

@@ -1,0 +1,118 @@
+.favorite-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.favorite-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+.favorite-toggle.selected svg {
+  fill: currentColor;
+}
+.favorite-toggle.selected {
+  background: var(--custom-button, var(--lime));
+  color: var(--custom-button-text, #111);
+}
+.favorite-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.activity-stat {
+  position: relative;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+.activity-open {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.activity-dialog {
+  width: min(720px, calc(100vw - 32px));
+  max-height: 85dvh;
+  overflow: auto;
+}
+.activity-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.activity-heading h2 {
+  margin: 0.5rem 0;
+}
+.activity-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.activity-entry {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+.activity-copy {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.activity-copy h3,
+.activity-copy p {
+  margin: 0.35rem 0;
+}
+.activity-symbol svg {
+  width: 24px;
+  height: 24px;
+}
+.application-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.application-filters label {
+  min-width: 0;
+}
+.application-filters input,
+.application-filters select {
+  width: 100%;
+}
+.application-remove {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+@media (max-width: 960px) {
+  .application-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tracks > .track > .favorite-toggle {
+    grid-column: 2;
+    width: fit-content;
+  }
+}
+@media (max-width: 480px) {
+  .activity-entry {
+    flex-wrap: wrap;
+  }
+  .activity-entry .favorite-toggle {
+    margin-left: auto;
+  }
+  .application-filters {
+    grid-template-columns: 1fr;
+  }
+}

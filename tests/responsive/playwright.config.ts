@@ -1,11 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import { fileURLToPath } from "node:url";
 
-const testPort = Number(process.env.RESPONSIVE_TEST_PORT ?? 4174);
-if (!Number.isInteger(testPort) || testPort < 1024 || testPort > 65535) {
-  throw new Error("RESPONSIVE_TEST_PORT deve essere una porta valida.");
-}
-const testUrl = `http://127.0.0.1:${testPort}`;
+const port = Number(process.env.NW_TEST_PORT || 4174);
 
 export default defineConfig({
   testDir: ".",
@@ -19,7 +15,7 @@ export default defineConfig({
     ["html", { outputFolder: "../../playwright-report", open: "never" }],
   ],
   use: {
-    baseURL: testUrl,
+    baseURL: `http://127.0.0.1:${port}`,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
@@ -39,9 +35,8 @@ export default defineConfig({
   ],
   webServer: {
     cwd: fileURLToPath(new URL("../../", import.meta.url)),
-    command: `node node_modules/vite/bin/vite.js --config tests/responsive/vite.config.ts --port ${testPort}`,
-    url: testUrl,
-    // Un server Vite dell'app reale può occupare la stessa porta: non riutilizzarlo.
-    reuseExistingServer: false,
+    command: `node node_modules/vite/bin/vite.js --config tests/responsive/vite.config.ts --port ${port}`,
+    url: `http://127.0.0.1:${port}`,
+    reuseExistingServer: !process.env.CI,
   },
 });

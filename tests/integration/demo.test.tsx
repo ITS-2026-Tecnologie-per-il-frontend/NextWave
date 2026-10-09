@@ -309,9 +309,16 @@ test("salva dopo l’ascolto, aggiorna il contatore e nasconde l’identità nel
   expect(screen.queryByRole("link", { name: "Il tuo profilo" })).toBeNull();
   expect(screen.queryByText("La tua musica merita ascolto.")).toBeNull();
   fireEvent.click(screen.getByRole("link", { name: "Apri il tuo profilo" }));
-  expect(screen.getByText("Brano salvato")).toBeTruthy();
+  fireEvent.click(
+    screen.getByRole("button", { name: "Esplora scoperte salvate: 1" }),
+  );
+  expect(within(screen.getByRole("dialog")).getByText("Brano 01")).toBeTruthy();
   expect(screen.queryByRole("link", { name: /Apri il brano/ })).toBeNull();
-  fireEvent.click(screen.getByRole("button", { name: "Rimuovi dai salvati" }));
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: "Rimuovi dai preferiti: brano anonimo",
+    }),
+  );
   expect(stored().saved).toEqual([]);
 });
 

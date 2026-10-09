@@ -242,6 +242,8 @@ function AccountScreen() {
               busy={busy}
               profile={profile}
               tracks={data.favorites}
+              activityTracks={data.tracks}
+              clock={clock}
               onUpdate={(values) => {
                 const promise = patchProfile(values);
                 // Gli aggiornamenti del form gestiscono il proprio errore; i pulsanti richiedono feedback.
@@ -267,6 +269,12 @@ function AccountScreen() {
               admin={canAdmin}
               now={new Date(serverNow)}
               applications={profile.applications}
+              onRemove={(id) =>
+                mutate(
+                  () => repository.removeApplication(id),
+                  "Candidatura eliminata.",
+                )
+              }
               onSubmit={(application, audio) =>
                 mutate(
                   () => repository.submitApplication(application, audio),

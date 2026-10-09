@@ -101,10 +101,12 @@ const application = {
   status: "pending",
   created: "2026-10-08T08:00:00Z",
   submittedAt: "2026-10-08T08:00:00Z",
-  audioState: "ready",
+  audioState: new URLSearchParams(location.search).has("missingAudio")
+    ? null
+    : "ready",
   duration: 1800,
   expires: null,
-  reviewable: true,
+  reviewable: !new URLSearchParams(location.search).has("missingAudio"),
   reviewNote: null,
   reviewedAt: null,
 };
