@@ -1,6 +1,6 @@
 -- Preferiti nel contesto di ascolto e ritiro delle candidature, conservando le quote.
-alter table public.artist_applications add column removed_at timestamptz;
-alter table vp_private.favorites add column selection_id uuid references vp_private.daily_selections(id) on delete set null;
+alter table public.artist_applications add column if not exists removed_at timestamptz;
+alter table vp_private.favorites add column if not exists selection_id uuid references vp_private.daily_selections(id) on delete set null;
 update vp_private.favorites f set selection_id=(select s.id from vp_private.daily_selections s where s.user_id=f.user_id and s.track_id=f.track_id order by s.day desc,s.slot limit 1);
 
 create or replace function public.toggle_favorite(p_id uuid,p_is_track boolean default false) returns void
@@ -14,16 +14,14 @@ begin
     return;
   end if;
   select s.track_id into v_track from vp_private.daily_selections s join vp_private.contests c on c.day=s.day
-  where s.id=p_id and s.user_id=v_uid and (clock_timestamp()>=c.closes_at or not exists(
-    select 1 from vp_private.daily_selections previous where previous.user_id=v_uid and previous.day=s.day and previous.slot<s.slot and previous.completed_at is null)
-    or exists(select 1 from vp_private.favorites f where f.user_id=v_uid and f.track_id=s.track_id));
-  if v_track is null then raise exception 'Brano non disponibile: completa prima gli ascolti precedenti.'; end if;
+  where s.id=p_id and s.user_id=v_uid and (clock_timestamp()>=c.closes_at or s.completed_at is not null);
+  if v_track is null then raise exception 'Completa l’ascolto prima di salvare.'; end if;
   if exists(select 1 from vp_private.favorites where user_id=v_uid and track_id=v_track) then
     delete from vp_private.favorites where user_id=v_uid and track_id=v_track;
   else insert into vp_private.favorites(user_id,track_id,selection_id) values(v_uid,v_track,p_id); end if;
 end; $$;
 
-create function public.remove_application(p_id uuid) returns void
+create or replace function public.remove_application(p_id uuid) returns void
 language plpgsql security definer set search_path='' as $$
 declare v_uid uuid:=vp_private.require_user(); v_app public.artist_applications%rowtype;
 begin
@@ -65,9 +63,9 @@ begin
       from public.artist_applications a left join vp_private.audio_assets aa on aa.application_id=a.id
       left join vp_private.tracks t on t.id=aa.track_id where a.removed_at is null), '[]'::jsonb),
       'accounts',case when (v_access->>'owner')::boolean then coalesce((
-        select jsonb_agg(jsonb_build_object('id',u.id,'email',u.email,'owner',lower(u.email)='santonithomas9@gmail.com','created',a.created_at)
-          order by lower(u.email)) from auth.users u left join vp_private.admin_accounts a on a.user_id=u.id
-        where u.email_confirmed_at is not null and (a.user_id is not null or lower(u.email)='santonithomas9@gmail.com')),'[]'::jsonb)
+        select jsonb_agg(jsonb_build_object('id',u.id,'email',u.email,'owner',vp_private.is_superadmin_email(u.email),'created',a.created_at,'name',p.display_name,'avatarPath',p.avatar_path,'avatarPositionX',p.avatar_position_x,'avatarPositionY',p.avatar_position_y)
+          order by lower(u.email)) from auth.users u left join vp_private.admin_accounts a on a.user_id=u.id left join public.profiles p on p.id=u.id
+        where u.email_confirmed_at is not null and (a.user_id is not null or vp_private.is_superadmin_email(u.email))),'[]'::jsonb)
         else '[]'::jsonb end) into v_result;
     return v_result;
   elsif p_action in ('grant','revoke') then
@@ -78,7 +76,7 @@ begin
     else
       v_target := (p_data->>'userId')::uuid;
     end if;
-    if exists(select 1 from auth.users where id=v_target and lower(email)='santonithomas9@gmail.com') then
+    if exists(select 1 from auth.users where id=v_target and vp_private.is_superadmin_email(email)) then
       raise exception 'L’amministratore principale non può essere modificato.';
     end if;
     if p_action='grant' then
@@ -155,4 +153,3 @@ begin
     'tracks', v_tracks, 'favorites', v_favorites, 'clock', jsonb_build_object('day', v_day::text, 'seconds', extract(hour from v_now at time zone 'Europe/Rome') * 3600 + extract(minute from v_now at time zone 'Europe/Rome') * 60 + extract(second from v_now at time zone 'Europe/Rome'), 'revealed', v_now >= (v_day + time '21:00') at time zone 'Europe/Rome'), 'serverTime', v_now);
 end;
 $$;
-

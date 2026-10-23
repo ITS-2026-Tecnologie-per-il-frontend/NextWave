@@ -5,16 +5,16 @@ interface DailyProps {
   revealed: boolean;
   preview: boolean;
   player: Player;
-  saved: string[];
   onVote: (id: string) => void;
-  onSave: (id: string) => void;
   onReveal: () => void;
   onPreview?: () => void;
   onRanks: () => void;
   onProfile?: () => void;
   tracks?: Track[];
   cloud?: boolean;
+  saved?: string[];
   saving?: boolean;
+  onSave?: (id: string) => void;
 }
 import { catalog } from "../../data/demo/catalog.ts";
 import { canPlay, canVote } from "../../domain/contest/contest.ts";
@@ -27,16 +27,16 @@ export default function Daily({
   revealed,
   preview,
   player,
-  saved,
   onVote,
-  onSave,
   onReveal,
   onPreview,
   onRanks,
   onProfile,
   tracks = catalog,
   cloud = false,
+  saved = [],
   saving = false,
+  onSave,
 }: DailyProps) {
   const empty = cloud && round.ids.length === 0;
   const showReveal = revealed && !empty;
@@ -148,11 +148,10 @@ export default function Daily({
           round.ids.map((id, index) => {
             const track = tracks.find((item) => item.id === id);
             if (!track) return null;
-            const isSaved = cloud ? Boolean(track.saved) : saved.includes(id);
             const heard = round.listened.includes(id);
             const locked = !canPlay(round, id);
             const playing = player.active === id && player.playing;
-            const favorite = cloud ? Boolean(track.saved) : saved.includes(id);
+            const favorite = saved.includes(id);
             return (
               <article
                 key={id}
@@ -183,17 +182,6 @@ export default function Daily({
                           : "Audio del contest"}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  className={`favorite-toggle ${favorite ? "selected" : ""}`}
-                  aria-label={`${favorite ? "Rimuovi dai preferiti" : "Salva nei preferiti"}: brano ${index + 1}`}
-                  aria-pressed={favorite}
-                  disabled={saving || (locked && !revealed && !favorite)}
-                  onClick={() => onSave(id)}
-                >
-                  <Icon name="heart" />
-                  <span>{favorite ? "Salvato" : "Salva"}</span>
-                </button>
                 <h3>
                   {revealed
                     ? track.title
@@ -207,22 +195,26 @@ export default function Daily({
                     Completa prima il brano {String(index).padStart(2, "0")}.
                   </p>
                 )}
-                <button
-                  type="button"
-                  className={`track-save ${isSaved ? "chosen" : ""}`}
-                  aria-pressed={isSaved}
-                  aria-label={`${isSaved ? "Rimuovi dai salvati" : "Salva"} brano ${index + 1}`}
-                  disabled={!revealed && !heard}
-                  title={
-                    !revealed && !heard
-                      ? "Completa l’ascolto per salvare"
-                      : undefined
-                  }
-                  onClick={() => onSave(id)}
-                >
-                  <Icon name="bookmark" />
-                  {isSaved ? "Salvato" : "Salva scoperta"}
-                </button>
+                {onSave && (
+                  <button
+                    type="button"
+                    className={`favorite-toggle ${favorite ? "selected" : ""}`}
+                    disabled={saving || (!revealed && !heard)}
+                    aria-label={`${favorite ? "Rimuovi dai" : "Salva nei"} preferiti: brano ${index + 1}`}
+                    aria-pressed={favorite}
+                    title={
+                      revealed || heard
+                        ? favorite
+                          ? "Rimuovi dai preferiti"
+                          : "Salva nei preferiti"
+                        : "Completa l’ascolto per salvare"
+                    }
+                    onClick={() => onSave(id)}
+                  >
+                    <Icon name="heart" />
+                    {favorite ? "Nei preferiti" : "Salva brano"}
+                  </button>
+                )}
                 {revealed ? (
                   <SpotifyLink track={track} />
                 ) : (

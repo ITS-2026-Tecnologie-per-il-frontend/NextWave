@@ -76,6 +76,7 @@ docs/
 - [Database e Supabase](database/supabase.md)
 - [Audio e pubblicazione](deployment/audio-storage.md)
 - [Contest reali](features/real-contests.md)
+- [Preferenze nel contest corrente](database/live-genre-preferences.md)
 - [Navigazione e scoperte salvate](features/contest-favorites.md)
 - [Pannello admin](features/admin-console.md)
 - [Seconda revisione responsive](development/responsive-refresh.md)

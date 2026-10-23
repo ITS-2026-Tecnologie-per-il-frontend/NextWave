@@ -4,7 +4,7 @@ Il sistema precedente richiedeva almeno cinque brani approvati per il giorno e c
 
 Ora una selezione può contenere da uno a cinque brani reali. L’interfaccia mostra i brani disponibili e lascia i restanti spazi come segnaposto, senza artisti, titoli, audio o metriche inventati. Il voto è consentito dopo aver completato tutti i brani effettivamente assegnati. Il numero richiesto è controllato dal database, il voto resta unico e si chiude alle 21:00 Europe/Rome.
 
-Rimangono necessari approvazione, data corretta, audio disponibile e corrispondenza con i generi preferiti. Due brani Hip hop e Reggaeton sono entrambi mostrati agli account che hanno scelto entrambi i generi. La selezione rimane stabile dopo la creazione; non vengono assegnati nuovi brani dopo la chiusura del contest.
+Rimangono necessari approvazione, data corretta, audio disponibile e corrispondenza con i generi preferiti. Due brani Hip hop e Reggaeton sono entrambi mostrati agli account che hanno scelto entrambi i generi. Gli ascolti già iniziati restano stabili; prima del voto e della chiusura, i nuovi gusti possono aggiornare gli altri slot e nuovi candidati possono riempire gli spazi vuoti. Dopo la chiusura non vengono assegnati nuovi brani. Vedere [preferenze nel contest corrente](live-genre-preferences.md).
 
 Per attivare: applicare `supabase/updates/partial-daily-selection.sql` dopo `real-contests.sql`, pubblicare l’interfaccia aggiornata e ricaricare la pagina prima delle 21:00. Nessuna candidatura o voto viene cancellato o modificato.
 

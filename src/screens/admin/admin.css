@@ -1,9 +1,19 @@
 .admin-content {
+  display: grid;
+  gap: 16px;
   max-width: 1050px;
   margin: 0 auto;
 }
 .admin-review {
-  margin-bottom: 20px;
+  margin: 0;
+}
+.admin-content > .chips,
+.admin-content > .application-filters,
+.admin-content > p {
+  margin: 0;
+}
+.admin-content > .textbtn {
+  justify-self: start;
 }
 .admin-row {
   display: flex;

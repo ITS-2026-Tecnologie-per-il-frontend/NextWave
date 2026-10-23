@@ -27,9 +27,9 @@ begin
       from public.artist_applications a left join vp_private.audio_assets aa on aa.application_id=a.id
       left join vp_private.tracks t on t.id=aa.track_id where a.removed_at is null), '[]'::jsonb),
       'accounts',case when (v_access->>'owner')::boolean then coalesce((
-        select jsonb_agg(jsonb_build_object('id',u.id,'email',u.email,'owner',lower(u.email)='santonithomas9@gmail.com','created',a.created_at)
-          order by lower(u.email)) from auth.users u left join vp_private.admin_accounts a on a.user_id=u.id
-        where u.email_confirmed_at is not null and (a.user_id is not null or lower(u.email)='santonithomas9@gmail.com')),'[]'::jsonb)
+        select jsonb_agg(jsonb_build_object('id',u.id,'email',u.email,'owner',vp_private.is_superadmin_email(u.email),'created',a.created_at,'name',p.display_name,'avatarPath',p.avatar_path,'avatarPositionX',p.avatar_position_x,'avatarPositionY',p.avatar_position_y)
+          order by lower(u.email)) from auth.users u left join vp_private.admin_accounts a on a.user_id=u.id left join public.profiles p on p.id=u.id
+        where u.email_confirmed_at is not null and (a.user_id is not null or vp_private.is_superadmin_email(u.email))),'[]'::jsonb)
         else '[]'::jsonb end) into v_result;
     return v_result;
   elsif p_action='remove' then
@@ -53,7 +53,7 @@ begin
     else
       v_target := (p_data->>'userId')::uuid;
     end if;
-    if exists(select 1 from auth.users where id=v_target and lower(email)='santonithomas9@gmail.com') then
+    if exists(select 1 from auth.users where id=v_target and vp_private.is_superadmin_email(email)) then
       raise exception 'L’amministratore principale non può essere modificato.';
     end if;
     if p_action='grant' then
@@ -84,6 +84,5 @@ begin
 end;
 $$;
 
-
-insert into supabase_migrations.schema_migrations(version,name) values ('20261008000400','admin_remove_applications') on conflict(version) do nothing;
+insert into supabase_migrations.schema_migrations(version,name) values ('20261009000300','admin_remove_applications') on conflict(version) do nothing;
 commit;

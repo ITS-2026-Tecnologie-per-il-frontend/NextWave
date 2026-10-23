@@ -234,7 +234,6 @@ dialog.style-library {
 }
 @media (max-width: 600px) {
   .theme-catalog {
-    grid-auto-columns: minmax(220px, 82%);
     gap: 12px;
   }
   .theme-carousel-heading {

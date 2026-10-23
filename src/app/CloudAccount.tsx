@@ -222,18 +222,20 @@ function AccountScreen() {
             <Daily
               cloud
               tracks={tracks}
+              saved={tracks
+                .filter((track) => track.saved)
+                .map((track) => track.id)}
+              saving={busy}
+              onSave={(id) => handled(mutate(() => repository.favorite(id)))}
               round={round}
               clock={clock}
               revealed={clock.revealed}
               preview={false}
               player={player}
-              saving={busy}
-              saved={profile.saved}
               onVote={(id) => {
                 if (!busy && canVote(round, clock.revealed))
                   setDialog({ type: "vote", id });
               }}
-              onSave={(id) => handled(mutate(() => repository.favorite(id)))}
               onReveal={() => void showReveal(clock.day)}
               onRanks={() => navigate("ranks")}
               onProfile={() => navigate("profile")}

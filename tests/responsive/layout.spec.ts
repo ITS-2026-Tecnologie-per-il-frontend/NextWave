@@ -1,4 +1,43 @@
 import { expect, test, type Page } from "@playwright/test";
+import { themes } from "../../src/data/themes.ts";
+
+test("theme previews remain readable and scroll horizontally on phones", async ({
+  page,
+}, info) => {
+  for (const width of [320, 390, 600, 768, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/?screen=profile&stress=false");
+    const catalog = page.getByRole("group", {
+      name: "Scegli lo stile di NextWave",
+    });
+    const choices = catalog.locator(".theme-choice");
+    await expect(choices).toHaveCount(themes.length);
+    const catalogBox = await catalog.boundingBox();
+    for (const choice of await choices.all()) {
+      const box = await choice.boundingBox();
+      expect(box!.width).toBeGreaterThanOrEqual(210);
+      expect(box!.width).toBeLessThanOrEqual(catalogBox!.width);
+    }
+    expect(
+      await catalog.evaluate(
+        (element) => element.scrollWidth > element.clientWidth,
+      ),
+    ).toBe(true);
+    await page.getByRole("button", { name: "Stili successivi" }).click();
+    await expect
+      .poll(() => catalog.evaluate((element) => element.scrollLeft))
+      .toBeGreaterThan(0);
+    const rock = catalog.getByRole("button", { name: "Rock: #FF5252" });
+    await rock.click();
+    await expect(rock).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".theme-current")).toContainText("Rock");
+    expect(await overflow(page)).toEqual({ page: false, offenders: [] });
+    if (info.project.name === "chromium" && width === 390)
+      await page
+        .locator(".theme-panel")
+        .screenshot({ path: info.outputPath("mobile-themes.png") });
+  }
+});
 
 test("admin identities keep avatars and long names inside narrow cards", async ({
   page,
@@ -397,7 +436,7 @@ test("all presets keep a solid dock and the safe area clear", async ({
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto("/?screen=profile");
   const choices = page.locator(".theme-choice");
-  await expect(choices).toHaveCount(10);
+  await expect(choices).toHaveCount(themes.length);
   for (const choice of await choices.all()) {
     await choice.click();
     await expect(choice).toHaveAttribute("aria-pressed", "true");
@@ -437,18 +476,35 @@ test("player controls and progress stay centered with accessible volume and favo
     const play = bar.getByRole("button", { name: "Riproduci", exact: true });
     const volume = bar.getByRole("slider", { name: "Volume" });
     const mute = bar.getByRole("button", { name: "Disattiva audio" });
-    await expect(volume).toBeVisible();
-    await expect(mute).toBeVisible();
+    if (width <= 600) {
+      await expect(volume).toBeHidden();
+      await expect(mute).toBeHidden();
+    } else {
+      await expect(volume).toBeVisible();
+      await expect(mute).toBeVisible();
+    }
     await expect(
       bar.getByRole("button", { name: "Rimuovi il brano dai preferiti" }),
     ).toBeVisible();
     const bounds = await bar.boundingBox();
     const button = await play.boundingBox();
-    expect(
-      Math.abs(button!.x + button!.width / 2 - bounds!.x - bounds!.width / 2),
-    ).toBeLessThan(2);
+    if (width <= 600) {
+      expect(bounds!.height).toBe(72);
+      const heart = await bar.locator(".player-save").boundingBox();
+      expect(heart!.x + heart!.width).toBeLessThanOrEqual(button!.x);
+      const nav = await page.locator(".sidebar .nav").boundingBox();
+      expect(nav!.y - bounds!.y - bounds!.height).toBeLessThanOrEqual(10);
+    } else {
+      expect(
+        Math.abs(button!.x + button!.width / 2 - bounds!.x - bounds!.width / 2),
+      ).toBeLessThan(2);
+    }
     expect(await overflow(page)).toEqual({ page: false, offenders: [] });
-    for (const target of [play, mute, bar.locator(".player-save")]) {
+    for (const target of [
+      play,
+      ...(width > 600 ? [mute] : []),
+      bar.locator(".player-save"),
+    ]) {
       const box = await target.boundingBox();
       expect(box!.width).toBeGreaterThanOrEqual(44);
       expect(box!.height).toBeGreaterThanOrEqual(44);

@@ -164,6 +164,18 @@ assert.equal(hidden.favorites[0].spotifyUrl, null);
 assert.equal(hidden.favorites[0].revealed, false);
 await db.query("select public.toggle_favorite($1,true)", [track.id]);
 const slot = hidden.tracks[0].id;
+await assert.rejects(
+  db.query("select public.toggle_favorite($1,false)", [slot]),
+  /Completa l’ascolto/,
+);
+await db.exec("reset role");
+await db.query(
+  "update vp_private.daily_selections set completed_at=now() where id=$1",
+  [slot],
+);
+await db.exec(
+  "set role authenticated; set request.jwt.claim.sub='" + owner + "'",
+);
 await db.query("select public.toggle_favorite($1,false)", [slot]);
 assert.equal(
   (await db.query("select public.get_dashboard() value")).rows[0].value.profile

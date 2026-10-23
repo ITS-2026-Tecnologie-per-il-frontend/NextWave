@@ -23,6 +23,9 @@ await writeFile("supabase/seeds/demo.sql", demo);
 const files = (await readdir("supabase/migrations"))
   .filter((file) => file.endsWith(".sql"))
   .sort();
+const versions = files.map((file) => file.split("_")[0]);
+if (new Set(versions).size !== versions.length)
+  throw new Error("Versioni delle migrazioni duplicate.");
 const sql = await Promise.all(
   files.map((file) => readFile(`supabase/migrations/${file}`, "utf8")),
 );
@@ -109,20 +112,60 @@ if (linksIndex >= 0) {
     `-- UNA VOLTA sul progetto esistente, dopo balanced-genre-selection.sql.\nbegin;\n${sql[linksIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${linksVersion}','admin_application_links') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
-const historyVersion = "20261008000300";
+const identityVersion = "20261008000300";
+const identityIndex = files.findIndex((file) =>
+  file.startsWith(identityVersion),
+);
+if (identityIndex >= 0) {
+  await writeFile(
+    "supabase/updates/admin-profile-identity.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo admin-application-links.sql.\nbegin;\n${sql[identityIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${identityVersion}','admin_profile_identity') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const superadminsVersion = "20261008000400";
+const superadminsIndex = files.findIndex((file) =>
+  file.startsWith(superadminsVersion),
+);
+if (superadminsIndex >= 0) {
+  await writeFile(
+    "supabase/updates/multiple-superadmins.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo admin-profile-identity.sql.\nbegin;\n${sql[superadminsIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${superadminsVersion}','multiple_superadmins') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const favoritesVersion = "20261008000500";
+const favoritesIndex = files.findIndex((file) =>
+  file.startsWith(favoritesVersion),
+);
+if (favoritesIndex >= 0) {
+  await writeFile(
+    "supabase/updates/contest-favorites.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo multiple-superadmins.sql.\nbegin;\n${sql[favoritesIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${favoritesVersion}','contest_favorites') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const historyVersion = "20261009000200";
 const historyIndex = files.findIndex((file) => file.startsWith(historyVersion));
 if (historyIndex >= 0) {
   await writeFile(
     "supabase/updates/favorites-and-application-history.sql",
-    `-- UNA VOLTA, dopo admin-application-links.sql.\nbegin;\n${sql[historyIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${historyVersion}','favorites_and_application_history') on conflict(version) do nothing;\ncommit;\n`,
+    `-- UNA VOLTA, dopo live-genre-preferences.sql.\nbegin;\n${sql[historyIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${historyVersion}','favorites_and_application_history') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
-const removalVersion = "20261008000400";
+const removalVersion = "20261009000300";
 const removalIndex = files.findIndex((file) => file.startsWith(removalVersion));
 if (removalIndex >= 0) {
   await writeFile(
     "supabase/updates/admin-remove-applications.sql",
     `-- UNA VOLTA, dopo favorites-and-application-history.sql.\nbegin;\n${sql[removalIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${removalVersion}','admin_remove_applications') on conflict(version) do nothing;\ncommit;\n`,
+  );
+}
+const preferencesVersion = "20261009000100";
+const preferencesIndex = files.findIndex((file) =>
+  file.startsWith(preferencesVersion),
+);
+if (preferencesIndex >= 0) {
+  await writeFile(
+    "supabase/updates/live-genre-preferences.sql",
+    `-- UNA VOLTA sul progetto esistente, dopo contest-favorites.sql.\nbegin;\n${sql[preferencesIndex]}\ninsert into supabase_migrations.schema_migrations(version,name) values ('${preferencesVersion}','live_genre_preferences') on conflict(version) do nothing;\ncommit;\n`,
   );
 }
 console.log(

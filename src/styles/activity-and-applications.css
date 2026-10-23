@@ -26,6 +26,14 @@
   opacity: 0.45;
   cursor: not-allowed;
 }
+.track > .favorite-toggle {
+  align-self: flex-start;
+  max-width: 100%;
+  margin-bottom: 0.75rem;
+}
+.track > .favorite-toggle svg {
+  flex-shrink: 0;
+}
 .activity-stat {
   position: relative;
   text-align: left;

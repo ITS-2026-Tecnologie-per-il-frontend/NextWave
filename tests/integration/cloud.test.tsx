@@ -17,7 +17,10 @@ import {
 } from "@testing-library/react";
 import { Account } from "../../src/app/CloudAccount.tsx";
 import Auth from "../../src/screens/auth/Auth.tsx";
-import { getDataConfig } from "../../src/config/environment.ts";
+import {
+  getAuthRedirectUrl,
+  getDataConfig,
+} from "../../src/config/environment.ts";
 import { createCloudRepository } from "../../src/services/cloud/cloudRepository.ts";
 import { STORAGE_KEY } from "../../src/services/demo/demoProfileStorage.ts";
 
@@ -71,7 +74,10 @@ async function mountCloud(state = fixture()) {
     vote: vi.fn(async (id: string) => {
       state.profile.rounds[day].vote = id;
     }),
-    favorite: vi.fn(async () => {}),
+    favorite: vi.fn(async (id: string) => {
+      const track = state.tracks.find((track) => track.id === id);
+      if (track) track.saved = !track.saved;
+    }),
     removeApplication: vi.fn(async () => {}),
     rankings: vi.fn(async () => ({ reference: day, rows: [] })),
     reveal: vi.fn(async () => []),
@@ -130,18 +136,45 @@ function finish(audio: HTMLAudioElement, start = 0) {
 
 describe("account cloud", () => {
   test("il cuore salva il brano durante il contest senza rivelarne il titolo", async () => {
-    const { repository } = await mountCloud();
+    const state = fixture();
+    state.profile.rounds[day].listened = ["slot1"];
+    const { repository } = await mountCloud(state);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Ascolta brano 1" }));
+    });
     fireEvent.click(
-      screen.getByRole("button", { name: "Salva nei preferiti: brano 1" }),
+      screen.getByRole("button", { name: "Salva il brano nei preferiti" }),
     );
     await waitFor(() =>
       expect(repository.favorite).toHaveBeenCalledWith("slot1"),
     );
     expect(
+      await screen.findAllByRole("button", {
+        name: "Rimuovi il brano dai preferiti",
+      }),
+    ).toHaveLength(1);
+    expect(
       screen
-        .getByRole("button", { name: "Salva nei preferiti: brano 2" })
-        .hasAttribute("disabled"),
+        .getByRole("button", { name: "Rimuovi dai preferiti: brano 1" })
+        .getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByText("Nei preferiti")).toBeTruthy();
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", {
+        name: "Salva nei preferiti: brano 2",
+      }).disabled,
     ).toBe(true);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Rimuovi dai preferiti: brano 1" }),
+    );
+    await waitFor(() => expect(repository.favorite).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole("button", { name: "Salva il brano nei preferiti" })
+          .getAttribute("aria-pressed"),
+      ).toBe("false"),
+    );
   });
 
   test("due brani reali sono visibili e il voto si sblocca dopo entrambi", async () => {
@@ -599,6 +632,28 @@ describe("autenticazione e configurazione", () => {
     expect(screen.getByRole("status").textContent).toContain(
       "Controlla la tua email",
     );
+    expect(client.auth.signUp).toHaveBeenCalledWith({
+      email: "test@example.com",
+      password: "test-only-password",
+      options: { emailRedirectTo: "https://next-wave-iota.vercel.app/" },
+    });
+  });
+  test("la conferma usa il sito pubblico e rifiuta configurazioni locali", () => {
+    expect(getAuthRedirectUrl({})).toBe("https://next-wave-iota.vercel.app/");
+    expect(
+      getAuthRedirectUrl({ VITE_SITE_URL: "https://nextwave.example" }),
+    ).toBe("https://nextwave.example/");
+    for (const value of [
+      "http://localhost:5173",
+      "https://localhost",
+      "https://127.0.0.1",
+      "https://[::1]",
+      "https://nextwave.example/?redirect=localhost",
+    ]) {
+      expect(() => getAuthRedirectUrl({ VITE_SITE_URL: value })).toThrow(
+        "dominio pubblico HTTPS",
+      );
+    }
   });
   test("chiavi segrete o service_role sono rifiutate prima di creare il client", () => {
     const env = {

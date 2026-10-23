@@ -33,7 +33,8 @@
     "check": "npm run audit:structure && npm run typecheck && npm run format:check && npm test",
     "typecheck": "tsc --noEmit",
     "superadmins:test": "node tests/database/test-superadmins.mjs",
-    "favorites:test": "node tests/database/test-contest-favorites.mjs"
+    "favorites:test": "node tests/database/test-contest-favorites.mjs",
+    "preferences:test": "node tests/database/test-live-preferences.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
