@@ -1,3 +1,4 @@
+import WelcomeGuide from "../components/dialogs/WelcomeGuide.tsx";
 import { getErrorMessage } from "../domain/shared/errors.ts";
 import { lazy, Suspense } from "react";
 import { getDataConfig } from "../config/environment.ts";
@@ -15,14 +16,17 @@ export default function App() {
     );
   }
   return (
-    <Suspense
-      fallback={
-        <main className="connection-page">
-          <p role="status">Caricamento di Next Wave…</p>
-        </main>
-      }
-    >
-      {config.mode === "supabase" && <CloudApp />}
-    </Suspense>
+    <>
+      <WelcomeGuide />
+      <Suspense
+        fallback={
+          <main className="connection-page">
+            <p role="status">Caricamento di Next Wave…</p>
+          </main>
+        }
+      >
+        {config.mode === "supabase" && <CloudApp />}
+      </Suspense>
+    </>
   );
 }

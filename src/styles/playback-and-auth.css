@@ -46,27 +46,6 @@ button:disabled {
     var(--bg);
 }
 
-.connection-page::before,
-.connection-page::after {
-  content: "";
-  position: absolute;
-  width: 260px;
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--purple) 22%, transparent);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.connection-page::before {
-  top: -120px;
-  right: -80px;
-}
-
-.connection-page::after {
-  bottom: -150px;
-  left: -100px;
-}
-
 .password-toggle {
   display: block;
   margin-top: 7px;

@@ -9,3 +9,4 @@
 @import "../components/appearance/style-studio.css";
 @import "./responsive.css";
 @import "./activity-and-applications.css";
+@import "../components/dialogs/welcome-guide.css";

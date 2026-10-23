@@ -1,3 +1,4 @@
+import WelcomeGuide from "../../src/components/dialogs/WelcomeGuide.tsx";
 import { PlaybackContext } from "../../src/context/playback/PlaybackContext.ts";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { routeForPath } from "../../src/config/routes.ts";
@@ -203,6 +204,7 @@ function Fixture() {
     if (routerLocation.pathname !== "/")
       setRoute(routeForPath(routerLocation.pathname));
   }, [routerLocation.pathname]);
+  if (screen === "welcome") return <WelcomeGuide />;
   if (screen === "auth") return <Auth client={client} />;
   if (screen === "onboarding")
     return (

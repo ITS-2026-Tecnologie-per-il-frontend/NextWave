@@ -125,6 +125,8 @@ label {
 input,
 select {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   background: var(--bg);
   border: 1px solid var(--control-line);
   border-radius: 8px;
@@ -177,4 +179,22 @@ input[type="checkbox"] {
   border: 1px solid color-mix(in srgb, var(--line) 65%, var(--lime));
   background: var(--accent-soft);
   border-radius: 12px;
+}
+
+/* Safari date controls must be allowed to shrink inside grid columns. */
+input[type="date"],
+input[type="datetime-local"] {
+  display: block;
+  min-height: 48px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+
+.formgrid > * {
+  min-width: 0;
 }

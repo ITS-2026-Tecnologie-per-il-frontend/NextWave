@@ -1,0 +1,37 @@
+dialog.welcome-guide {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: clamp(20px, 5vw, 36px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.welcome-guide h2 {
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.2;
+  margin: 12px 0;
+}
+.welcome-steps {
+  padding-left: 24px;
+  margin: 24px 0;
+}
+.welcome-steps li {
+  padding-left: 6px;
+  margin-bottom: 18px;
+}
+.welcome-steps li::marker {
+  color: var(--lime);
+  font-weight: 700;
+}
+.welcome-steps p {
+  margin: 4px 0 0;
+}
+.welcome-extra {
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.welcome-guide > .btn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 12px;
+  white-space: normal;
+}
